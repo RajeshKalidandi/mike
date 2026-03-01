@@ -1,0 +1,15 @@
+click
+tree-sitter
+tree-sitter-python
+tree-sitter-javascript
+tree-sitter-go
+tree-sitter-java
+tree-sitter-rust
+tree-sitter-c
+tree-sitter-cpp
+tree-sitter-ruby
+tree-sitter-php
+python-enry
+PyGithub
+requests
+GitPython
