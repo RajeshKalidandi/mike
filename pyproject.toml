@@ -37,7 +37,6 @@ dependencies = [
     "tree-sitter-cpp",
     "tree-sitter-ruby",
     "tree-sitter-php",
-    "python-enry",
     "PyGithub",
     "requests",
     "GitPython",
