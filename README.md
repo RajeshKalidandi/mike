@@ -1,43 +1,71 @@
-# ArchitectAI
+# ArchitectAI 🏗️
 
 **Local AI Software Architect for Private Codebases**
 
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Tests](https://img.shields.io/badge/tests-393%20passing-brightgreen.svg)](./tests)
+
+> 🎉 **All 7 Milestones Complete!** Fully functional local AI software architect system with 4 intelligent agents, web interface, and comprehensive analysis capabilities.
 
 ArchitectAI is a fully local, offline-capable AI system that ingests any codebase or GitHub repository and produces:
 
-- **Detailed Documentation** - README, architecture guides, API references
-- **Architecture Overviews** - Dependency maps, component diagrams
-- **Natural Language Q&A** - Ask questions about your codebase in plain English
-- **Refactor Suggestions** - Detect code smells and improvement opportunities  
-- **Code Generation** - Scaffold new projects from existing architecture
+- 📚 **Detailed Documentation** - README, architecture guides, API references
+- 🗺️ **Architecture Overviews** - Dependency maps, component diagrams  
+- ❓ **Natural Language Q&A** - Ask questions about your codebase in plain English
+- 🔧 **Refactor Suggestions** - Detect code smells and improvement opportunities
+- 🏗️ **Code Generation** - Scaffold new projects from existing architecture
 
-**No third-party APIs. No code leaves your machine. Everything runs on local models and local infrastructure.**
-
----
-
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Usage Examples](#usage-examples)
-- [CLI Reference](#cli-reference)
-- [Python API](#python-api)
-- [Architecture](#architecture)
-- [Supported Languages](#supported-languages)
-- [System Requirements](#system-requirements)
-- [Development](#development)
-- [Contributing](#contributing)
-- [License](#license)
+**🔒 No third-party APIs. No code leaves your machine. Everything runs on local models and local infrastructure.**
 
 ---
 
-## Features
+## 🎬 Demo
 
-### Core Capabilities
+```bash
+# Scan a codebase
+$ architectai scan ./my-project --session-name "My Project"
+Created session: d5634ac4-443e-4735-afa2-8cbf9cac39f0
+Found 127 files
+Scanned 127 files
+
+# Generate documentation
+$ architectai docs d5634ac4-443e-4735-afa2-8cbf9cac39f0 --output ./docs
+Generating documentation... completed
+Documentation generated in: ./docs
+
+# Ask questions about your code
+$ architectai ask d5634ac4-443e-4735-afa2-8cbf9cac39f0 "Where is authentication handled?"
+Based on the codebase analysis:
+
+Found 3 potentially relevant files:
+- `src/auth.py` (lines 15-45)
+- `src/middleware/auth.py` (lines 8-32)
+- `src/routes/login.py` (lines 12-28)
+```
+
+---
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Installation](#-installation)
+- [Quick Start](#-quick-start)
+- [Usage](#-usage)
+- [Web Interface](#-web-interface)
+- [CLI Reference](#-cli-reference)
+- [Python API](#-python-api)
+- [Architecture](#-architecture)
+- [Development](#-development)
+- [Milestones](#-milestones)
+- [License](#-license)
+
+---
+
+## ✨ Features
+
+### 🧠 Core Capabilities
 
 - **100% Local Processing** - No data leaves your machine
 - **Multi-Language Support** - Python, JavaScript/TypeScript, Go, Java, Rust, C/C++, Ruby, PHP
@@ -46,135 +74,275 @@ ArchitectAI is a fully local, offline-capable AI system that ingests any codebas
 - **Dependency Graphs** - Visualize and analyze code relationships
 - **Agent Orchestration** - Multi-agent system for complex tasks
 
-### Agents
+### 🤖 AI Agents
 
-- **Documentation Agent** - Generate comprehensive docs from code
-- **Q&A Agent** - Answer questions about your codebase
-- **Refactor Agent** - Detect issues and suggest improvements
-- **Rebuilder Agent** - Scaffold new projects from templates
+| Agent | Description | Status |
+|-------|-------------|--------|
+| **📚 Documentation** | Generate README, architecture guides, API reference | ✅ Active |
+| **❓ Q&A** | Answer questions with source attribution | ✅ Active |
+| **🔧 Refactor** | Detect code smells, security issues, improvements | ✅ Active |
+| **🏗️ Rebuilder** | Scaffold new projects from architecture templates | ✅ Active |
 
-### Memory Architecture
+### 🧠 Three-Layer Memory Architecture
 
-Three-layer memory system for comprehensive code understanding:
-
-1. **Structural Memory** - AST nodes, dependency graphs, call chains
-2. **Semantic Memory** - Embeddings, summaries, natural language context
-3. **Execution Memory** - Agent reasoning history, learned patterns
+| Layer | Stores | Implementation |
+|-------|--------|----------------|
+| **Structural** | AST nodes, dependency graphs, import trees | NetworkX + SQLite |
+| **Semantic** | Embeddings, code chunks, summaries | ChromaDB |
+| **Execution** | Agent reasoning history, learned patterns | In-memory + JSON |
 
 ---
 
-## Installation
+## 🚀 Installation
 
 ### Prerequisites
 
-- **Python** 3.8 or higher
+- **Python** 3.10 or higher
 - **Git** (for cloning repositories)
 - **Ollama** (optional, for LLM support) - [Install from ollama.ai](https://ollama.ai)
 
-### Method 1: pip install
+### Option 1: Install from Source
 
 ```bash
-pip install architectai
+git clone https://github.com/RajeshKalidandi/mike.git
+cd mike
+pip install -e ".[web,dev]"
 ```
 
-### Method 2: Development install
+### Option 2: Install CLI Only
 
 ```bash
-git clone https://github.com/rajesh/architectai.git
-cd architectai
-pip install -e ".[dev]"
+git clone https://github.com/RajeshKalidandi/mike.git
+cd mike
+pip install -e "."
 ```
 
-### Method 3: With all extras
+### Post-Installation
 
 ```bash
-pip install -e ".[all]"
-```
+# Initialize system
+mkdir -p ~/.architectai/logs ~/.architectai/output
 
-### Post-Installation Setup
-
-Run the bootstrap process to initialize the system:
-
-```bash
-# Initialize directories and database
-python -c "from architectai import bootstrap; bootstrap()"
-
-# Or use the CLI
-architectai bootstrap
-```
-
-Download recommended models (requires Ollama):
-
-```bash
-# Download default models
+# Optional: Download models for enhanced AI
 ollama pull mxbai-embed-large
 ollama pull qwen2.5-coder:14b
 ```
 
 ---
 
-## Quick Start
+## 🎯 Quick Start
 
-### 1. Scan a Codebase
+### 1️⃣ Scan a Codebase
 
 ```bash
-# Scan a local directory
-architectai scan /path/to/your/project
+# Local directory
+architectai scan /path/to/your/project --session-name "My Project"
 
-# Scan a GitHub repository
-architectai scan https://github.com/username/repository
-
-# With a custom session name
-architectai scan ./my-project --session-name "My Project"
+# Output:
+# Created session: d5634ac4-443e-4735-afa2-8cbf9cac39f0
+# Found 127 files
+# Scanned 127 files
 ```
 
-### 2. Analyze the Code
+### 2️⃣ Generate Documentation
 
 ```bash
-# Parse AST and build dependency graph
-architectai parse <session-id>
-
-# Generate embeddings for semantic search
-architectai embed <session-id>
-```
-
-### 3. Generate Documentation
-
-```bash
-# Generate README and architecture docs
+# Generate all documentation types
 architectai docs <session-id> --output ./docs
 
-# Specify which docs to generate
-architectai docs <session-id> --type readme --type architecture --type api
+# Generated files:
+# ./docs/README.md
+# ./docs/ARCHITECTURE.md
+# ./docs/API_REFERENCE.md
+# ./docs/ENV_GUIDE.md
 ```
 
-### 4. Ask Questions
+### 3️⃣ Ask Questions
 
 ```bash
-# Ask about your codebase
 architectai ask <session-id> "Where is authentication handled?"
-
-# Another example
-architectai ask <session-id> "What happens when a payment fails?"
+architectai ask <session-id> "What are the main components?"
+architectai ask <session-id> "How does error handling work?"
 ```
 
-### 5. Web Interface
+### 4️⃣ Analyze Code Quality
 
 ```bash
-# Launch the Streamlit web UI
-python web_launcher.py
-
-# Or with specific port
-python web_launcher.py --port 8501
+# Check for code smells and improvements
+architectai refactor <session-id> -f readability
+architectai refactor <session-id> -f security
 ```
 
 ---
 
-## Usage Examples
+## 💻 Usage
 
-### Python API
+### Complete Workflow Example
 
-#### Basic Usage
+```bash
+# 1. Scan your codebase
+SESSION_ID=$(architectai scan ./my-project --session-name "My Project" 2>&1 | grep "Created session:" | awk '{print $3}')
+echo "Session ID: $SESSION_ID"
+
+# 2. Parse AST and build dependencies
+architectai parse $SESSION_ID
+architectai build-graph $SESSION_ID --output graph.json
+
+# 3. Generate embeddings for semantic search
+architectai embed $SESSION_ID
+
+# 4. Generate documentation
+architectai docs $SESSION_ID --output ./docs
+
+# 5. Ask questions
+architectai ask $SESSION_ID "What are the main entry points?"
+
+# 6. Search semantically
+architectai search $SESSION_ID "authentication logic"
+
+# 7. Analyze for refactoring
+architectai refactor $SESSION_ID -f performance
+```
+
+### Session Management
+
+```bash
+# List all sessions
+architectai session list
+
+# Get session details
+architectai session info <session-id>
+
+# Delete a session
+architectai session delete <session-id>
+```
+
+### System Status
+
+```bash
+# Check system status
+architectai status
+
+# Output:
+# ArchitectAI v0.1.0
+# Database: /Users/krissdev/.architectai/architectai.db
+# Sessions: 27
+# 
+# Agents:
+#   [✓] docs         - Documentation generation
+#   [✓] qa           - Question answering
+#   [✓] refactor     - Refactoring analysis
+#   [✓] rebuild      - Project scaffolding
+```
+
+---
+
+## 🌐 Web Interface
+
+Launch the beautiful Streamlit web UI:
+
+```bash
+streamlit run src/architectai/web/app.py
+```
+
+Then open http://localhost:8501 in your browser.
+
+### Web Interface Features
+
+- 🏠 **Home**: System overview with stats and quick actions
+- 📤 **Upload**: Scan local directories or ZIP files
+- 📁 **Sessions**: Browse and manage all analysis sessions
+- 🔍 **Analysis**: Run all 4 agents with visual progress
+- 📊 **Visualizations**: 
+  - Language distribution charts
+  - File size analysis
+  - Dependency graphs
+  - File tree browser
+  - Code viewer with syntax highlighting
+- ⚙️ **Settings**: Configure models, paths, and preferences
+
+---
+
+## 📖 CLI Reference
+
+### Global Options
+
+```bash
+architectai [OPTIONS] COMMAND [ARGS...]
+
+Options:
+  --db PATH          Database file path
+  -v, --verbose      Enable verbose output
+  -o, --output       Output format: plain, json, markdown
+  --help             Show help message
+```
+
+### Commands
+
+#### Core Operations
+
+```bash
+# Scan codebase
+architectai scan <source> [--session-name NAME]
+
+# Parse AST
+architectai parse <session-id>
+
+# Build dependency graph
+architectai build-graph <session-id> [--output FILE]
+
+# Generate embeddings
+architectai embed <session-id> [--model MODEL]
+
+# Search codebase
+architectai search <session-id> <query> [--n-results N]
+```
+
+#### Agent Commands
+
+```bash
+# Generate documentation
+architectai docs <session-id> [--output DIR] [--type TYPE]
+
+# Ask questions
+architectai ask <session-id> <question>
+
+# Refactoring analysis
+architectai refactor <session-id> [-f performance|readability|structure|security]
+
+# Rebuild/scaffold project
+architectai rebuild <session-id> <output-dir>
+```
+
+#### Session Management
+
+```bash
+# List sessions
+architectai session list [--limit N]
+
+# Session info
+architectai session info <session-id>
+
+# Delete session
+architectai session delete <session-id> [--force]
+```
+
+#### System
+
+```bash
+# System status
+architectai status
+
+# Telemetry
+architectai telemetry stats
+architectai telemetry report
+```
+
+---
+
+## 🐍 Python API
+
+### Basic Usage
 
 ```python
 from architectai import create_ai
@@ -182,376 +350,71 @@ from architectai import create_ai
 # Initialize
 ai = create_ai()
 
-# Scan a codebase
+# Scan codebase
 result = ai.scan_codebase("/path/to/project")
-print(f"Session ID: {result.session_id}")
-print(f"Files scanned: {result.files_scanned}")
+print(f"Session: {result.session_id}")
+print(f"Files: {result.files_scanned}")
 
-# Run analysis
-analysis = ai.analyze(result.session_id)
-print(f"Dependencies found: {analysis.dependencies_found}")
-
-# Generate documentation
+# Generate docs
 docs = ai.generate_docs(result.session_id, output_dir="./docs")
-print(f"Generated {len(docs.files_generated)} files")
 
 # Ask questions
-qa = ai.ask_question(result.session_id, "Where is authentication handled?")
-print(qa.answer)
-print(f"Relevant files: {qa.relevant_files}")
+answer = ai.ask_question(result.session_id, "Where is auth?")
+print(answer.text)
 ```
 
-#### Advanced Usage with Progress Callbacks
+### Advanced Usage
 
 ```python
 from architectai import ArchitectAI
 
+# With progress tracking
 def on_progress(task, progress, message):
     print(f"[{task}] {int(progress*100)}%: {message}")
 
 ai = ArchitectAI(verbose=True)
 ai.add_progress_callback(on_progress)
 
-# Operations will now report progress
-result = ai.scan_codebase("./my-project")
-docs = ai.generate_docs(result.session_id)
+# Full analysis
+result = ai.scan_codebase("./project")
+ai.parse(result.session_id)
+ai.build_graph(result.session_id)
+ai.embed(result.session_id)
+
+# Run agents
+ai.generate_docs(result.session_id)
+refactor = ai.suggest_refactoring(result.session_id)
 ```
 
-#### Session Management
+### Session Management
 
 ```python
-# List all sessions
-sessions = ai.list_sessions(limit=10, include_stats=True)
+# List sessions
+sessions = ai.list_sessions(limit=10)
 for session in sessions:
     print(f"{session.session_id[:8]}: {session.file_count} files")
 
-# Get session details
-session = ai.get_session(session_id)
-print(f"Source: {session.source_path}")
-print(f"Languages: {session.languages}")
+# Get details
+info = ai.get_session(session_id)
+print(f"Languages: {info.languages}")
 
-# Delete a session
+# Delete
 ai.delete_session(session_id)
 ```
 
-#### Refactoring Analysis
-
-```python
-# Get refactoring suggestions
-refactor = ai.suggest_refactoring(session_id)
-for suggestion in refactor.suggestions:
-    print(f"[{suggestion['type']}] {suggestion['description']}")
-    print(f"Recommendation: {suggestion['recommendation']}")
-
-# Focus on specific areas
-refactor = ai.suggest_refactoring(
-    session_id,
-    focus_areas=["performance", "readability"]
-)
-```
-
-#### Project Rebuilding
-
-```python
-# Scaffold a new project from existing codebase
-result = ai.rebuild_project(
-    session_id=template_session_id,
-    output_dir="./new-project",
-    constraints={
-        "framework": "fastapi",
-        "database": "postgresql"
-    }
-)
-print(f"Created {len(result.files_created)} files")
-```
-
-### CLI Examples
-
-#### Complete Workflow
-
-```bash
-# 1. Scan a codebase
-SESSION_ID=$(architectai scan ./my-project --output json | jq -r '.session_id')
-
-# 2. Parse AST
-architectai parse $SESSION_ID
-
-# 3. Build dependency graph
-architectai build-graph $SESSION_ID --output graph.json
-
-# 4. Generate embeddings
-architectai embed $SESSION_ID
-
-# 5. Generate docs
-architectai docs $SESSION_ID --output ./docs
-
-# 6. Ask questions
-architectai ask $SESSION_ID "What are the main components?"
-
-# 7. Search semantic index
-architectai search $SESSION_ID "authentication logic" --n-results 5
-```
-
-#### Session Management
-
-```bash
-# List sessions
-architectai session list
-
-# Get session info
-architectai session info <session-id>
-
-# Delete session
-architectai session delete <session-id> --force
-```
-
-#### System Status
-
-```bash
-# Check system status
-architectai status
-
-# Telemetry
-architectai telemetry stats
-architectai telemetry report --format markdown --output report.md
-```
-
 ---
 
-## CLI Reference
+## 🏛️ Architecture
 
-### Global Options
-
-```bash
-architectai [OPTIONS] COMMAND [ARGS]...
-
-Options:
-  --db PATH          Database file path (default: ~/.architectai/architectai.db)
-  --verbose, -v      Enable verbose output
-  --output, -o       Output format: plain, json, markdown (default: plain)
-  --help             Show help message
+```
+User Input → CLI → Orchestrator → Agents → Output
+                    ↓
+            Context Assembler
+                    ↓
+    Structural (Graph) + Semantic (Vector) Memory
 ```
 
-### Commands
-
-#### `scan <source>`
-Scan a codebase directory or git repository.
-
-```bash
-architectai scan /path/to/project [--session-name NAME]
-architectai scan https://github.com/user/repo
-```
-
-#### `parse <session_id>`
-Parse code using tree-sitter AST analysis.
-
-```bash
-architectai parse <session_id>
-```
-
-#### `docs <session_id>`
-Generate documentation.
-
-```bash
-architectai docs <session_id> [--output DIR] [--type readme] [--type architecture]
-```
-
-#### `ask <session_id> <question>`
-Ask a question about the codebase.
-
-```bash
-architectai ask <session_id> "What does this function do?"
-```
-
-#### `refactor <session_id>`
-Analyze code for refactoring opportunities.
-
-```bash
-architectai refactor <session_id> [--focus performance] [--focus readability]
-```
-
-#### `rebuild <template_session_id> <output_dir>`
-Scaffold a new project from a template.
-
-```bash
-architectai rebuild <session_id> ./new-project [--constraint framework=fastapi]
-```
-
-#### `build-graph <session_id>`
-Build dependency graph.
-
-```bash
-architectai build-graph <session_id> [--output graph.json]
-```
-
-#### `embed <session_id>`
-Generate embeddings for semantic search.
-
-```bash
-architectai embed <session_id> [--model mxbai-embed-large]
-```
-
-#### `search <session_id> <query>`
-Semantic search in codebase.
-
-```bash
-architectai search <session_id> "authentication logic" [--n-results 10]
-```
-
-#### `session list`
-List all sessions.
-
-```bash
-architectai session list [--limit 20]
-```
-
-#### `session info <session_id>`
-Show session details.
-
-```bash
-architectai session info <session_id>
-```
-
-#### `session delete <session_id>`
-Delete a session.
-
-```bash
-architectai session delete <session_id> [--force]
-```
-
-#### `status`
-Show system status.
-
-```bash
-architectai status
-```
-
----
-
-## Python API
-
-### Main Class: `ArchitectAI`
-
-The `ArchitectAI` class is the primary interface for programmatic usage.
-
-#### Constructor
-
-```python
-ArchitectAI(
-    config_path: Optional[Union[str, Path]] = None,
-    settings: Optional[Settings] = None,
-    db_path: Optional[str] = None,
-    verbose: bool = False,
-)
-```
-
-#### Core Methods
-
-##### `scan_codebase(path, session_name=None, ignore_patterns=None)`
-Scan and ingest a codebase.
-
-**Parameters:**
-- `path` (str|Path): Path to local directory or Git URL
-- `session_name` (str, optional): Name for the session
-- `ignore_patterns` (List[str], optional): Additional ignore patterns
-
-**Returns:** `ScanResult`
-
-##### `analyze(session_id, include_graph=True, include_embeddings=False)`
-Run full analysis on a session.
-
-**Parameters:**
-- `session_id` (str): Session ID to analyze
-- `include_graph` (bool): Build dependency graph
-- `include_embeddings` (bool): Generate embeddings
-
-**Returns:** `AnalysisResult`
-
-##### `generate_docs(session_id, output_dir=None, doc_types=None)`
-Generate documentation.
-
-**Parameters:**
-- `session_id` (str): Session ID
-- `output_dir` (str|Path, optional): Output directory
-- `doc_types` (List[str], optional): Doc types to generate
-
-**Returns:** `DocsResult`
-
-##### `ask_question(session_id, query, include_context=True)`
-Ask a question about the codebase.
-
-**Parameters:**
-- `session_id` (str): Session ID
-- `query` (str): Natural language question
-- `include_context` (bool): Include semantic context
-
-**Returns:** `QAResult`
-
-##### `suggest_refactoring(session_id, focus_areas=None)`
-Get refactoring suggestions.
-
-**Parameters:**
-- `session_id` (str): Session ID
-- `focus_areas` (List[str], optional): Focus areas
-
-**Returns:** `RefactorResult`
-
-##### `rebuild_project(session_id, output_dir, constraints=None)`
-Scaffold a new project.
-
-**Parameters:**
-- `session_id` (str): Template session ID
-- `output_dir` (str|Path): Output directory
-- `constraints` (Dict, optional): Project constraints
-
-**Returns:** `RebuildResult`
-
-#### Session Management Methods
-
-##### `get_session(session_id)`
-Get session information.
-
-**Returns:** `SessionInfo` or `None`
-
-##### `list_sessions(limit=100, include_stats=False)`
-List all sessions.
-
-**Returns:** `List[SessionInfo]`
-
-##### `delete_session(session_id)`
-Delete a session.
-
-**Returns:** `bool`
-
-#### Context Manager Support
-
-```python
-with ArchitectAI() as ai:
-    result = ai.scan_codebase("./project")
-    # Automatically closed when done
-```
-
-### Bootstrap Utilities
-
-```python
-from architectai import bootstrap, check_dependencies, verify_installation
-
-# Run full bootstrap
-result = bootstrap(download_default_models=True, verbose=True)
-
-# Check dependencies
-deps = check_dependencies()
-print(f"Ollama available: {deps['external']['ollama']['available']}")
-
-# Verify installation
-status = verify_installation()
-if status['ready']:
-    print("System ready!")
-```
-
----
-
-## Architecture
+### System Pipeline
 
 ```
 User Upload (Repo / Folder / ZIP)
@@ -572,45 +435,36 @@ Hierarchical Summarizer (Bottom-Up)
 Chunker + Metadata Tagger
         │
         ▼
-Local Embedding Model (Ollama / nomic-embed-text)
+Local Embedding Model (Ollama)
         │
         ▼
-Vector Store (ChromaDB or Qdrant — local)
+Vector Store (ChromaDB)
         │
         ▼
 Code Knowledge Graph
         │
         ▼
-Agent Orchestrator (LangGraph)
+Agent Orchestrator (LangGraph-style)
         │
-        ├──── Documentation Agent
-        ├──── Q&A Agent
-        ├──── Refactor Agent
-        └──── Rebuilder Agent
+        ├──── 📚 Documentation Agent
+        ├──── ❓ Q&A Agent
+        ├──── 🔧 Refactor Agent
+        └──── 🏗️ Rebuilder Agent
         │
         ▼
-Structured Output (Markdown / JSON / Scaffolded Code)
+Structured Output (Markdown / JSON / Code)
 ```
-
-### Three-Layer Memory
-
-| Memory Type | What It Stores | Implementation |
-|---|---|---|
-| **Structural** | AST nodes, dependency graph, import trees | NetworkX graph + SQLite |
-| **Semantic** | Embeddings, code chunks, summaries | ChromaDB / Qdrant |
-| **Execution** | Agent reasoning, iteration history | In-memory + JSON log |
 
 ### Context Assembly Pipeline
 
 ```
-Query (natural language or structured)
+Query (natural language)
         │
         ▼
 Semantic Search → Top-K Chunks
         │
         ▼
-Graph-Aware Expansion
-  (Fetch callers + callees)
+Graph-Aware Expansion (callers + callees)
         │
         ▼
 Hierarchical Summary Injection
@@ -624,82 +478,44 @@ Assembled Context → Agent
 
 ---
 
-## Supported Languages
-
-| Language | Extensions | AST Parsing | Dependencies |
-|---|---|---|---|
-| Python | .py | ✅ | ✅ |
-| JavaScript | .js | ✅ | ✅ |
-| TypeScript | .ts, .tsx | ✅ | ✅ |
-| Go | .go | ✅ | ✅ |
-| Java | .java | ✅ | ✅ |
-| Rust | .rs | ✅ | ✅ |
-| C | .c, .h | ✅ | ✅ |
-| C++ | .cpp, .hpp, .cc | ✅ | ✅ |
-| Ruby | .rb | ✅ | ✅ |
-| PHP | .php | ✅ | ✅ |
-
----
-
-## System Requirements
-
-### Minimum Requirements
-
-- **OS**: macOS, Linux, or Windows with WSL
-- **RAM**: 16GB
-- **Storage**: 10GB free space
-- **Python**: 3.8+
-
-### Recommended for Full Features
-
-- **RAM**: 32GB+
-- **GPU**: NVIDIA with CUDA (optional, for faster embeddings)
-- **Storage**: 50GB+ SSD
-
-### Model Requirements
-
-| Use Case | Minimum VRAM | Recommended Model |
-|---|---|---|
-| Documentation + Q&A | 8GB | Qwen2.5-Coder 14B |
-| Refactoring | 8GB | Qwen2.5-Coder 14B |
-| Code Generation | 24GB | Kimi K2.5 or DeepSeek V3 |
-
----
-
-## Development
+## 🛠️ Development
 
 ### Setup
 
 ```bash
-# Clone repository
-git clone https://github.com/rajesh/architectai.git
-cd architectai
-
-# Create virtual environment
+git clone https://github.com/RajeshKalidandi/mike.git
+cd mike
 python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-
-# Install dev dependencies
+source venv/bin/activate
 pip install -e ".[dev]"
+```
 
-# Run tests
+### Run Tests
+
+```bash
+# Run all tests
 pytest
 
 # Run with coverage
 pytest --cov=src/architectai
+
+# Run specific test categories
+pytest -m unit
+pytest -m integration
+pytest -m e2e
 ```
 
-### Code Style
+### Code Quality
 
 ```bash
-# Format code
+# Format
 black src tests
 isort src tests
 
-# Run linter
+# Lint
 ruff check src tests
 
-# Type checking
+# Type check
 mypy src/architectai
 ```
 
@@ -708,111 +524,87 @@ mypy src/architectai
 ```
 architectai/
 ├── src/architectai/
-│   ├── __init__.py          # Public API exports
-│   ├── api.py               # Main API interface
-│   ├── bootstrap.py         # System initialization
-│   ├── cli.py               # Command-line interface
-│   ├── cli_orchestrator.py  # CLI task orchestration
-│   ├── agents/              # AI agents
-│   │   ├── qa_agent.py
-│   │   ├── refactor_agent.py
-│   │   └── rebuilder_agent.py
-│   ├── chunker/             # Code chunking
-│   ├── config/              # Configuration management
-│   ├── db/                  # Database models
-│   ├── embeddings/          # Embedding service
-│   ├── graph/               # Dependency graph
-│   ├── orchestrator/        # Agent orchestration
-│   ├── parser/              # AST parsing
-│   ├── scanner/             # File scanning
-│   ├── vectorstore/         # Vector database
-│   └── web/                 # Streamlit web UI
-├── tests/                   # Test suite
-├── docs/                    # Documentation
-├── examples/                # Example usage
-├── web_launcher.py          # Web UI launcher
-├── setup.py                 # Package setup
-└── requirements.txt         # Dependencies
+│   ├── __init__.py              # Public API exports
+│   ├── api.py                   # Main API interface
+│   ├── bootstrap.py             # System initialization
+│   ├── cli.py                   # Command-line interface
+│   ├── cli_orchestrator.py      # CLI task orchestration
+│   ├── agents/                  # AI agents
+│   │   ├── qa_agent.py          # Q&A Agent (825 lines)
+│   │   ├── refactor_agent.py    # Refactor Agent (673 lines)
+│   │   ├── rebuilder_agent.py   # Rebuilder Agent (2500+ lines)
+│   │   └── patterns.py          # Pattern detection (876 lines)
+│   ├── chunker/                 # Code chunking
+│   ├── config/                  # Configuration management
+│   ├── context/                 # Context assembly pipeline
+│   ├── db/                      # Database models
+│   ├── docs/                    # Documentation generation
+│   ├── embeddings/              # Embedding service
+│   ├── graph/                   # Dependency graph
+│   ├── orchestrator/            # Agent orchestration
+│   │   ├── engine.py            # Main orchestrator (983 lines)
+│   │   └── state.py             # State management (434 lines)
+│   ├── parser/                  # AST parsing (904 lines)
+│   ├── scanner/                 # File scanning (269 lines)
+│   ├── vectorstore/             # Vector database (215 lines)
+│   └── web/                     # Streamlit web UI (1184 lines)
+├── tests/                       # Comprehensive test suite (393 tests)
+├── docs/                        # Project documentation
+├── examples/                    # Usage examples
+└── requirements.txt             # Dependencies
 ```
 
 ---
 
-## Contributing
+## 🎯 Milestones
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+| Milestone | Status | Description | Lines of Code |
+|-----------|--------|-------------|---------------|
+| **M1** | ✅ Complete | File scanner + language detection + AST parsing | 1,200+ |
+| **M2** | ✅ Complete | Dependency graph + chunker + embeddings + vector store | 1,500+ |
+| **M3** | ✅ Complete | Documentation Agent with Jinja2 templates | 500+ |
+| **M4** | ✅ Complete | Q&A Agent with intent classification | 825+ |
+| **M5** | ✅ Complete | Refactor Agent with code smell detection | 673+ |
+| **M6** | ✅ Complete | Rebuilder Agent (basic scaffolding) | 2,500+ |
+| **M7** | ✅ Complete | Streamlit frontend + full integration | 1,184+ |
+| M8 | 🚧 Planned | Rebuilder Agent (full code generation) | - |
 
-### Quick Contribution Guide
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. **Push** to the branch (`git push origin feature/amazing-feature`)
-5. **Open** a Pull Request
-
-### Development Guidelines
-
-- Follow PEP 8 style guide
-- Add tests for new features
-- Update documentation
-- Ensure all tests pass before submitting PR
-
-### Reporting Issues
-
-Please use GitHub Issues to report bugs or request features. Include:
-
-- Clear description of the issue
-- Steps to reproduce
-- Expected vs actual behavior
-- System information (OS, Python version, etc.)
+**Total**: 8,000+ lines of production code + 393 tests
 
 ---
 
-## Milestones
+## 🔒 Security
 
-| Milestone | Status | Description |
-|---|---|---|
-| M1 | ✅ Complete | File scanner + language detection + AST parsing |
-| M2 | ✅ Complete | Dependency graph + chunker + embeddings + vector store |
-| M3 | ✅ Complete | Documentation Agent |
-| M4 | ✅ Complete | Q&A Agent |
-| M5 | ✅ Complete | Refactor Agent |
-| M6 | ✅ Complete | Rebuilder Agent (basic) |
-| M7 | ✅ Complete | Streamlit frontend |
-| M8 | 🚧 Planned | Rebuilder Agent (full code generation) |
+- ✅ **No external API calls** - All processing is local
+- ✅ **No telemetry** - No data sent to external servers  
+- ✅ **Code isolation** - Rebuilder runs in sandboxed subprocess
+- ✅ **Prompt injection protection** - Input sanitization built-in
+- ✅ **Graph poisoning protection** - Cycle detection and limits
 
 ---
 
-## Security
-
-- **No external API calls** - All processing is local
-- **No telemetry** - No data is sent to external servers
-- **Code isolation** - Rebuilder runs in sandboxed subprocess
-- **Prompt injection protection** - Input sanitization built-in
-
----
-
-## License
-
-MIT License - see [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) - AST parsing
 - [Ollama](https://ollama.ai) - Local LLM hosting
 - [ChromaDB](https://www.trychroma.com/) - Vector database
 - [NetworkX](https://networkx.org/) - Graph analysis
-- [LangGraph](https://github.com/langchain-ai/langgraph) - Agent orchestration patterns
+- [Streamlit](https://streamlit.io/) - Web interface
 
 ---
 
-## Support
+## 📄 License
 
-- 📖 [Documentation](https://github.com/rajesh/architectai/wiki)
-- 🐛 [Issue Tracker](https://github.com/rajesh/architectai/issues)
-- 💬 [Discussions](https://github.com/rajesh/architectai/discussions)
+MIT License - see [LICENSE](LICENSE) file for details.
+
+---
+
+## 👤 Author
+
+**Rajesh** - [GitHub](https://github.com/RajeshKalidandi)
 
 ---
 
 **Built with ❤️ for the developer community**
+
+⭐ Star this repo if you find it useful!
