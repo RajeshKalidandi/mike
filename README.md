@@ -5,9 +5,9 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Tests](https://img.shields.io/badge/tests-393%20passing-brightgreen.svg)](./tests)
+[![Tests](https://img.shields.io/badge/tests-467%20passing-brightgreen.svg)](./tests)
 
-> 🎉 **All 7 Milestones Complete!** Fully functional local AI software architect system with 4 intelligent agents, web interface, and comprehensive analysis capabilities.
+> 🎉 **All 8 Milestones Complete!** Fully functional local AI software architect system with 4 intelligent agents, comprehensive web interface, and full code generation capabilities.
 
 ArchitectAI is a fully local, offline-capable AI system that ingests any codebase or GitHub repository and produces:
 
@@ -249,17 +249,70 @@ Then open http://localhost:8501 in your browser.
 
 ### Web Interface Features
 
-- 🏠 **Home**: System overview with stats and quick actions
-- 📤 **Upload**: Scan local directories or ZIP files
-- 📁 **Sessions**: Browse and manage all analysis sessions
-- 🔍 **Analysis**: Run all 4 agents with visual progress
+- 🏠 **Home**: System overview with stats, quick actions, and recent activity
+- 📤 **Upload**: 
+  - Scan local directories with real-time progress
+  - Upload and extract ZIP files
+  - Content hashing to prevent duplicate uploads
+  - File preview before creating session
+- 📁 **Sessions**: 
+  - Browse all sessions with filtering and sorting
+  - View session statistics (files, lines, languages)
+  - Delete sessions with confirmation
+  - Quick load recent sessions
+- 🔍 **Analysis**: 
+  - Run all 4 agents with visual progress indicators
+  - **Documentation Agent**: Generate README, ARCHITECTURE, API_REFERENCE, ENV_GUIDE
+  - **Q&A Agent**: Ask questions with source attribution
+  - **Refactor Agent**: Detect code smells with file references
+  - **Rebuilder Agent**: Scaffold new projects with build plan approval
 - 📊 **Visualizations**: 
-  - Language distribution charts
-  - File size analysis
-  - Dependency graphs
-  - File tree browser
-  - Code viewer with syntax highlighting
-- ⚙️ **Settings**: Configure models, paths, and preferences
+  - Language distribution pie charts
+  - File size bar charts
+  - Interactive dependency graphs (NetworkX + Plotly)
+  - Collapsible file tree browser
+  - Code viewer with syntax highlighting (15+ languages)
+  - Real-time execution logs
+- ⚙️ **Settings**: 
+  - Model configuration (provider, name, temperature)
+  - Embedding model selection
+  - Database and output paths
+  - UI preferences (theme, line numbers, syntax highlighting)
+  - System information display
+
+### 🎨 Theme Support
+
+Toggle between **Dark** and **Light** modes:
+- Dynamic CSS generation based on theme
+- Plotly charts automatically themed
+- Session preference persistence
+- System preference detection
+
+### 📋 Build Plan Approval
+
+The Rebuilder Agent now includes a **3-phase workflow**:
+1. **Configure**: Set output directory and constraints
+2. **Generate Plan**: Preview complete project structure
+3. **Review & Approve**: 
+   - View file tree with descriptions
+   - See dependencies and configuration
+   - Check for ambiguities and warnings
+   - Approve, regenerate, or cancel
+4. **Execute**: Scaffold project after approval
+
+### 📥 Downloads
+
+- **One-click ZIP**: Download entire generated projects
+- **Individual files**: Download specific files with preview
+- **Documentation**: Export generated docs as ZIP
+- **Clipboard**: Copy file contents directly
+
+### 📱 Responsive Design
+
+Works seamlessly across devices:
+- **Desktop**: Full sidebar, multi-column layouts
+- **Tablet**: Adaptive grids, optimized spacing  
+- **Mobile**: Collapsible navigation, touch-friendly buttons (44px+), scrollable tables
 
 ---
 
@@ -567,9 +620,17 @@ architectai/
 | **M5** | ✅ Complete | Refactor Agent with code smell detection | 673+ |
 | **M6** | ✅ Complete | Rebuilder Agent (basic scaffolding) | 2,500+ |
 | **M7** | ✅ Complete | Streamlit frontend + full integration | 1,184+ |
-| M8 | 🚧 Planned | Rebuilder Agent (full code generation) | - |
+| **M8** | ✅ Complete | Rebuilder Agent (full code generation) | 2,697+ |
 
-**Total**: 8,000+ lines of production code + 393 tests
+**Web Interface Highlights:**
+- 🎨 Dark/Light theme support with dynamic CSS switching
+- 📋 Build Plan Approval - Preview project structure before generation
+- 📥 One-click downloads - ZIP export of generated projects
+- 📱 Responsive design - Works on desktop, tablet, and mobile
+- 📊 Interactive visualizations - Dependency graphs, language charts
+- 🖥️ Code viewer - Syntax highlighting with 15+ languages
+
+**Total**: 8,000+ lines of production code + 467 tests
 
 ---
 
