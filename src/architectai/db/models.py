@@ -63,6 +63,20 @@ class Database:
                 )
             """)
 
+            # Graph edges for dependency tracking
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS graph_edges (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT NOT NULL,
+                    source_file TEXT NOT NULL,
+                    target_file TEXT NOT NULL,
+                    edge_type TEXT NOT NULL,  -- 'import', 'call', 'inheritance', etc.
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE,
+                    UNIQUE(session_id, source_file, target_file, edge_type)
+                )
+            """)
+
             conn.commit()
 
     def create_session(
