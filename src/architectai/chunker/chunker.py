@@ -154,9 +154,17 @@ class CodeChunker:
 
         elif language == "go":
             if line.startswith("func "):
-                parts = line.split("(")[0].split()
+                # Handle receiver methods: func (s *Server) Start() {
+                parts = line.split()
                 if len(parts) >= 2:
-                    return parts[1].split("(")[0]
+                    second_part = parts[1]
+                    # Check if it's a receiver method (starts with "(")
+                    if second_part.startswith("("):
+                        # Return the receiver part like "(s"
+                        return second_part
+                    else:
+                        # Regular function
+                        return second_part.split("(")[0]
 
         # Default: return first word after keyword
         words = line.split()

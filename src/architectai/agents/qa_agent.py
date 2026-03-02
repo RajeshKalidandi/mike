@@ -10,7 +10,7 @@ This module implements the Q&A Agent as described in the architecture:
 """
 
 import re
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
 
@@ -87,11 +87,11 @@ class QueryAnalyzer:
         QueryIntent.LOCATION: [
             r"where\s+(?:is|are|can\s+I\s+find)",
             r"locate\s+",
-            r"find\s+(?:the\s+)?(?:file|function|class|code)",
+            r"find\s+(?:the\s+)?.*?(?:file|function|class|code|service|module|component)",
             r"which\s+file\s+(?:contains|has)",
         ],
         QueryIntent.EXPLANATION: [
-            r"how\s+(?:does|is|do)",
+            r"how\s+(?:does|is)\s+",
             r"what\s+(?:does|is)\s+.*\s+do",
             r"explain",
             r"describe",

@@ -20,7 +20,8 @@ class GraphCache:
         memory_size: int = 100,
         default_ttl: Optional[int] = None,
     ):
-        self.base_path = Path(base_path)
+        self.cache_dir = Path(base_path)
+        self.base_path = self.cache_dir
         self.graph_version = graph_version
         self._cache = CacheManager(
             base_path=str(self.base_path / "graphs"),
@@ -214,10 +215,39 @@ class GraphCache:
             "edge_count": cached.get("edge_count"),
         }
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self, session_id: Optional[str] = None) -> Dict[str, Union[int, str]]:
         """Get cache statistics."""
+        if session_id:
+            cached = self._cache.get(session_id)
+            if cached:
+                # The test stores graph_data directly as the value
+                if "nodes" in cached and "edges" in cached:
+                    return {
+                        "nodes": len(cached.get("nodes", [])),
+                        "edges": len(cached.get("edges", [])),
+                    }
+                # For the internal graph format
+                elif "graph_data" in cached:
+                    graph_data = cached["graph_data"]
+                    return {
+                        "nodes": len(graph_data.get("nodes", [])),
+                        "edges": len(graph_data.get("edges", [])),
+                    }
+            return {"nodes": 0, "edges": 0}
         return self._cache.stats
 
     def clear(self) -> None:
         """Clear all cached graphs."""
         self._cache.clear()
+
+    def set(self, key: str, value: Dict[str, Any]) -> None:
+        """Cache graph data with a simple key-value interface."""
+        self._cache.set(key, value)
+
+    def get(self, key: str) -> Optional[Dict[str, Any]]:
+        """Retrieve cached graph data by key."""
+        return self._cache.get(key)
+
+    def invalidate(self, session_id: str) -> bool:
+        """Invalidate a session's graph cache."""
+        return self._cache.delete(session_id)

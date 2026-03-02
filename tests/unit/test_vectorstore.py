@@ -44,6 +44,8 @@ class TestVectorStore:
     def test_add_chunks(self, MockClient, temp_dir, sample_chunks_with_embeddings):
         """Test adding chunks to vector store."""
         mock_collection = MagicMock()
+        # Simulate collection doesn't exist initially, so get_collection raises exception
+        MockClient.return_value.get_collection.side_effect = Exception("Not found")
         MockClient.return_value.create_collection.return_value = mock_collection
 
         store = VectorStore(str(temp_dir))
@@ -153,6 +155,7 @@ class TestVectorStore:
     def test_count_error(self, MockClient, temp_dir):
         """Test counting when collection doesn't exist."""
         MockClient.return_value.get_collection.side_effect = Exception("Not found")
+        MockClient.return_value.create_collection.side_effect = Exception("Not found")
 
         store = VectorStore(str(temp_dir))
         count = store.count("session123")
@@ -197,6 +200,8 @@ class TestVectorStore:
     def test_metadata_serialization(self, MockClient, temp_dir):
         """Test that complex metadata values are serialized."""
         mock_collection = MagicMock()
+        # Simulate collection doesn't exist initially
+        MockClient.return_value.get_collection.side_effect = Exception("Not found")
         MockClient.return_value.create_collection.return_value = mock_collection
 
         store = VectorStore(str(temp_dir))

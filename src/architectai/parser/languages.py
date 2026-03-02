@@ -45,9 +45,17 @@ def normalize_language(language_name: str) -> str:
     """
     normalized = language_name.lower().strip()
 
-    # Handle special cases
-    if normalized in ("c++", "cplusplus"):
-        return "cpp"
+    # Map short codes and aliases to full names
+    language_aliases = {
+        "py": "python",
+        "js": "javascript",
+        "ts": "typescript",
+        "c++": "cpp",
+        "cplusplus": "cpp",
+    }
+
+    if normalized in language_aliases:
+        return language_aliases[normalized]
 
     return normalized
 

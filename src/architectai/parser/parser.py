@@ -113,12 +113,20 @@ class ASTParser:
     def _extract_python_functions(self, root: Node) -> List[Dict[str, Any]]:
         """Extract Python function definitions."""
         functions = []
+        seen = set()  # Track seen (name, start_line) to avoid duplicates
 
         def traverse(node: Node):
             if node.type == "function_definition":
                 # Get function name
                 name_node = node.child_by_field_name("name")
                 name = name_node.text.decode("utf-8") if name_node else ""
+                start_line = node.start_point[0] + 1
+
+                # Skip if we've already seen this function at this line
+                key = (name, start_line)
+                if key in seen:
+                    return
+                seen.add(key)
 
                 # Get parameters
                 params_node = node.child_by_field_name("parameters")
@@ -133,39 +141,16 @@ class ASTParser:
                     {
                         "name": name,
                         "parameters": params,
-                        "start_line": node.start_point[0] + 1,
+                        "start_line": start_line,
                         "end_line": node.end_point[0] + 1,
                     }
                 )
 
-            # Also capture method definitions inside classes
-            if node.type == "class_definition":
-                class_body = node.child_by_field_name("body")
-                if class_body:
-                    for child in class_body.children:
-                        if child.type == "function_definition":
-                            name_node = child.child_by_field_name("name")
-                            name = name_node.text.decode("utf-8") if name_node else ""
-
-                            params_node = child.child_by_field_name("parameters")
-                            params = []
-                            if params_node:
-                                for param in params_node.children:
-                                    if param.type in ("identifier", "typed_parameter"):
-                                        param_name = param.text.decode("utf-8")
-                                        params.append(param_name)
-
-                            functions.append(
-                                {
-                                    "name": name,
-                                    "parameters": params,
-                                    "start_line": child.start_point[0] + 1,
-                                    "end_line": child.end_point[0] + 1,
-                                }
-                            )
-
             for child in node.children:
-                traverse(child)
+                # Skip traversing into class definitions to avoid counting methods
+                # as top-level functions
+                if child.type != "class_definition":
+                    traverse(child)
 
         traverse(root)
         return functions
@@ -401,7 +386,7 @@ class ASTParser:
         elif language in ("javascript", "typescript"):
             classes = self._extract_javascript_classes(root)
         elif language == "go":
-            pass  # Go doesn't have classes in the traditional sense
+            classes = self._extract_go_classes(root)
         elif language == "java":
             classes = self._extract_java_classes(root)
         elif language == "rust":
@@ -416,7 +401,7 @@ class ASTParser:
         return classes
 
     def _extract_python_classes(self, root: Node) -> List[Dict[str, Any]]:
-        """Extract Python class definitions."""
+        """Extract Python class definitions with their methods."""
         classes = []
 
         def traverse(node: Node):
@@ -424,11 +409,32 @@ class ASTParser:
                 name_node = node.child_by_field_name("name")
                 name = name_node.text.decode("utf-8") if name_node else ""
 
+                # Extract methods from class body
+                methods = []
+                class_body = node.child_by_field_name("body")
+                if class_body:
+                    for child in class_body.children:
+                        if child.type == "function_definition":
+                            method_name_node = child.child_by_field_name("name")
+                            method_name = (
+                                method_name_node.text.decode("utf-8")
+                                if method_name_node
+                                else ""
+                            )
+                            methods.append(
+                                {
+                                    "name": method_name,
+                                    "start_line": child.start_point[0] + 1,
+                                    "end_line": child.end_point[0] + 1,
+                                }
+                            )
+
                 classes.append(
                     {
                         "name": name,
                         "start_line": node.start_point[0] + 1,
                         "end_line": node.end_point[0] + 1,
+                        "methods": methods,
                     }
                 )
 
@@ -454,6 +460,35 @@ class ASTParser:
                         "end_line": node.end_point[0] + 1,
                     }
                 )
+
+            for child in node.children:
+                traverse(child)
+
+        traverse(root)
+        return classes
+
+    def _extract_go_classes(self, root: Node) -> List[Dict[str, Any]]:
+        """Extract Go struct/type definitions (treated as classes)."""
+        classes = []
+
+        def traverse(node: Node):
+            if node.type == "type_declaration":
+                # Get the type spec child which contains the actual type definition
+                for child in node.children:
+                    if child.type == "type_spec":
+                        name_node = child.child_by_field_name("name")
+                        name = name_node.text.decode("utf-8") if name_node else ""
+
+                        # Check if it's a struct type
+                        type_node = child.child_by_field_name("type")
+                        if type_node and type_node.type == "struct_type":
+                            classes.append(
+                                {
+                                    "name": name,
+                                    "start_line": node.start_point[0] + 1,
+                                    "end_line": node.end_point[0] + 1,
+                                }
+                            )
 
             for child in node.children:
                 traverse(child)

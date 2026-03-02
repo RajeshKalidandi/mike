@@ -45,6 +45,7 @@ class ConfigLoader:
 
     def __init__(
         self,
+        config_path: Optional[Union[str, Path]] = None,
         user_config_dir: Optional[Path] = None,
         project_config_dir: Optional[Path] = None,
         enable_hot_reload: bool = False,
@@ -52,12 +53,25 @@ class ConfigLoader:
         """Initialize config loader.
 
         Args:
+            config_path: Path to specific config file (optional)
             user_config_dir: Directory for user config (default: ~/.architectai)
             project_config_dir: Directory for project config (default: ./.architectai)
             enable_hot_reload: Enable hot-reload on file changes
         """
-        self.user_config_dir = user_config_dir or (Path.home() / ".architectai")
-        self.project_config_dir = project_config_dir or (Path.cwd() / ".architectai")
+        # Set config_path first if provided
+        if config_path:
+            self.config_path = Path(config_path)
+        else:
+            self.config_path = None
+
+        self.user_config_dir = (
+            Path(user_config_dir) if user_config_dir else (Path.home() / ".architectai")
+        )
+        self.project_config_dir = (
+            Path(project_config_dir)
+            if project_config_dir
+            else (Path.cwd() / ".architectai")
+        )
 
         self._settings: Optional[Settings] = None
         self._profile_manager: Optional[ProfileManager] = None
@@ -72,7 +86,7 @@ class ConfigLoader:
         self,
         cli_overrides: Optional[Dict[str, Any]] = None,
         profile: Optional[str] = None,
-    ) -> Settings:
+    ) -> Dict[str, Any]:
         """Load configuration from all sources.
 
         Args:
@@ -80,46 +94,98 @@ class ConfigLoader:
             profile: Profile to apply
 
         Returns:
-            Loaded and merged settings
+            Loaded and merged configuration as a dictionary
         """
         # Start with defaults
         settings_dict: Dict[str, Any] = {}
 
-        # 1. Load user config
+        # 1. Load specific config file if set
+        if self.config_path and self.config_path.exists():
+            file_config = self._parse_config_file(self.config_path)
+            settings_dict = self._deep_merge(settings_dict, file_config)
+            if self.config_path not in self._config_files:
+                self._config_files.append(self.config_path)
+                self._file_timestamps[self.config_path] = (
+                    self.config_path.stat().st_mtime
+                )
+
+        # 2. Load user config
         user_config = self._load_user_config()
         if user_config:
             settings_dict = self._deep_merge(settings_dict, user_config)
 
-        # 2. Load project config (overrides user)
+        # 3. Load project config (overrides user)
         project_config = self._load_project_config()
         if project_config:
             settings_dict = self._deep_merge(settings_dict, project_config)
 
-        # 3. Apply environment variables (overrides files)
+        # 4. Apply environment variables (overrides files)
         env_config = self._load_env_config()
         if env_config:
             settings_dict = self._deep_merge(settings_dict, env_config)
 
-        # 4. Apply CLI overrides (highest priority)
+        # 5. Apply CLI overrides (highest priority)
         if cli_overrides:
             settings_dict = self._deep_merge(settings_dict, cli_overrides)
 
-        # Create settings object
-        settings = Settings.model_validate(settings_dict)
+        # Store settings internally
+        self._settings = Settings.model_validate(settings_dict)
 
         # Apply profile if specified
         if profile:
-            settings = self._apply_profile(settings, profile)
-        elif settings.profile:
-            settings = self._apply_profile(settings, settings.profile)
-
-        self._settings = settings
+            self._settings = self._apply_profile(self._settings, profile)
+        elif self._settings.profile:
+            self._settings = self._apply_profile(self._settings, self._settings.profile)
 
         # Setup hot-reload if enabled
         if self._hot_reload:
             self._start_hot_reload()
 
-        return settings
+        return settings_dict
+
+    def save(self, config: Dict[str, Any]) -> None:
+        """Save configuration to file.
+
+        Args:
+            config: Configuration dictionary to save
+
+        Raises:
+            ConfigLoadError: If config_path is not set or file cannot be written
+        """
+        if not self.config_path:
+            raise ConfigLoadError("Cannot save: config_path is not set")
+
+        # Ensure parent directory exists
+        self.config_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Determine format from file extension
+        suffix = self.config_path.suffix.lower()
+
+        try:
+            if suffix in (".yaml", ".yml"):
+                try:
+                    import yaml
+
+                    content = yaml.dump(
+                        config, default_flow_style=False, sort_keys=False
+                    )
+                except ImportError:
+                    raise ConfigLoadError("PyYAML required for YAML config files")
+            elif suffix == ".json":
+                content = json.dumps(config, indent=2)
+            else:
+                # Default to JSON for unknown extensions
+                content = json.dumps(config, indent=2)
+
+            self.config_path.write_text(content)
+
+            # Update internal tracking
+            if self.config_path not in self._config_files:
+                self._config_files.append(self.config_path)
+            self._file_timestamps[self.config_path] = self.config_path.stat().st_mtime
+
+        except Exception as e:
+            raise ConfigLoadError(f"Failed to save config to {self.config_path}: {e}")
 
     def _load_user_config(self) -> Optional[Dict[str, Any]]:
         """Load user configuration from ~/.architectai/."""
@@ -146,6 +212,7 @@ class ConfigLoader:
             if config_path.exists():
                 self._config_files.append(config_path)
                 self._file_timestamps[config_path] = config_path.stat().st_mtime
+                self.config_path = config_path
                 return self._parse_config_file(config_path)
 
         return None
@@ -315,11 +382,11 @@ class ConfigLoader:
         """
         return self._settings
 
-    def reload(self) -> Settings:
+    def reload(self) -> Dict[str, Any]:
         """Reload configuration from files.
 
         Returns:
-            Reloaded settings
+            Reloaded configuration as a dictionary
 
         Raises:
             ConfigLoadError: If not previously loaded
@@ -540,7 +607,7 @@ def load_config(
     project_config_dir: Optional[Path] = None,
     cli_overrides: Optional[Dict[str, Any]] = None,
     profile: Optional[str] = None,
-) -> Settings:
+) -> Dict[str, Any]:
     """Convenience function to load configuration.
 
     Args:
@@ -550,7 +617,7 @@ def load_config(
         profile: Profile to apply
 
     Returns:
-        Loaded settings
+        Loaded configuration as a dictionary
     """
     loader = ConfigLoader(
         user_config_dir=user_config_dir,

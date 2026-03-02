@@ -274,6 +274,7 @@ class CacheManager:
         default_ttl: Optional[int] = None,
     ):
         self.base_path = Path(base_path)
+        self.cache_dir = self.base_path
         self.base_path.mkdir(parents=True, exist_ok=True)
         self.default_ttl = default_ttl
 
@@ -382,3 +383,16 @@ class CacheManager:
             else:
                 hasher.update(str(comp).encode())
         return hasher.hexdigest()
+
+    def _get_cache_path(self, session_id: str, cache_type: str) -> Path:
+        """Get the file path for a session cache."""
+        return self.base_path / f"{session_id}_{cache_type}.json"
+
+    def clear_session_cache(self, session_id: str) -> None:
+        """Clear all cache entries for a session."""
+        import glob
+
+        pattern = f"{session_id}_*.json"
+        for cache_file in self.base_path.glob(pattern):
+            if cache_file.exists():
+                cache_file.unlink()

@@ -65,11 +65,8 @@ class MyClass:
         assert len(result["classes"]) == 1
         assert result["classes"][0]["name"] == "MyClass"
 
-        # Should extract methods as functions too
-        assert len(result["functions"]) == 2
-        func_names = {f["name"] for f in result["functions"]}
-        assert "__init__" in func_names
-        assert "get_value" in func_names
+        # Methods should NOT be extracted as top-level functions
+        assert len(result["functions"]) == 0
 
     def test_parse_python_imports(self):
         """Test parsing Python imports."""

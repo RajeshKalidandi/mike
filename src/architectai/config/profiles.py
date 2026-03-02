@@ -25,28 +25,82 @@ class Profile:
     """Configuration profile definition."""
 
     name: str
-    description: str
-    settings_overrides: Dict[str, Any] = field(default_factory=dict)
+    description: str = ""
+    config: Dict[str, Any] = field(default_factory=dict)
     extends: Optional[str] = None
+
+    def set(self, key: str, value: Any) -> None:
+        """Set a configuration value.
+
+        Args:
+            key: Configuration key (supports dot notation)
+            value: Value to set
+        """
+        keys = key.split(".")
+        target = self.config
+        for k in keys[:-1]:
+            if k not in target:
+                target[k] = {}
+            target = target[k]
+        target[keys[-1]] = value
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get a configuration value.
+
+        Args:
+            key: Configuration key (supports dot notation)
+            default: Default value if key not found
+
+        Returns:
+            Configuration value or default
+        """
+        keys = key.split(".")
+        target = self.config
+        for k in keys:
+            if isinstance(target, dict) and k in target:
+                target = target[k]
+            else:
+                return default
+        return target
+
+    def merge(self, other_config: Dict[str, Any]) -> None:
+        """Merge another config into this profile.
+
+        Args:
+            other_config: Configuration dictionary to merge
+        """
+        for key, value in other_config.items():
+            self.config[key] = value
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert profile to dictionary."""
-        return {
+        result = {
             "name": self.name,
-            "description": self.description,
-            "extends": self.extends,
-            "settings": self.settings_overrides,
+            **self.config,
         }
+        if self.description:
+            result["description"] = self.description
+        if self.extends:
+            result["extends"] = self.extends
+        return result
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> Profile:
         """Create profile from dictionary."""
+        config = {
+            k: v for k, v in data.items() if k not in ("name", "description", "extends")
+        }
         return cls(
             name=data["name"],
             description=data.get("description", ""),
             extends=data.get("extends"),
-            settings_overrides=data.get("settings", {}),
+            config=config,
         )
+
+    @property
+    def settings_overrides(self) -> Dict[str, Any]:
+        """Backwards compatibility for existing code using settings_overrides."""
+        return self.config
 
 
 class ProfileManager:
@@ -61,12 +115,12 @@ class ProfileManager:
         "default": Profile(
             name="default",
             description="Balanced settings for general use. Good starting point.",
-            settings_overrides={},  # Uses default settings
+            config={},  # Uses default settings
         ),
         "fast": Profile(
             name="fast",
             description="Optimized for speed. Uses lighter models and smaller chunks.",
-            settings_overrides={
+            config={
                 "llm": {
                     "model": "qwen2.5-coder:7b",
                     "temperature": 0.5,
@@ -99,7 +153,7 @@ class ProfileManager:
         "thorough": Profile(
             name="thorough",
             description="Deep analysis with comprehensive output. Uses larger models.",
-            settings_overrides={
+            config={
                 "llm": {
                     "model": "qwen2.5-coder:32b",
                     "temperature": 0.2,
@@ -350,7 +404,7 @@ class ProfileManager:
             name=name,
             description=description,
             extends=extends,
-            settings_overrides=overrides,
+            config=overrides,
         )
 
         self.add_profile(profile)

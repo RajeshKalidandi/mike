@@ -19,7 +19,8 @@ class ASTCache:
         memory_size: int = 5000,
         default_ttl: Optional[int] = None,
     ):
-        self.base_path = Path(base_path)
+        self.cache_dir = Path(base_path)
+        self.base_path = self.cache_dir
         self.parser_version = parser_version
         self.config_hash = config_hash
         self._cache = CacheManager(
@@ -160,3 +161,50 @@ class ASTCache:
         """Get list of languages in cache (requires iteration)."""
         languages = set()
         return list(languages)
+
+    def set(self, file_path: str, language: str, value: Dict[str, Any]) -> None:
+        """Cache AST data with a simple key-value interface."""
+        cache_key = self.generate_cache_key(language, file_path)
+        entry = {
+            "file_hash": file_path,
+            "language": language,
+            "ast_tree": value,
+            "parser_version": self.parser_version,
+            "config_hash": self.config_hash,
+            "parser_config": None,
+        }
+        self._cache.set(cache_key, entry)
+
+    def get(self, file_path: str, language: str) -> Optional[Dict[str, Any]]:
+        """Retrieve cached AST data by file path and language."""
+        cache_key = self.generate_cache_key(language, file_path)
+        cached = self._cache.get(cache_key)
+        if cached:
+            return cached.get("ast_tree")
+        return None
+
+    def invalidate(self, file_path: str) -> bool:
+        """Invalidate all AST entries for a file."""
+        # Try common languages for the file
+        languages = [
+            "python",
+            "javascript",
+            "typescript",
+            "go",
+            "java",
+            "rust",
+            "c",
+            "cpp",
+            "ruby",
+            "php",
+        ]
+        deleted = False
+        for lang in languages:
+            cache_key = self.generate_cache_key(lang, file_path)
+            if self._cache.delete(cache_key):
+                deleted = True
+        return deleted
+
+    def clear_all(self) -> None:
+        """Clear all cached AST entries."""
+        self._cache.clear()

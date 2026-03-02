@@ -322,11 +322,15 @@ class RefactorAgent:
         end_line = cls.get("end_line", start_line)
 
         # Count methods in class
-        method_count = 0
-        for func in self._ast_data.get(file_path, {}).get("functions", []):
-            func_start = func.get("start_line", 0)
-            if start_line <= func_start <= end_line:
-                method_count += 1
+        # First check if class has methods list (new parser format)
+        method_count = len(cls.get("methods", []))
+
+        # Fallback: count from global functions list (old format)
+        if method_count == 0:
+            for func in self._ast_data.get(file_path, {}).get("functions", []):
+                func_start = func.get("start_line", 0)
+                if start_line <= func_start <= end_line:
+                    method_count += 1
 
         # Check for god class
         if method_count > self.config["god_class_methods"]:

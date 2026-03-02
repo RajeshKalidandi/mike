@@ -11,7 +11,7 @@ import shutil
 import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Union
 
 from architectai.config.settings import Settings
 
@@ -58,6 +58,15 @@ class ValidationResult:
                 {"field": w.field, "message": w.message} for w in self.warnings
             ],
         }
+
+    def __len__(self) -> int:
+        """Return the number of errors."""
+        return len(self.errors)
+
+    def __iter__(self):
+        """Iterate over error messages."""
+        for error in self.errors:
+            yield f"{error.field}: {error.message}"
 
 
 class ConfigValidator:
@@ -107,15 +116,19 @@ class ConfigValidator:
         """
         self.check_models = check_models
 
-    def validate(self, settings: Settings) -> ValidationResult:
+    def validate(self, settings: Union[Settings, Dict[str, Any]]) -> ValidationResult:
         """Validate complete settings.
 
         Args:
-            settings: Settings to validate
+            settings: Settings object or dict to validate
 
         Returns:
             Validation result
         """
+        # Convert dict to Settings if needed
+        if isinstance(settings, dict):
+            return self._validate_dict(settings)
+
         result = ValidationResult()
 
         # Validate each category
@@ -126,6 +139,67 @@ class ConfigValidator:
         result.merge(self._validate_scanner(settings))
         result.merge(self._validate_paths(settings))
         result.merge(self._validate_logging(settings))
+
+        return result
+
+    def _validate_dict(self, config: Dict[str, Any]) -> ValidationResult:
+        """Validate a dictionary configuration (for test compatibility).
+
+        Args:
+            config: Dictionary containing configuration values
+
+        Returns:
+            Validation result
+        """
+        result = ValidationResult()
+
+        # Validate log_level
+        if "log_level" in config:
+            valid_levels = {"DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"}
+            if config["log_level"] not in valid_levels:
+                result.add_error(
+                    "log_level", f"Invalid log level: {config['log_level']}"
+                )
+
+        # Validate embedding_model
+        if "embedding_model" in config:
+            model = config["embedding_model"]
+            valid_models = {
+                "nomic-embed-text",
+                "mxbai-embed-large",
+                "bge-m3",
+                "snowflake-arctic-embed",
+            }
+            if model not in valid_models:
+                result.add_error("embedding_model", f"Invalid embedding model: {model}")
+
+        # Validate refactor thresholds
+        if "refactor" in config and isinstance(config["refactor"], dict):
+            refactor = config["refactor"]
+
+            if "long_function_lines" in refactor:
+                value = refactor["long_function_lines"]
+                if not isinstance(value, int) or value < 1:
+                    result.add_error(
+                        "refactor.long_function_lines",
+                        f"Must be a positive integer: {value}",
+                    )
+
+            if "god_class_methods" in refactor:
+                value = refactor["god_class_methods"]
+                if not isinstance(value, int) or value < 1:
+                    result.add_error(
+                        "refactor.god_class_methods",
+                        f"Must be a positive integer: {value}",
+                    )
+
+            if "deep_nesting_levels" in refactor:
+                value = refactor["deep_nesting_levels"]
+                if not isinstance(value, int) or value < 1:
+                    result.add_error(
+                        "refactor.deep_nesting_levels",
+                        f"Must be a positive integer: {value}",
+                    )
 
         return result
 

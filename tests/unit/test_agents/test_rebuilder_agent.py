@@ -27,12 +27,13 @@ class TestRebuilderAgent:
         assert agent.output_dir.exists()
         assert agent.sandbox_enabled is True
 
-    def test_initialization_with_custom_params(self):
+    def test_initialization_with_custom_params(self, tmp_path):
         """Test initialization with custom parameters."""
+        output_dir = tmp_path / "custom_output"
         agent = RebuilderAgent(
             ollama_url="http://custom:11434",
             model_name="custom-model",
-            output_dir="/custom/output",
+            output_dir=str(output_dir),
             sandbox_enabled=False,
         )
 
@@ -44,10 +45,12 @@ class TestRebuilderAgent:
         """Test language detection for Python."""
         agent = RebuilderAgent()
 
-        # Create Python files
+        # Create 5+ Python files (threshold is 5)
         (temp_dir / "main.py").write_text("pass")
         (temp_dir / "utils.py").write_text("pass")
         (temp_dir / "test.py").write_text("pass")
+        (temp_dir / "config.py").write_text("pass")
+        (temp_dir / "models.py").write_text("pass")
 
         languages = agent._detect_languages(temp_dir)
 
@@ -57,9 +60,12 @@ class TestRebuilderAgent:
         """Test language detection for JavaScript."""
         agent = RebuilderAgent()
 
-        # Create JavaScript files
+        # Create 5+ JavaScript files (threshold is 5)
         (temp_dir / "index.js").write_text("const x = 1;")
         (temp_dir / "app.js").write_text("const y = 2;")
+        (temp_dir / "utils.js").write_text("const z = 3;")
+        (temp_dir / "config.js").write_text("const a = 4;")
+        (temp_dir / "main.js").write_text("const b = 5;")
 
         languages = agent._detect_languages(temp_dir)
 
@@ -69,11 +75,12 @@ class TestRebuilderAgent:
         """Test detection of multiple languages."""
         agent = RebuilderAgent()
 
-        # Create files in multiple languages
-        (temp_dir / "main.py").write_text("pass")
-        (temp_dir / "index.js").write_text("const x = 1;")
-        (temp_dir / "main.go").write_text("package main")
-        (temp_dir / "lib.rs").write_text("fn main() {}")
+        # Create 5+ files for each language (threshold is 5)
+        for i in range(5):
+            (temp_dir / f"file{i}.py").write_text("pass")
+            (temp_dir / f"file{i}.js").write_text("const x = 1;")
+            (temp_dir / f"file{i}.go").write_text("package main")
+            (temp_dir / f"file{i}.rs").write_text("fn main() {}")
 
         languages = agent._detect_languages(temp_dir)
 

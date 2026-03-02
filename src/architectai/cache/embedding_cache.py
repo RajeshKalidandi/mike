@@ -21,7 +21,8 @@ class EmbeddingCache:
         compress_vectors: bool = False,
         default_ttl: Optional[int] = None,
     ):
-        self.base_path = Path(base_path)
+        self.cache_dir = Path(base_path)
+        self.base_path = self.cache_dir
         self.model_version = model_version
         self.embedding_dim = embedding_dim
         self.compress_vectors = compress_vectors
@@ -147,3 +148,23 @@ class EmbeddingCache:
     def clear(self) -> None:
         """Clear all cached embeddings."""
         self._cache.clear()
+
+    def set(self, key: str, value: List[float]) -> None:
+        """Cache an embedding with a simple key-value interface."""
+        self._cache.set(key, value)
+
+    def get(self, key: str) -> Optional[List[float]]:
+        """Retrieve cached embedding by key."""
+        return self._cache.get(key)
+
+    def set_batch(self, embeddings: Dict[str, List[float]]) -> None:
+        """Cache multiple embeddings in batch."""
+        for key, value in embeddings.items():
+            self._cache.set(key, value)
+
+    def get_batch(self, keys: List[str]) -> Dict[str, Optional[List[float]]]:
+        """Retrieve multiple cached embeddings by keys."""
+        results = {}
+        for key in keys:
+            results[key] = self._cache.get(key)
+        return results

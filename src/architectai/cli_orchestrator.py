@@ -10,6 +10,8 @@ from typing import Dict, List, Any, Optional, Generator
 import sqlite3
 import os
 
+from architectai.db.models import Database
+
 
 @dataclass
 class TaskProgress:
@@ -53,6 +55,9 @@ class Orchestrator:
         if self._db is None:
             self._db = sqlite3.connect(self.db_path)
             self._db.row_factory = sqlite3.Row
+            # Initialize database schema
+            db = Database(self.db_path)
+            db.init()
         return self._db
 
     def get_session(self, session_id: str) -> Optional[SessionContext]:

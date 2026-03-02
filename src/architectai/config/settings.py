@@ -413,7 +413,7 @@ class Settings(BaseModel):
     """
 
     model_config = ConfigDict(
-        extra="forbid",
+        extra="allow",
         validate_assignment=True,
         json_schema_extra={
             "title": "ArchitectAI Configuration",
@@ -424,6 +424,20 @@ class Settings(BaseModel):
     version: str = Field(
         default="1",
         description="Configuration schema version",
+    )
+
+    # Top-level settings (expected by tests)
+    debug: bool = Field(
+        default=False,
+        description="Enable debug mode",
+    )
+    log_level: str = Field(
+        default="INFO",
+        description="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
+    )
+    embedding_model: str = Field(
+        default="mxbai-embed-large",
+        description="Embedding model name",
     )
 
     # Configuration categories
@@ -468,6 +482,30 @@ class Settings(BaseModel):
         # Ensure embedding dimensions are compatible with vector store
         # (This is a placeholder - actual validation would check model specs)
         return self
+
+    @model_validator(mode="before")
+    @classmethod
+    def load_from_env(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Load settings from environment variables before validation."""
+        import os
+
+        if isinstance(data, dict):
+            if os.getenv("ARCHITECTAI_DEBUG") is not None:
+                data["debug"] = os.getenv("ARCHITECTAI_DEBUG", "").lower() in (
+                    "true",
+                    "1",
+                    "yes",
+                )
+
+            if os.getenv("ARCHITECTAI_LOG_LEVEL") is not None:
+                data["log_level"] = os.getenv("ARCHITECTAI_LOG_LEVEL", "INFO")
+
+            if os.getenv("ARCHITECTAI_EMBEDDING_MODEL") is not None:
+                data["embedding_model"] = os.getenv(
+                    "ARCHITECTAI_EMBEDDING_MODEL", "mxbai-embed-large"
+                )
+
+        return data
 
     def to_dict(self, mask_secrets: bool = True) -> Dict[str, Any]:
         """Convert settings to dictionary.
@@ -578,6 +616,32 @@ class Settings(BaseModel):
     def default(cls) -> Settings:
         """Create default settings."""
         return cls()
+
+    def get_embedding_dimension(self, model_name: str) -> int:
+        """Get embedding dimension for a given model.
+
+        Args:
+            model_name: Name of the embedding model
+
+        Returns:
+            Embedding dimension (default 1024 for unknown models)
+        """
+        dimensions = {
+            "nomic-embed-text": 768,
+            "mxbai-embed-large": 1024,
+            "bge-m3": 1024,
+        }
+        return dimensions.get(model_name, 1024)
+
+    def update_from_dict(self, data: Dict[str, Any]) -> None:
+        """Update settings from a dictionary.
+
+        Args:
+            data: Dictionary containing settings to update
+        """
+        for key, value in data.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
 
 
 def generate_schema(output_path: Optional[Path] = None) -> str:

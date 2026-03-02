@@ -7,7 +7,7 @@ from unittest.mock import patch
 from architectai.config.settings import Settings
 from architectai.config.loader import ConfigLoader
 from architectai.config.validation import ConfigValidator
-from architectai.config.profiles import ConfigProfile
+from architectai.config.profiles import Profile
 
 
 class TestSettings:
@@ -197,19 +197,19 @@ class TestConfigValidator:
         assert len(errors) > 0
 
 
-class TestConfigProfile:
-    """Test cases for ConfigProfile."""
+class TestProfile:
+    """Test cases for Profile."""
 
     def test_initialization(self):
         """Test profile initialization."""
-        profile = ConfigProfile("test_profile")
+        profile = Profile("test_profile")
 
         assert profile.name == "test_profile"
         assert profile.config == {}
 
     def test_set_get_config(self):
         """Test setting and getting config values."""
-        profile = ConfigProfile("test")
+        profile = Profile("test")
 
         profile.set("debug", True)
         profile.set("nested.key", "value")
@@ -220,7 +220,7 @@ class TestConfigProfile:
 
     def test_merge_config(self):
         """Test merging configs."""
-        profile = ConfigProfile("test")
+        profile = Profile("test")
         profile.set("key1", "value1")
         profile.set("key2", "value2")
 
@@ -237,7 +237,7 @@ class TestConfigProfile:
 
     def test_to_dict(self):
         """Test converting profile to dictionary."""
-        profile = ConfigProfile("test")
+        profile = Profile("test")
         profile.set("debug", True)
         profile.set("log_level", "DEBUG")
 
@@ -254,7 +254,7 @@ class TestConfigProfile:
             "log_level": "INFO",
         }
 
-        profile = ConfigProfile.from_dict(config_dict)
+        profile = Profile.from_dict(config_dict)
 
         assert profile.name == "production"
         assert profile.get("debug") is False
@@ -297,12 +297,12 @@ refactor:
     def test_profile_switching(self, temp_dir):
         """Test switching between config profiles."""
         # Create development profile
-        dev_profile = ConfigProfile("development")
+        dev_profile = Profile("development")
         dev_profile.set("debug", True)
         dev_profile.set("log_level", "DEBUG")
 
         # Create production profile
-        prod_profile = ConfigProfile("production")
+        prod_profile = Profile("production")
         prod_profile.set("debug", False)
         prod_profile.set("log_level", "INFO")
 
