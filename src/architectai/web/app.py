@@ -13,8 +13,11 @@ from __future__ import annotations
 
 import io
 import os
+import re
+import shutil
 import sqlite3
 import sys
+import tempfile
 import zipfile
 from datetime import datetime
 from pathlib import Path
@@ -29,6 +32,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from architectai.cli_orchestrator import Orchestrator, TaskProgress
 from architectai.db.models import Database
+from architectai.scanner.clone import clone_repository, is_git_url
 from architectai.scanner.scanner import FileScanner
 from architectai.web.components import (
     render_agent_result,
@@ -273,11 +277,11 @@ def render_upload():
         Upload a codebase for analysis. You can upload:
         - 📁 A local directory
         - 📦 A ZIP file containing your project
-        - 🔗 A Git repository URL (coming soon)
+        - 🔗 A GitHub repository
         """
     )
 
-    tab1, tab2 = st.tabs(["📁 Local Directory", "📦 ZIP File"])
+    tab1, tab2, tab3 = st.tabs(["📁 Local Directory", "📦 ZIP File", "🔗 GitHub"])
 
     with tab1:
         st.markdown("### Upload from Local Directory")
@@ -292,6 +296,7 @@ def render_upload():
             "Session Name (Optional)",
             placeholder="My Project",
             help="Give your session a memorable name",
+            key="session_name_local",
         )
 
         col1, col2 = st.columns([1, 4])
@@ -521,6 +526,226 @@ def render_upload():
 
                     except Exception as e:
                         st.error(f"Error processing ZIP: {e}")
+
+    with tab3:
+        st.markdown("### 📦 Clone from GitHub")
+
+        st.markdown(
+            """
+            Clone a public GitHub repository for analysis.
+            
+            **Supported formats:**
+            - `https://github.com/user/repo`
+            - `https://github.com/user/repo.git`
+            - `git@github.com:user/repo.git`
+            """
+        )
+
+        git_url = st.text_input(
+            "GitHub Repository URL",
+            placeholder="https://github.com/octocat/Hello-World",
+            help="Enter the GitHub repository URL",
+        )
+
+        col1, col2 = st.columns([3, 2])
+        with col1:
+            branch = st.text_input(
+                "Branch (Optional)",
+                placeholder="main",
+                help="Leave empty for default branch",
+            )
+        with col2:
+            depth = st.number_input(
+                "Clone Depth",
+                min_value=1,
+                max_value=100,
+                value=1,
+                help="Number of commits to clone (1 = shallow clone, faster)",
+            )
+
+        session_name = st.text_input(
+            "Session Name (Optional)",
+            placeholder="My Project",
+            help="Give your session a memorable name",
+            key="session_name_git",
+        )
+
+        col1, col2 = st.columns([1, 4])
+        with col1:
+            clone_button = st.button("🔗 Clone Repository", use_container_width=True)
+
+        if clone_button and git_url:
+            if not is_git_url(git_url):
+                st.error(f"Invalid GitHub URL format: {git_url}")
+                st.info(
+                    "**Supported formats:**\n"
+                    "- `https://github.com/user/repo`\n"
+                    "- `https://github.com/user/repo.git`\n"
+                    "- `git@github.com:user/repo.git`"
+                )
+            else:
+                with st.spinner("Cloning repository..."):
+                    try:
+                        # Create temp directory for cloning
+                        temp_dir = Path(tempfile.gettempdir()) / "architectai_repos"
+                        temp_dir.mkdir(parents=True, exist_ok=True)
+
+                        # Extract repo name from URL (handle both .git and non-.git URLs)
+                        match = re.search(r"/([^/]+?)(?:\.git)?$", git_url)
+                        if match:
+                            repo_name = match.group(1)
+                        else:
+                            repo_name = "repo"
+
+                        target_dir = temp_dir / repo_name
+
+                        # Remove existing directory if it exists
+                        if target_dir.exists():
+                            shutil.rmtree(target_dir)
+
+                        # Clone the repository
+                        cloned_path = clone_repository(
+                            repo_url=git_url,
+                            target_dir=str(target_dir),
+                            branch=branch if branch else None,
+                            depth=int(depth),
+                        )
+
+                        st.success(f"Cloned to: {cloned_path}")
+
+                        # Scan the cloned repository
+                        progress_bar = st.progress(0)
+                        files_scanned = [0]
+
+                        def progress_callback(count):
+                            files_scanned[0] = count
+                            progress_bar.progress(min(count / 100, 0.99))
+
+                        files, total_size = scan_directory_for_upload(
+                            Path(cloned_path), progress_callback
+                        )
+                        progress_bar.progress(1.0)
+
+                        st.success(
+                            f"Found {len(files)} files ({format_file_size(total_size)})"
+                        )
+
+                        # Show file preview
+                        with st.expander("Preview Files", expanded=True):
+                            file_data = []
+                            for f in files[:50]:  # Show first 50
+                                file_data.append(
+                                    {
+                                        "Path": f["relative_path"],
+                                        "Size": format_file_size(f["size_bytes"]),
+                                        "Lines": f["line_count"],
+                                    }
+                                )
+
+                            df = pd.DataFrame(file_data)
+                            st.dataframe(df, use_container_width=True)
+
+                            if len(files) > 50:
+                                st.caption(f"... and {len(files) - 50} more files")
+
+                        # Create session
+                        if st.button("✅ Create Session", use_container_width=True):
+                            with st.spinner("Creating session..."):
+                                try:
+                                    db_path = get_db_path()
+                                    db = Database(db_path)
+                                    db.init()
+
+                                    # Calculate content hash
+                                    file_paths = [
+                                        Path(f["absolute_path"]) for f in files
+                                    ]
+                                    from architectai.web.utils import (
+                                        calculate_content_hash,
+                                    )
+
+                                    content_hash = calculate_content_hash(file_paths)
+
+                                    # Check for existing session
+                                    existing_session = db.check_content_hash_exists(
+                                        content_hash
+                                    )
+                                    if existing_session:
+                                        st.warning(
+                                            f"Session already exists for this codebase: {existing_session[:8]}"
+                                        )
+                                        if st.button("Load Existing Session"):
+                                            st.session_state.current_session_id = (
+                                                existing_session
+                                            )
+                                            st.session_state.current_session_name = (
+                                                session_name or repo_name
+                                            )
+                                            st.success("Session loaded!")
+                                            st.rerun()
+                                    else:
+                                        # Create new session
+                                        session_id = db.create_session(
+                                            source_path=git_url,
+                                            session_type="git",
+                                            content_hash=content_hash,
+                                        )
+
+                                        # Insert file records
+                                        for file_info in files:
+                                            db.insert_file(
+                                                session_id=session_id,
+                                                relative_path=file_info[
+                                                    "relative_path"
+                                                ],
+                                                absolute_path=file_info[
+                                                    "absolute_path"
+                                                ],
+                                                language=file_info.get("extension", "")
+                                                .replace(".", "")
+                                                .upper(),
+                                                size_bytes=file_info["size_bytes"],
+                                                line_count=file_info["line_count"],
+                                                content_hash="",
+                                            )
+
+                                        # Store code hash
+                                        conn = sqlite3.connect(db_path)
+                                        cursor = conn.cursor()
+                                        cursor.execute(
+                                            """
+                                            INSERT INTO code_hashes (hash, session_id, file_count, total_lines)
+                                            VALUES (?, ?, ?, ?)
+                                            """,
+                                            (
+                                                content_hash,
+                                                session_id,
+                                                len(files),
+                                                sum(f["line_count"] for f in files),
+                                            ),
+                                        )
+                                        conn.commit()
+                                        conn.close()
+
+                                        st.session_state.current_session_id = session_id
+                                        st.session_state.current_session_name = (
+                                            session_name or repo_name
+                                        )
+
+                                        st.success(f"Session created: {session_id[:8]}")
+                                        add_log(
+                                            f"Created session {session_id[:8]} from {git_url}",
+                                            "success",
+                                        )
+                                        st.rerun()
+
+                                except Exception as e:
+                                    st.error(f"Error creating session: {e}")
+                                    add_log(f"Error creating session: {e}", "error")
+
+                    except Exception as e:
+                        st.error(f"Error cloning repository: {e}")
+                        add_log(f"Error cloning repository: {e}", "error")
 
 
 def render_sessions():

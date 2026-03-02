@@ -9,21 +9,29 @@ from typing import Optional
 def is_git_url(url: str) -> bool:
     """Check if URL is a git repository URL.
 
+    Supports both standard git URLs and GitHub web URLs (with or without .git suffix).
+
     Args:
         url: URL to check
 
     Returns:
         True if URL looks like a git repository URL
     """
-    # Common git URL patterns
-    patterns = [
+    # Standard git URL patterns
+    git_patterns = [
         r"^git@.+:.+\.git$",  # SSH format: git@github.com:user/repo.git
         r"^https?://.+\.git$",  # HTTPS format: https://github.com/user/repo.git
         r"^git://.+\.git$",  # Git protocol
         r"^ssh://.+\.git$",  # SSH protocol
     ]
 
-    return any(re.match(pattern, url) for pattern in patterns)
+    # GitHub web URL patterns (without .git suffix)
+    github_patterns = [
+        r"^https?://github\.com/[^/]+/[^/]+/?$",  # https://github.com/user/repo
+    ]
+
+    all_patterns = git_patterns + github_patterns
+    return any(re.match(pattern, url) for pattern in all_patterns)
 
 
 def clone_repository(
@@ -49,10 +57,14 @@ def clone_repository(
     if not is_git_url(repo_url):
         raise ValueError(f"Not a valid git URL: {repo_url}")
 
+    # Convert GitHub web URL to git URL if needed
+    if "github.com" in repo_url and not repo_url.endswith(".git"):
+        repo_url = repo_url.rstrip("/") + ".git"
+
     # Determine target directory
     if target_dir is None:
-        # Extract repo name from URL
-        match = re.search(r"/([^/]+)\.git$", repo_url)
+        # Extract repo name from URL (handle both .git and non-.git URLs)
+        match = re.search(r"/([^/]+?)(?:\.git)?$", repo_url)
         if match:
             target_dir_name = match.group(1)
         else:
