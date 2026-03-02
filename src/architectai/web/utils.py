@@ -300,6 +300,11 @@ def init_session_state():
         "logs": [],
         "settings": load_settings(),
         "last_activity": datetime.now(),
+        # Build Plan Approval state
+        "build_plan": None,
+        "build_plan_status": None,  # 'draft', 'approved', 'executing', 'completed', 'cancelled'
+        "build_plan_output_dir": None,
+        "build_plan_constraints": None,
     }
 
     for key, value in defaults.items():
@@ -335,3 +340,223 @@ def get_log_level_color(level: str) -> str:
         "success": "green",
     }
     return colors.get(level.lower(), "gray")
+
+
+def create_files_zip(
+    files: List[Dict[str, Any]], zip_name: str, base_path: Optional[Path] = None
+) -> Optional[Path]:
+    """Create a ZIP archive from a list of files.
+
+    Args:
+        files: List of file dicts with 'path', 'content', and optionally 'relative_path'
+        zip_name: Name of the output ZIP file (without extension)
+        base_path: Base directory for the ZIP contents
+
+    Returns:
+        Path to created ZIP file or None if failed
+    """
+    try:
+        output_dir = get_output_dir()
+        zip_path = output_dir / f"{zip_name}.zip"
+
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            # Add metadata
+            metadata = {
+                "created_at": datetime.now().isoformat(),
+                "file_count": len(files),
+                "total_size": sum(
+                    len(f.get("content", "").encode("utf-8")) for f in files
+                ),
+            }
+            zf.writestr(".architectai/metadata.json", json.dumps(metadata, indent=2))
+
+            # Add files
+            for file_info in files:
+                if "content" in file_info:
+                    # Content provided directly
+                    rel_path = file_info.get("relative_path", file_info.get("path", ""))
+                    content = file_info["content"]
+                    zf.writestr(rel_path, content)
+                elif "path" in file_info and Path(file_info["path"]).exists():
+                    # Read from file system
+                    abs_path = file_info["path"]
+                    rel_path = file_info.get("relative_path", Path(abs_path).name)
+                    zf.write(abs_path, rel_path)
+
+        return zip_path
+    except Exception as e:
+        add_log(f"Failed to create ZIP: {e}", "error")
+        return None
+
+
+def create_project_zip(project_dir: Path, zip_name: str) -> Optional[Path]:
+    """Create a ZIP archive of an entire project directory.
+
+    Args:
+        project_dir: Path to project directory
+        zip_name: Name of output ZIP file
+
+    Returns:
+        Path to created ZIP file or None if failed
+    """
+    try:
+        output_dir = get_output_dir()
+        zip_path = output_dir / f"{zip_name}.zip"
+
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            for file_path in project_dir.rglob("*"):
+                if file_path.is_file():
+                    arcname = str(file_path.relative_to(project_dir))
+                    zf.write(file_path, arcname)
+
+            # Add metadata
+            metadata = {
+                "created_at": datetime.now().isoformat(),
+                "source": "rebuilder_agent",
+                "project_name": project_dir.name,
+            }
+            zf.writestr(".architectai/metadata.json", json.dumps(metadata, indent=2))
+
+        return zip_path
+    except Exception as e:
+        add_log(f"Failed to create project ZIP: {e}", "error")
+        return None
+
+
+def read_file_content(
+    file_path: str | Path, max_size: int = 1024 * 1024
+) -> Optional[str]:
+    """Read file content with size limit and encoding detection.
+
+    Args:
+        file_path: Path to file
+        max_size: Maximum file size in bytes (default 1MB)
+
+    Returns:
+        File content as string or None if failed
+    """
+    try:
+        path = Path(file_path)
+        if not path.exists():
+            return None
+
+        if path.stat().st_size > max_size:
+            return f"# File too large ({format_file_size(path.stat().st_size)})"
+
+        # Try UTF-8 first, then fall back
+        encodings = ["utf-8", "latin-1", "cp1252"]
+        for encoding in encodings:
+            try:
+                with open(path, "r", encoding=encoding) as f:
+                    return f.read()
+            except UnicodeDecodeError:
+                continue
+
+        return "# Binary file - cannot display"
+    except Exception as e:
+        return f"# Error reading file: {e}"
+
+
+def copy_to_clipboard_button(content: str, key: str) -> None:
+    """Create a JavaScript-based copy to clipboard button.
+
+    Note: This uses Streamlit's native button with JavaScript injection.
+    """
+    import streamlit as st
+
+    # Use st.code with copy button if available, otherwise provide workaround
+    st.code(content, language=None)
+    st.caption("Copy button available in code block above ☝️")
+
+
+def detect_language_from_content(content: str, file_path: str = "") -> str:
+    """Detect programming language from content and/or file path.
+
+    Args:
+        content: File content
+        file_path: Optional file path for extension-based detection
+
+    Returns:
+        Language name for syntax highlighting
+    """
+    # Extension-based detection first
+    if file_path:
+        ext = Path(file_path).suffix.lower()
+        ext_to_lang = {
+            ".py": "python",
+            ".js": "javascript",
+            ".ts": "typescript",
+            ".jsx": "javascript",
+            ".tsx": "typescript",
+            ".java": "java",
+            ".go": "go",
+            ".rs": "rust",
+            ".c": "c",
+            ".cpp": "cpp",
+            ".h": "c",
+            ".hpp": "cpp",
+            ".rb": "ruby",
+            ".php": "php",
+            ".swift": "swift",
+            ".kt": "kotlin",
+            ".scala": "scala",
+            ".cs": "csharp",
+            ".lua": "lua",
+            ".sh": "bash",
+            ".sql": "sql",
+            ".html": "html",
+            ".css": "css",
+            ".scss": "scss",
+            ".json": "json",
+            ".xml": "xml",
+            ".yaml": "yaml",
+            ".yml": "yaml",
+            ".md": "markdown",
+            ".dockerfile": "dockerfile",
+        }
+        if ext in ext_to_lang:
+            return ext_to_lang[ext]
+
+    # Content-based detection
+    shebang_map = {
+        "python": ["python", "python3"],
+        "bash": ["bash", "sh"],
+        "ruby": ["ruby"],
+        "perl": ["perl"],
+        "nodejs": ["node"],
+    }
+
+    if content.startswith("#!/"):
+        first_line = content.split("\n")[0].lower()
+        for lang, interpreters in shebang_map.items():
+            if any(interp in first_line for interp in interpreters):
+                return lang
+
+    return "text"
+
+
+def get_file_stats(file_info: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract and format file statistics.
+
+    Args:
+        file_info: File information dict
+
+    Returns:
+        Formatted statistics dict
+    """
+    content = file_info.get("content", "")
+    if isinstance(content, str):
+        lines = content.count("\n") + (
+            1 if content and not content.endswith("\n") else 0
+        )
+        size = len(content.encode("utf-8"))
+    else:
+        lines = file_info.get("line_count", 0)
+        size = file_info.get("size_bytes", 0)
+
+    return {
+        "lines": lines,
+        "size_bytes": size,
+        "size_formatted": format_file_size(size),
+        "language": detect_language_from_content(content, file_info.get("path", "")),
+    }

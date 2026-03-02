@@ -1,7 +1,7 @@
 """Reusable UI components for the ArchitectAI Streamlit frontend.
 
 Provides components for rendering sessions, file trees, progress indicators,
-agent results, and visualizations.
+agent results, and visualizations with theme support.
 """
 
 from __future__ import annotations
@@ -17,7 +17,15 @@ import plotly.graph_objects as go
 import streamlit as st
 from plotly.subplots import make_subplots
 
-from .utils import format_file_size, format_timestamp, get_log_level_color
+from .utils import format_file_size, format_timestamp
+from .theme_utils import (
+    apply_chart_theme,
+    get_chart_theme,
+    get_current_theme,
+    get_edge_type_colors,
+    get_log_level_colors,
+    get_theme_colors,
+)
 
 
 def render_session_card(
@@ -213,10 +221,15 @@ def render_dependency_graph(
     edges: List[Dict[str, str]],
     height: int = 600,
 ) -> None:
-    """Render an interactive dependency graph using Plotly."""
+    """Render an interactive dependency graph using Plotly with theme support."""
     if not edges:
         st.info("No dependency data available")
         return
+
+    # Get theme colors
+    theme = get_current_theme()
+    colors = get_theme_colors(theme)
+    edge_type_colors = get_edge_type_colors(theme)
 
     # Build NetworkX graph
     G = nx.DiGraph()
@@ -241,13 +254,6 @@ def render_dependency_graph(
     edge_y = []
     edge_colors = []
 
-    edge_type_colors = {
-        "import": "#2ecc71",
-        "call": "#3498db",
-        "inheritance": "#9b59b6",
-        "depends_on": "#95a5a6",
-    }
-
     for edge in G.edges(data=True):
         x0, y0 = pos[edge[0]]
         x1, y1 = pos[edge[1]]
@@ -255,7 +261,7 @@ def render_dependency_graph(
         edge_y.extend([y0, y1, None])
 
         edge_type = edge[2].get("type", "depends_on")
-        edge_colors.append(edge_type_colors.get(edge_type, "#95a5a6"))
+        edge_colors.append(edge_type_colors.get(edge_type, colors['accent_gray']))
 
     # Create nodes
     node_x = []
@@ -281,7 +287,7 @@ def render_dependency_graph(
             x=edge_x,
             y=edge_y,
             mode="lines",
-            line=dict(width=1, color="#95a5a6"),
+            line=dict(width=1, color=colors['accent_gray']),
             hoverinfo="none",
         )
     )
@@ -294,16 +300,18 @@ def render_dependency_graph(
             mode="markers+text",
             marker=dict(
                 size=node_sizes,
-                color="#3498db",
-                line=dict(width=2, color="#2980b9"),
+                color=colors['accent_blue'],
+                line=dict(width=2, color=colors['primary']),
             ),
             text=node_text,
             textposition="top center",
-            textfont=dict(size=8),
+            textfont=dict(size=8, color=colors['text']),
             hovertemplate="%{text}<br>Connections: %{marker.size}<extra></extra>",
         )
     )
 
+    # Apply theme
+    chart_theme = get_chart_theme(theme)
     fig.update_layout(
         showlegend=False,
         hovermode="closest",
@@ -311,7 +319,12 @@ def render_dependency_graph(
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         height=height,
-        title="Dependency Graph",
+        title=dict(
+            text="Dependency Graph",
+            font=dict(color=colors['text'])
+        ),
+        paper_bgcolor=chart_theme['paper_bgcolor'],
+        plot_bgcolor=chart_theme['plot_bgcolor'],
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -334,10 +347,14 @@ def render_metrics_cards(metrics: Dict[str, Any]) -> None:
 
 
 def render_language_chart(languages: Dict[str, int]) -> None:
-    """Render a pie chart of language distribution."""
+    """Render a pie chart of language distribution with theme support."""
     if not languages:
         st.info("No language data available")
         return
+
+    # Get theme
+    theme = get_current_theme()
+    colors = get_theme_colors(theme)
 
     # Sort by count
     sorted_langs = sorted(languages.items(), key=lambda x: x[1], reverse=True)
@@ -358,17 +375,39 @@ def render_language_chart(languages: Dict[str, int]) -> None:
         hole=0.4,
     )
 
-    fig.update_traces(textposition="inside", textinfo="percent+label")
+    fig.update_traces(
+        textposition="inside",
+        textinfo="percent+label",
+        marker=dict(
+            colors=[
+                colors['primary'],
+                colors['accent_blue'],
+                colors['accent_green'],
+                colors['accent_purple'],
+                colors['warning'],
+                colors['info'],
+                colors['accent_gray'],
+                colors['text_secondary'],
+            ][:len(labels)]
+        )
+    )
+
+    # Apply theme
+    fig = apply_chart_theme(fig, theme)
     fig.update_layout(height=400)
 
     st.plotly_chart(fig, use_container_width=True)
 
 
 def render_file_size_chart(files: List[Dict[str, Any]]) -> None:
-    """Render a bar chart of file sizes by extension."""
+    """Render a bar chart of file sizes by extension with theme support."""
     if not files:
         st.info("No file data available")
         return
+
+    # Get theme
+    theme = get_current_theme()
+    colors = get_theme_colors(theme)
 
     # Group by extension
     ext_sizes: Dict[str, int] = {}
@@ -390,6 +429,15 @@ def render_file_size_chart(files: List[Dict[str, Any]]) -> None:
         labels={"x": "Extension", "y": "Size (MB)"},
     )
 
+    # Apply theme colors
+    fig.update_traces(
+        marker_color=colors['accent_blue'],
+        marker_line_color=colors['primary'],
+        marker_line_width=1,
+    )
+
+    # Apply theme
+    fig = apply_chart_theme(fig, theme)
     fig.update_layout(height=400)
 
     st.plotly_chart(fig, use_container_width=True)
@@ -400,10 +448,15 @@ def render_log_viewer(
     max_height: int = 400,
     filter_level: Optional[str] = None,
 ) -> None:
-    """Render a scrollable log viewer."""
+    """Render a scrollable log viewer with theme support."""
     if not logs:
         st.info("No logs available")
         return
+
+    # Get theme
+    theme = get_current_theme()
+    colors = get_theme_colors(theme)
+    log_colors = get_log_level_colors(theme)
 
     # Filter logs
     if filter_level:
@@ -414,10 +467,18 @@ def render_log_viewer(
     # Show latest first
     logs = list(reversed(logs))
 
-    # Create log display
-    log_html = '<div style="font-family: monospace; font-size: 12px; max-height: {}px; overflow-y: auto; background-color: #1e1e1e; padding: 10px; border-radius: 5px;">'.format(
-        max_height
-    )
+    # Create log display with theme colors
+    log_html = f'''<div style="
+        font-family: monospace; 
+        font-size: 12px; 
+        max-height: {max_height}px; 
+        overflow-y: auto; 
+        background-color: {colors['card_background']}; 
+        color: {colors['text']};
+        padding: 10px; 
+        border-radius: 5px;
+        border: 1px solid {colors['border']};
+    ">'''
 
     for log in logs:
         timestamp = format_timestamp(log.get("timestamp"))
@@ -427,16 +488,13 @@ def render_log_viewer(
         # Escape HTML
         message = message.replace("<", "&lt;").replace(">", "&gt;")
 
-        level_colors = {
-            "DEBUG": "#6c757d",
-            "INFO": "#0dcaf0",
-            "WARNING": "#ffc107",
-            "ERROR": "#dc3545",
-            "SUCCESS": "#198754",
-        }
-        color = level_colors.get(level, "#6c757d")
+        color = log_colors.get(level, colors['text_secondary'])
 
-        log_html += f'<div style="margin-bottom: 4px;"><span style="color: #6c757d;">[{timestamp}]</span> <span style="color: {color}; font-weight: bold;">{level}</span> {message}</div>'
+        log_html += f'''<div style="margin-bottom: 4px;">
+            <span style="color: {colors['text_secondary']};">[{timestamp}]</span> 
+            <span style="color: {color}; font-weight: bold;">{level}</span> 
+            {message}
+        </div>'''
 
     log_html += "</div>"
 
@@ -449,7 +507,7 @@ def render_code_viewer(
     language: Optional[str] = None,
     height: int = 600,
 ) -> None:
-    """Render a code viewer with syntax highlighting."""
+    """Render a code viewer with syntax highlighting and theme support."""
     try:
         if content is None and file_path:
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
@@ -494,6 +552,10 @@ def render_code_viewer(
             }
             language = ext_to_lang.get(ext, "text")
 
+        # Get current theme for editor
+        theme = get_current_theme()
+        editor_theme = "monokai" if theme == "dark" else "github"
+
         # Use streamlit-ace if available, otherwise fallback to code block
         try:
             from streamlit_ace import st_ace
@@ -501,11 +563,11 @@ def render_code_viewer(
             st_ace(
                 value=content,
                 language=language,
-                theme="monokai",
+                theme=editor_theme,
                 height=height,
                 readonly=True,
                 show_gutter=True,
-                key=f"code_viewer_{file_path}",
+                key=f"code_viewer_{file_path}_{theme}",
             )
         except ImportError:
             # Fallback to streamlit code block
@@ -516,10 +578,13 @@ def render_code_viewer(
 
 
 def render_timeline_chart(executions: List[Dict[str, Any]]) -> None:
-    """Render a timeline chart of agent executions."""
+    """Render a timeline chart of agent executions with theme support."""
     if not executions:
         st.info("No execution data available")
         return
+
+    # Get theme
+    theme = get_current_theme()
 
     # Prepare data
     data = []
@@ -562,5 +627,8 @@ def render_timeline_chart(executions: List[Dict[str, Any]]) -> None:
         title="Agent Execution Timeline",
     )
 
+    # Apply theme
+    fig = apply_chart_theme(fig, theme)
     fig.update_layout(height=300)
+
     st.plotly_chart(fig, use_container_width=True)

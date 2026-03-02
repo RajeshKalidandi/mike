@@ -54,47 +54,36 @@ from architectai.web.utils import (
     save_settings,
     scan_directory_for_upload,
 )
+from architectai.web.theme_utils import (
+    generate_css,
+    get_current_theme,
+    render_theme_toggle,
+    set_theme,
+)
 
 # Page configuration
 st.set_page_config(
     page_title="ArchitectAI",
     page_icon="🏗️",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
+    menu_items={
+        "Get Help": None,
+        "Report a bug": None,
+        "About": "ArchitectAI - Local AI Software Architect",
+    },
 )
 
 # Initialize session state
 init_session_state()
 
-# Custom CSS
-st.markdown(
-    """
-    <style>
-    .main {
-        padding: 2rem;
-    }
-    .stButton>button {
-        width: 100%;
-    }
-    .metric-card {
-        background-color: #f0f2f6;
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-    .log-container {
-        background-color: #1e1e1e;
-        color: #ffffff;
-        padding: 1rem;
-        border-radius: 5px;
-        font-family: monospace;
-        max-height: 400px;
-        overflow-y: auto;
-    }
-    </style>
-""",
-    unsafe_allow_html=True,
-)
+# Initialize theme from settings if not already set
+if "current_theme" not in st.session_state:
+    settings = st.session_state.get("settings", load_settings())
+    set_theme(settings.get("theme", "dark"))
+
+# Apply theme CSS
+st.markdown(generate_css(), unsafe_allow_html=True)
 
 
 # Sidebar navigation
@@ -120,6 +109,11 @@ def render_sidebar():
             if st.button(label, key=f"nav_{key}", use_container_width=True):
                 st.session_state.current_page = key
                 st.rerun()
+
+        st.divider()
+
+        # Theme toggle
+        render_theme_toggle()
 
         st.divider()
 
@@ -191,7 +185,8 @@ def render_home():
         orchestrator = Orchestrator(db_path)
         status = orchestrator.get_system_status()
 
-        col1, col2, col3, col4 = st.columns(4)
+        # Responsive column ratios for stats
+        col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
 
         with col1:
             st.metric("Total Sessions", status.get("session_count", 0))
@@ -218,21 +213,22 @@ def render_home():
     # Quick actions
     st.markdown("### 🚀 Quick Actions")
 
-    col1, col2, col3 = st.columns(3)
+    # Responsive quick actions - stack on mobile
+    quick_cols = st.columns([1, 1, 1])
 
-    with col1:
+    with quick_cols[0]:
         st.markdown("**Get Started**")
         if st.button("📤 Upload Codebase", use_container_width=True):
             st.session_state.current_page = "upload"
             st.rerun()
 
-    with col2:
+    with quick_cols[1]:
         st.markdown("**Existing Work**")
         if st.button("📁 View Sessions", use_container_width=True):
             st.session_state.current_page = "sessions"
             st.rerun()
 
-    with col3:
+    with quick_cols[2]:
         st.markdown("**Configuration**")
         if st.button("⚙️ Settings", use_container_width=True):
             st.session_state.current_page = "settings"
@@ -546,12 +542,13 @@ def render_sessions():
             return
 
         # Session filter
-        col1, col2 = st.columns([3, 1])
-        with col1:
+        # Responsive filter layout
+        filter_cols = st.columns([3, 1])
+        with filter_cols[0]:
             filter_text = st.text_input(
                 "🔍 Filter sessions", placeholder="Search by name or path..."
             )
-        with col2:
+        with filter_cols[1]:
             sort_by = st.selectbox(
                 "Sort by",
                 ["Date (newest)", "Date (oldest)", "Name (A-Z)", "Name (Z-A)"],
@@ -581,11 +578,13 @@ def render_sessions():
         # Display sessions
         st.markdown(f"Showing {len(filtered_sessions)} of {len(sessions)} sessions")
 
+        # Responsive session cards - stack on mobile
         for session in filtered_sessions:
             with st.container():
-                col1, col2, col3 = st.columns([4, 1, 1])
+                # Use responsive column ratios
+                session_cols = st.columns([4, 1, 1])
 
-                with col1:
+                with session_cols[0]:
                     display_name = Path(session.source_path).name
                     st.markdown(f"**{display_name}**")
                     st.caption(f"📁 `{session.source_path}`")
@@ -593,7 +592,7 @@ def render_sessions():
                         f"🕐 {format_timestamp(session.created_at)} • ID: `{session.session_id[:8]}`"
                     )
 
-                with col2:
+                with session_cols[1]:
                     # Stats
                     try:
                         stats = orchestrator.get_session_stats(session.session_id)
@@ -602,7 +601,7 @@ def render_sessions():
                     except Exception:
                         pass
 
-                with col3:
+                with session_cols[2]:
                     # Actions
                     if st.button(
                         "Load",
@@ -1104,10 +1103,17 @@ def render_settings():
                 "auto_save": auto_save,
             }
 
+            # Update session state theme if changed
+            if theme != st.session_state.get("current_theme"):
+                set_theme(theme)
+
             if save_settings(new_settings):
                 st.session_state.settings = new_settings
                 st.success("Settings saved!")
                 add_log("Settings saved", "success")
+                # Reload to apply theme changes
+                if theme != st.session_state.get("current_theme"):
+                    st.rerun()
             else:
                 st.error("Failed to save settings")
 
@@ -1116,6 +1122,7 @@ def render_settings():
             from architectai.web.utils import DEFAULT_SETTINGS
 
             st.session_state.settings = DEFAULT_SETTINGS.copy()
+            set_theme(DEFAULT_SETTINGS["theme"])
             st.success("Settings reset to defaults")
             st.rerun()
 
