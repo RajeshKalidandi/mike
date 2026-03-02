@@ -29,6 +29,8 @@ import sys
 
 from .scaffolder import ProjectScaffolder, ScaffoldingConfig
 from .code_generator import CodeGenerator, GenerationConfig
+from .code_executor import CodeExecutor
+from .iterative_generator import IterativeGenerator, IterationResult, IterationStatus
 
 
 logger = logging.getLogger(__name__)
@@ -199,6 +201,16 @@ class RebuilderAgent:
             model_name=model_name,
             max_tokens=max_context_tokens,
             temperature=temperature,
+        )
+        self.code_executor = CodeExecutor(
+            timeout=30,
+            sandbox_enabled=sandbox_enabled,
+        )
+        self.iterative_generator = IterativeGenerator(
+            code_generator=self.code_generator,
+            code_executor=self.code_executor,
+            max_iterations=3,
+            enable_tests=True,
         )
 
         # State management
@@ -1841,6 +1853,7 @@ class RebuilderAgent:
         project_path: str,
         template: Optional[ArchitectureTemplate] = None,
         batch_size: int = 5,
+        use_iterative: bool = True,
     ) -> Dict[str, str]:
         """
         Generate code for all files in the build plan.
@@ -1853,6 +1866,7 @@ class RebuilderAgent:
             project_path: Path to the scaffolded project
             template: Optional architecture template for reference
             batch_size: Number of files to generate before reviewing
+            use_iterative: Whether to use iterative generation with testing
 
         Returns:
             Dictionary mapping file paths to generated content
@@ -1886,33 +1900,64 @@ class RebuilderAgent:
                 self._update_progress_message(f"Generating: {file_spec.path}")
 
                 try:
-                    # Generate file content
-                    content = self._generate_file_content(
-                        file_spec=file_spec,
-                        plan=plan,
-                        template=template,
-                        project_path=project_path,
-                        generated_files=self.generated_files,
-                    )
-
-                    # Validate generated content
-                    if self._validate_code(
-                        content, plan.target_language, file_spec.path
-                    ):
-                        # Write to file
-                        file_path = project_path / file_spec.path
-                        with open(file_path, "w", encoding="utf-8") as f:
-                            f.write(content)
-
-                        self.generated_files[file_spec.path] = content
-                        file_spec.content = content
-                        file_spec.status = "completed"
-                        self.progress.completed_files += 1
-                        self._update_progress_message(f"Completed: {file_spec.path}")
-                    else:
-                        raise ValueError(
-                            f"Generated code failed validation for {file_spec.path}"
+                    if use_iterative:
+                        # Use iterative generation with testing
+                        iteration_result = (
+                            self.iterative_generator.generate_file_with_tests(
+                                file_spec=file_spec,
+                                plan=plan,
+                                project_path=project_path,
+                                template=template,
+                                generated_files=self.generated_files,
+                            )
                         )
+
+                        if iteration_result.success:
+                            self.generated_files[file_spec.path] = (
+                                iteration_result.final_content
+                            )
+                            file_spec.content = iteration_result.final_content
+                            file_spec.status = "completed"
+                            self.progress.completed_files += 1
+                            self._update_progress_message(
+                                f"Completed: {file_spec.path} (iterations: {iteration_result.iterations})"
+                            )
+                        else:
+                            raise ValueError(
+                                f"Failed to generate {file_spec.path} after "
+                                f"{iteration_result.iterations} iterations: "
+                                f"{iteration_result.error_message}"
+                            )
+                    else:
+                        # Use simple generation without iteration
+                        content = self._generate_file_content(
+                            file_spec=file_spec,
+                            plan=plan,
+                            template=template,
+                            project_path=project_path,
+                            generated_files=self.generated_files,
+                        )
+
+                        # Validate generated content
+                        if self._validate_code(
+                            content, plan.target_language, file_spec.path
+                        ):
+                            # Write to file
+                            file_path = project_path / file_spec.path
+                            with open(file_path, "w", encoding="utf-8") as f:
+                                f.write(content)
+
+                            self.generated_files[file_spec.path] = content
+                            file_spec.content = content
+                            file_spec.status = "completed"
+                            self.progress.completed_files += 1
+                            self._update_progress_message(
+                                f"Completed: {file_spec.path}"
+                            )
+                        else:
+                            raise ValueError(
+                                f"Generated code failed validation for {file_spec.path}"
+                            )
 
                 except Exception as e:
                     logger.error(f"Failed to generate {file_spec.path}: {e}")

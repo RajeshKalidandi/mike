@@ -407,7 +407,7 @@ Very large dependency graphs (millions of nodes) will slow graph-aware context e
 | M5 | Refactor Agent | Not started |
 | M6 | Rebuilder Agent (basic scaffolding) | Not started |
 | M7 | Streamlit frontend + full pipeline integration | Not started |
-| M8 | Rebuilder Agent (full code generation loop) | Not started |
+| M8 | Rebuilder Agent (full code generation loop) | ✅ Completed |
 
 ---
 
