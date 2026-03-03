@@ -77,6 +77,156 @@ class Database:
                 )
             """)
 
+            # Architecture scores table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS architecture_scores (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT NOT NULL,
+                    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    overall_score REAL NOT NULL,
+                    coupling_score REAL NOT NULL,
+                    cohesion_score REAL NOT NULL,
+                    circular_deps_score REAL NOT NULL,
+                    complexity_score REAL NOT NULL,
+                    test_coverage_score REAL,
+                    layer_violations_score REAL NOT NULL,
+                    unused_exports_score REAL NOT NULL,
+                    total_files INTEGER,
+                    total_functions INTEGER,
+                    avg_complexity REAL,
+                    circular_dependencies_count INTEGER,
+                    layer_violations_count INTEGER,
+                    unused_exports_count INTEGER,
+                    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
+                )
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_arch_scores_session
+                    ON architecture_scores(session_id, timestamp)
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_arch_scores_timestamp
+                    ON architecture_scores(timestamp)
+            """)
+
+            # Score components table for detailed breakdown
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS score_components (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    score_id INTEGER NOT NULL,
+                    component_type TEXT NOT NULL,
+                    component_path TEXT NOT NULL,
+                    dimension TEXT NOT NULL,
+                    score REAL NOT NULL,
+                    raw_value REAL,
+                    threshold REAL,
+                    FOREIGN KEY (score_id) REFERENCES architecture_scores(id) ON DELETE CASCADE
+                )
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_score_components
+                    ON score_components(score_id, dimension, component_path)
+            """)
+
+            # Security findings table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS security_findings (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT NOT NULL,
+                    file_path TEXT NOT NULL,
+                    line_start INTEGER NOT NULL,
+                    line_end INTEGER NOT NULL,
+                    issue_type TEXT NOT NULL,
+                    category TEXT NOT NULL,
+                    severity TEXT NOT NULL,
+                    confidence TEXT NOT NULL,
+                    cvss_score REAL,
+                    risk_score REAL NOT NULL,
+                    title TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    remediation TEXT NOT NULL,
+                    code_snippet TEXT,
+                    detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    rule_id TEXT,
+                    false_positive BOOLEAN DEFAULT 0,
+                    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
+                )
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_security_session
+                    ON security_findings(session_id, severity)
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_security_type
+                    ON security_findings(issue_type, category)
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_security_file
+                    ON security_findings(file_path)
+            """)
+
+            # Git metrics table
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS git_metrics (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT NOT NULL,
+                    file_path TEXT NOT NULL,
+                    total_commits INTEGER DEFAULT 0,
+                    total_changes INTEGER DEFAULT 0,
+                    lines_added_total INTEGER DEFAULT 0,
+                    lines_deleted_total INTEGER DEFAULT 0,
+                    first_commit_date TIMESTAMP,
+                    last_commit_date TIMESTAMP,
+                    days_since_last_change INTEGER,
+                    bug_fix_count INTEGER DEFAULT 0,
+                    unique_authors INTEGER DEFAULT 0,
+                    churn_rate REAL DEFAULT 0.0,
+                    hotspot_score REAL DEFAULT 0.0,
+                    calculated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
+                )
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_git_metrics_session
+                    ON git_metrics(session_id, file_path)
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_git_metrics_hotspot
+                    ON git_metrics(session_id, hotspot_score)
+            """)
+
+            # Patches table for patch applications
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS patches (
+                    id TEXT PRIMARY KEY,
+                    session_id TEXT NOT NULL,
+                    suggestion_id TEXT,
+                    diff_content TEXT,
+                    files_affected TEXT,
+                    status TEXT DEFAULT 'pending',
+                    source TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    applied_at TIMESTAMP,
+                    rolled_back_at TIMESTAMP,
+                    backup_paths TEXT,
+                    errors TEXT,
+                    FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE CASCADE
+                )
+            """)
+
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_patches_session
+                    ON patches(session_id, status)
+            """)
+
             conn.commit()
 
     def create_session(

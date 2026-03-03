@@ -4,6 +4,7 @@ import json
 import os
 import sys
 import tempfile
+from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
@@ -725,9 +726,7 @@ def status(ctx: click.Context) -> None:
 @click.option("--output", "-o", help="Output file for graph export (JSON)")
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
 @click.pass_context
-def build_graph(
-    ctx: click.Context, session_id: str, output: str, verbose: bool
-):
+def build_graph(ctx: click.Context, session_id: str, output: str, verbose: bool):
     """Build dependency graph from parsed session files."""
     db_path = ctx.obj["db_path"]
     output_format = ctx.obj["output_format"]
@@ -1143,6 +1142,605 @@ def telemetry_metrics(format: str) -> None:
                     click.echo(f"    P95: {stats.get('p95', 0):.3f}")
     except Exception as e:
         click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("session_id")
+@click.option(
+    "--format",
+    "output_format_opt",
+    type=click.Choice(["plain", "json", "markdown"]),
+    help="Output format (overrides global --output)",
+)
+@click.option("--detailed", is_flag=True, help="Show component breakdown")
+@click.option("--save", is_flag=True, help="Save results to database")
+@click.pass_context
+def health(
+    ctx: click.Context,
+    session_id: str,
+    output_format_opt: Optional[str],
+    detailed: bool,
+    save: bool,
+) -> None:
+    """Calculate and display architecture health score.
+
+    Examples:
+        mike health <session-id>
+        mike health <session-id> --format json --save
+        mike health <session-id> --detailed
+    """
+    db_path = ctx.obj["db_path"]
+    verbose = ctx.obj["verbose"]
+    output_format = output_format_opt or ctx.obj.get("output_format", "plain")
+
+    db = Database(db_path)
+    db.init()
+
+    session = db.get_session(session_id)
+    if session is None:
+        error_msg = f"Session not found: {session_id}"
+        if output_format == "json":
+            click.echo(json.dumps({"error": error_msg}))
+        else:
+            click.echo(error_msg, err=True)
+        sys.exit(1)
+
+    if verbose:
+        click.echo(f"Calculating health score for session: {session_id}")
+
+    try:
+        from mike.health.calculator import HealthScoreCalculator
+        from mike.graph.builder import DependencyGraphBuilder
+
+        graph_builder = DependencyGraphBuilder(session_id, db)
+        graph_builder.build_graph()
+
+        calculator = HealthScoreCalculator(graph_builder)
+        score = calculator.calculate_all_scores()
+
+        if save:
+            from mike.db.health_repository import HealthRepository
+
+            repository = HealthRepository(db)
+            repository.save_score(session_id, score)
+            if verbose:
+                click.echo("Health score saved to database")
+
+        if output_format == "json":
+            result = {
+                "session_id": session_id,
+                "overall_score": score.overall_score,
+                "category": score.category,
+                "dimensions": {
+                    d.dimension.value: {
+                        "score": d.score,
+                        "weight": d.weight,
+                        "weighted_score": d.weighted_score,
+                        "details": d.details,
+                        "issues": d.issues,
+                    }
+                    for d in score.dimension_scores
+                },
+                "recommendations": score.recommendations,
+                "timestamp": score.timestamp,
+            }
+            if detailed:
+                result["metadata"] = score.metadata
+            click.echo(json.dumps(result, indent=2))
+
+        elif output_format == "markdown":
+            click.echo(f"# Architecture Health Score\n")
+            click.echo(f"**Overall Score:** {score.overall_score:.1f}/100\n")
+            click.echo(f"**Category:** {score.category.title()}\n")
+            click.echo(f"## Dimensions\n")
+            click.echo("| Dimension | Score | Weight | Weighted |")
+            click.echo("|-----------|-------|--------|----------|")
+            for d in score.dimension_scores:
+                click.echo(
+                    f"| {d.dimension.value.title()} | {d.score:.1f} | {d.weight:.2f} | {d.weighted_score:.1f} |"
+                )
+            if score.recommendations:
+                click.echo(f"\n## Recommendations\n")
+                for i, rec in enumerate(score.recommendations, 1):
+                    click.echo(f"{i}. {rec}")
+        else:
+            click.echo(f"Architecture Health Score: {score.overall_score:.1f}/100")
+            click.echo(f"Category: {score.category.title()}")
+            click.echo(f"\nBreakdown by dimension:")
+            for d in score.dimension_scores:
+                status = "✓" if d.score >= 70 else "⚠" if d.score >= 50 else "✗"
+                click.echo(
+                    f"  [{status}] {d.dimension.value.title():20} {d.score:.1f}/100"
+                )
+            if score.recommendations:
+                click.echo(f"\nRecommendations:")
+                for rec in score.recommendations:
+                    click.echo(f"  • {rec}")
+
+    except Exception as e:
+        error_msg = f"Error calculating health score: {e}"
+        if output_format == "json":
+            click.echo(json.dumps({"error": error_msg}))
+        else:
+            click.echo(error_msg, err=True)
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("session_id")
+@click.option(
+    "--severity",
+    type=click.Choice(["critical", "high", "medium", "low", "info"]),
+    help="Filter by minimum severity level",
+)
+@click.option(
+    "--format",
+    "output_format_opt",
+    type=click.Choice(["plain", "json", "markdown", "sarif"]),
+    help="Output format (overrides global --output)",
+)
+@click.option("--export", "export_path", help="Export report to file")
+@click.pass_context
+def security(
+    ctx: click.Context,
+    session_id: str,
+    severity: Optional[str],
+    output_format_opt: Optional[str],
+    export_path: Optional[str],
+) -> None:
+    """Run security scan on a session.
+
+    Examples:
+        mike security <session-id>
+        mike security <session-id> --severity high --format sarif
+        mike security <session-id> --export report.json
+    """
+    db_path = ctx.obj["db_path"]
+    verbose = ctx.obj["verbose"]
+    output_format = output_format_opt or ctx.obj.get("output_format", "plain")
+
+    db = Database(db_path)
+    db.init()
+
+    session = db.get_session(session_id)
+    if session is None:
+        error_msg = f"Session not found: {session_id}"
+        if output_format == "json":
+            click.echo(json.dumps({"error": error_msg}))
+        else:
+            click.echo(error_msg, err=True)
+        sys.exit(1)
+
+    if verbose:
+        click.echo(f"Running security scan for session: {session_id}")
+
+    try:
+        from mike.security.scanner import SecurityScanner
+        from mike.security.models import SeverityLevel
+
+        scanner = SecurityScanner()
+        files = db.get_files_for_session(session_id)
+
+        if not files:
+            msg = "No files found in session"
+            if output_format == "json":
+                click.echo(json.dumps({"error": msg}))
+            else:
+                click.echo(msg)
+            return
+
+        all_findings = []
+        for file_record in files:
+            try:
+                file_path = file_record["absolute_path"]
+                if not os.path.exists(file_path):
+                    continue
+
+                with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+
+                findings = scanner.scan_file(
+                    file_path, content, file_record.get("language")
+                )
+                all_findings.extend(findings)
+
+                if verbose:
+                    click.echo(f"  Scanned: {file_record['relative_path']}")
+            except Exception as e:
+                if verbose:
+                    click.echo(f"  Error scanning {file_record['relative_path']}: {e}")
+
+        # Filter by severity if specified
+        if severity:
+            min_severity = SeverityLevel[severity.upper()]
+            all_findings = [f for f in all_findings if f.severity >= min_severity]
+
+        # Save findings to database
+        from mike.db.security_repository import SecurityRepository
+
+        repository = SecurityRepository(db)
+        repository.save_findings(session_id, all_findings)
+
+        # Generate output
+        if output_format == "sarif":
+            from mike.security.models import SecurityReport
+
+            report = SecurityReport(
+                target_path=session["source_path"],
+                scan_timestamp=datetime.now(),
+                findings=all_findings,
+                scanned_files=len(files),
+            )
+            output = json.dumps(report.to_sarif(), indent=2)
+        elif output_format == "json":
+            output = json.dumps(
+                {"findings": [f.to_dict() for f in all_findings]}, indent=2
+            )
+        elif output_format == "markdown":
+            lines = ["# Security Scan Results\n"]
+            lines.append(f"**Total Findings:** {len(all_findings)}\n")
+
+            severity_counts = {}
+            for f in all_findings:
+                sev = f.severity.name
+                severity_counts[sev] = severity_counts.get(sev, 0) + 1
+
+            if severity_counts:
+                lines.append("## Severity Breakdown\n")
+                for sev in ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"]:
+                    if sev in severity_counts:
+                        lines.append(f"- **{sev}:** {severity_counts[sev]}")
+                lines.append("")
+
+            if all_findings:
+                lines.append("## Findings\n")
+                for i, finding in enumerate(all_findings[:50], 1):
+                    lines.append(f"### {i}. {finding.message}\n")
+                    lines.append(f"- **File:** `{finding.file_path}`")
+                    lines.append(f"- **Line:** {finding.line_number}")
+                    lines.append(f"- **Severity:** {finding.severity.name}")
+                    lines.append(f"- **Category:** {finding.category.value}")
+                    if finding.remediation:
+                        lines.append(f"\n**Remediation:** {finding.remediation}")
+                    lines.append("")
+
+            output = "\n".join(lines)
+        else:
+            click.echo(f"Security scan complete: {len(all_findings)} findings")
+
+            if all_findings:
+                severity_counts = {}
+                for f in all_findings:
+                    sev = f.severity.name
+                    severity_counts[sev] = severity_counts.get(sev, 0) + 1
+
+                click.echo("\nBy severity:")
+                for sev in ["CRITICAL", "HIGH", "MEDIUM", "LOW", "INFO"]:
+                    if sev in severity_counts:
+                        icon = (
+                            "🔴"
+                            if sev == "CRITICAL"
+                            else "🟠"
+                            if sev == "HIGH"
+                            else "🟡"
+                            if sev == "MEDIUM"
+                            else "🔵"
+                        )
+                        click.echo(f"  {icon} {sev}: {severity_counts[sev]}")
+
+                click.echo("\nTop findings:")
+                for finding in all_findings[:5]:
+                    click.echo(
+                        f"  • {finding.message} ({finding.file_path}:{finding.line_number})"
+                    )
+
+            output = None
+
+        if output:
+            if export_path:
+                with open(export_path, "w") as f:
+                    f.write(output)
+                click.echo(f"Report exported to: {export_path}")
+            else:
+                click.echo(output)
+
+    except Exception as e:
+        error_msg = f"Error running security scan: {e}"
+        if output_format == "json":
+            click.echo(json.dumps({"error": error_msg}))
+        else:
+            click.echo(error_msg, err=True)
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("session_id")
+@click.option(
+    "--format",
+    "output_format_opt",
+    type=click.Choice(["plain", "json", "markdown"]),
+    help="Output format (overrides global --output)",
+)
+@click.option("--hotspots", is_flag=True, help="Show code hotspots")
+@click.option("--churn", is_flag=True, help="Show churn analysis")
+@click.option("--since", help="Time period (e.g., '30 days ago')")
+@click.option("--limit", default=20, help="Maximum number of results")
+@click.pass_context
+def git(
+    ctx: click.Context,
+    session_id: str,
+    output_format_opt: Optional[str],
+    hotspots: bool,
+    churn: bool,
+    since: Optional[str],
+    limit: int,
+) -> None:
+    """Run git analysis on a session.
+
+    Examples:
+        mike git <session-id> --hotspots --limit 20
+        mike git <session-id> --churn --since "30 days ago"
+        mike git <session-id> --hotspots --churn
+    """
+    db_path = ctx.obj["db_path"]
+    verbose = ctx.obj["verbose"]
+    output_format = output_format_opt or ctx.obj.get("output_format", "plain")
+
+    db = Database(db_path)
+    db.init()
+
+    session = db.get_session(session_id)
+    if session is None:
+        error_msg = f"Session not found: {session_id}"
+        if output_format == "json":
+            click.echo(json.dumps({"error": error_msg}))
+        else:
+            click.echo(error_msg, err=True)
+        sys.exit(1)
+
+    source_path = session["source_path"]
+
+    try:
+        from mike.git.analyzer import GitAnalyzer
+        from git.exc import InvalidGitRepositoryError
+
+        analyzer = GitAnalyzer(source_path)
+
+        since_days = None
+        if since:
+            import re
+
+            match = re.search(r"(\d+)\s*day", since)
+            if match:
+                since_days = int(match.group(1))
+
+        result = {}
+
+        if hotspots or not (hotspots or churn):
+            if verbose:
+                click.echo("Identifying hotspots...")
+            hotspots_list = analyzer.identify_hotspots(
+                limit=limit, since_days=since_days
+            )
+            result["hotspots"] = [
+                {
+                    "file_path": h.file_path,
+                    "commits": h.commit_count,
+                    "bug_fixes": h.bug_fix_count,
+                    "authors": h.unique_authors,
+                    "score": h.score,
+                }
+                for h in hotspots_list
+            ]
+
+        if churn or not (hotspots or churn):
+            if verbose:
+                click.echo("Calculating churn...")
+            total_churn = analyzer.calculate_churn(limit=limit, since_days=since_days)
+            result["churn"] = total_churn
+
+        if output_format == "json":
+            click.echo(json.dumps(result, indent=2))
+        elif output_format == "markdown":
+            click.echo("# Git Analysis\n")
+            if "hotspots" in result:
+                click.echo("## Code Hotspots\n")
+                click.echo("| File | Commits | Bug Fixes | Authors | Score |")
+                click.echo("|------|---------|-----------|---------|-------|")
+                for h in result["hotspots"][:limit]:
+                    click.echo(
+                        f"| {h['file_path'][:50]} | {h['commits']} | {h['bug_fixes']} | {h['authors']} | {h['score']:.2f} |"
+                    )
+            if "churn" in result:
+                click.echo(f"\n## Churn Analysis\n")
+                click.echo(f"Total churn: {result['churn']} lines changed")
+        else:
+            if "hotspots" in result:
+                click.echo(f"Top {limit} code hotspots:")
+                for h in result["hotspots"][:limit]:
+                    click.echo(
+                        f"  • {h['file_path'][:60]:60} {h['commits']:4d} commits, {h['bug_fixes']:3d} bugs, score: {h['score']:.2f}"
+                    )
+            if "churn" in result:
+                click.echo(f"\nTotal churn: {result['churn']} lines changed")
+
+    except InvalidGitRepositoryError:
+        error_msg = f"Not a git repository: {source_path}"
+        if output_format == "json":
+            click.echo(json.dumps({"error": error_msg}))
+        else:
+            click.echo(error_msg, err=True)
+        sys.exit(1)
+    except Exception as e:
+        error_msg = f"Error analyzing git history: {e}"
+        if output_format == "json":
+            click.echo(json.dumps({"error": error_msg}))
+        else:
+            click.echo(error_msg, err=True)
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("session_id")
+@click.option("--suggestion-id", help="Specific suggestion ID to apply")
+@click.option("--preview", is_flag=True, help="Preview changes without applying")
+@click.option("--apply", is_flag=True, help="Apply the patch")
+@click.option("--rollback", is_flag=True, help="Rollback the last applied patch")
+@click.option("--project-path", help="Path to project root (default: session source)")
+@click.pass_context
+def refactor(
+    ctx: click.Context,
+    session_id: str,
+    suggestion_id: Optional[str],
+    preview: bool,
+    apply: bool,
+    rollback: bool,
+    project_path: Optional[str],
+) -> None:
+    """Apply or preview refactor patches.
+
+    Examples:
+        mike refactor <session-id> --suggestion-id 123 --preview
+        mike refactor <session-id> --suggestion-id 123 --apply
+        mike refactor <session-id> --rollback
+    """
+    db_path = ctx.obj["db_path"]
+    verbose = ctx.obj["verbose"]
+    output_format = ctx.obj["output_format"]
+
+    db = Database(db_path)
+    db.init()
+
+    session = db.get_session(session_id)
+    if session is None:
+        error_msg = f"Session not found: {session_id}"
+        if output_format == "json":
+            click.echo(json.dumps({"error": error_msg}))
+        else:
+            click.echo(error_msg, err=True)
+        sys.exit(1)
+
+    if not project_path:
+        project_path = session["source_path"]
+
+    try:
+        from mike.patch.applier import PatchApplier
+        from mike.patch.models import Patch
+
+        applier = PatchApplier(project_root=Path(project_path))
+
+        if rollback:
+            from mike.db.patch_repository import PatchRepository
+
+            repository = PatchRepository(db)
+            last_patch = repository.get_last_applied_patch(session_id)
+
+            if not last_patch:
+                click.echo("No applied patches to rollback")
+                return
+
+            if verbose:
+                click.echo(f"Rolling back patch: {last_patch['id']}")
+
+            applier.rollback_patch(last_patch["id"])
+            repository.update_patch_status(
+                last_patch["id"],
+                "rolled_back",
+                rolled_back_at=datetime.now().isoformat(),
+            )
+
+            click.echo(f"Rolled back patch: {last_patch['id'][:8]}")
+            return
+
+        if not suggestion_id:
+            click.echo(
+                "Error: --suggestion-id required (unless using --rollback)", err=True
+            )
+            sys.exit(1)
+
+        from mike.db.patch_repository import PatchRepository
+
+        repository = PatchRepository(db)
+        patch_data = repository.get_patch_by_suggestion_id(session_id, suggestion_id)
+
+        if not patch_data:
+            error_msg = f"No patch found for suggestion ID: {suggestion_id}"
+            if output_format == "json":
+                click.echo(json.dumps({"error": error_msg}))
+            else:
+                click.echo(error_msg, err=True)
+            sys.exit(1)
+
+        patch = Patch(
+            id=patch_data["id"],
+            diff_content=patch_data.get("diff_content", ""),
+            files_affected=patch_data.get("files_affected", []),
+            source="refactor",
+        )
+
+        if preview:
+            preview_result = applier.preview_patch(patch)
+
+            if output_format == "json":
+                click.echo(json.dumps(preview_result.to_dict(), indent=2))
+            elif output_format == "markdown":
+                click.echo("# Patch Preview\n")
+                click.echo(f"**Can Apply:** {preview_result.can_apply}\n")
+                click.echo(f"**Summary:** {preview_result.changes_summary}\n")
+                if preview_result.file_changes:
+                    click.echo("## File Changes\n")
+                    for change in preview_result.file_changes:
+                        click.echo(f"- `{change.get('file_path', 'unknown')}`")
+                if preview_result.warnings:
+                    click.echo("\n## Warnings\n")
+                    for warning in preview_result.warnings:
+                        click.echo(f"- {warning}")
+            else:
+                click.echo("Patch Preview:")
+                click.echo(f"  Can apply: {preview_result.can_apply}")
+                click.echo(f"  Summary: {preview_result.changes_summary}")
+                if preview_result.warnings:
+                    click.echo("  Warnings:")
+                    for warning in preview_result.warnings:
+                        click.echo(f"    • {warning}")
+
+        elif apply:
+            application = applier.apply_patch(patch)
+
+            if application.status.value == "applied":
+                repository.update_patch_status(
+                    patch.id, "applied", applied_at=datetime.now().isoformat()
+                )
+                click.echo(f"Successfully applied patch: {patch.id[:8]}")
+                if output_format == "json":
+                    click.echo(
+                        json.dumps(
+                            {
+                                "success": True,
+                                "patch_id": patch.id,
+                                "files_affected": patch_data.get("files_affected", []),
+                            }
+                        )
+                    )
+            else:
+                error_msg = f"Failed to apply patch: {application.errors}"
+                if output_format == "json":
+                    click.echo(json.dumps({"error": error_msg}))
+                else:
+                    click.echo(error_msg, err=True)
+                sys.exit(1)
+
+        else:
+            click.echo("Error: Use --preview or --apply flag", err=True)
+            sys.exit(1)
+
+    except Exception as e:
+        error_msg = f"Error processing patch: {e}"
+        if output_format == "json":
+            click.echo(json.dumps({"error": error_msg}))
+        else:
+            click.echo(error_msg, err=True)
         sys.exit(1)
 
 
