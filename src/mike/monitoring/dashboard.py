@@ -457,12 +457,13 @@ class DashboardGenerator:
         )
         agent_comparison_html = self._generate_agent_comparison_table(agent_comparison)
 
-        html = self.HTML_TEMPLATE.format(
-            stats_cards=stats_cards,
-            chart_data=json.dumps(chart_data),
-            recent_executions=recent_executions_html,
-            agent_comparison=agent_comparison_html,
-            last_updated=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        html = (
+            self.HTML_TEMPLATE
+            .replace("{stats_cards}", stats_cards)
+            .replace("{chart_data}", json.dumps(chart_data))
+            .replace("{recent_executions}", recent_executions_html)
+            .replace("{agent_comparison}", agent_comparison_html)
+            .replace("{last_updated}", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         )
 
         with open(output_path, "w") as f:

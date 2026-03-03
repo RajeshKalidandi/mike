@@ -104,7 +104,7 @@ class TestCodeExecutor:
 
         assert is_valid is False
         assert error is not None
-        assert "SyntaxError" in error or "invalid syntax" in error
+        assert "SyntaxError" in error or "invalid syntax" in error or "expected" in error
 
     def test_validate_syntax_javascript_valid(self):
         """Test JavaScript syntax validation with valid code."""

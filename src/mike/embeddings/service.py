@@ -103,13 +103,21 @@ class EmbeddingService:
         """
         try:
             models = self.client.list()
-            available_models = [m["name"] for m in models.get("models", [])]
+            raw_models = models.get("models", [])
+            available_models = []
+            for m in raw_models:
+                # Newer Ollama SDK returns Model objects; older versions return dicts
+                if hasattr(m, "model"):
+                    available_models.append(m.model)
+                elif isinstance(m, dict):
+                    available_models.append(m.get("name") or m.get("model", ""))
             return (
                 self.model in available_models
                 or f"{self.model}:latest" in available_models
             )
         except Exception:
             return False
+
 
     @classmethod
     def get_available_models(cls) -> List[str]:

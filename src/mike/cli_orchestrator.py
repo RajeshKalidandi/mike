@@ -479,7 +479,7 @@ This codebase consists of the following components:
             progress=1.0,
             message=f"Analysis complete. Found {len(suggestions)} suggestions.",
             end_time=datetime.now().isoformat(),
-            result={"suggestions_count": len(suggestions)},
+            result={"suggestions": suggestions},
         )
 
         return {

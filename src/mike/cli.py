@@ -513,7 +513,7 @@ def rebuild(
         else:
             click.echo(f"Project scaffolded in: {output_dir}")
             if "files_created" in result_data:
-                click.echo(f"Created {len(result_data['files_created'])} files")
+                click.echo(f"Created {result_data['files_created']} files")
 
 
 @main.group()
@@ -722,14 +722,14 @@ def status(ctx: click.Context) -> None:
 
 @main.command()
 @click.argument("session_id")
-@click.option("--db-path", default="mike.db", help="Path to database")
 @click.option("--output", "-o", help="Output file for graph export (JSON)")
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
 @click.pass_context
 def build_graph(
-    ctx: click.Context, session_id: str, db_path: str, output: str, verbose: bool
+    ctx: click.Context, session_id: str, output: str, verbose: bool
 ):
     """Build dependency graph from parsed session files."""
+    db_path = ctx.obj["db_path"]
     output_format = ctx.obj["output_format"]
 
     if verbose:
@@ -773,7 +773,6 @@ def build_graph(
 
 @main.command()
 @click.argument("session_id")
-@click.option("--db-path", default="mike.db", help="Path to database")
 @click.option("--model", default="mxbai-embed-large", help="Embedding model to use")
 @click.option(
     "--vector-dir", default="./vector_store", help="Directory for vector store"
@@ -783,12 +782,12 @@ def build_graph(
 def embed(
     ctx: click.Context,
     session_id: str,
-    db_path: str,
     model: str,
     vector_dir: str,
     verbose: bool,
 ):
     """Generate embeddings and store in vector database."""
+    db_path = ctx.obj["db_path"]
     output_format = ctx.obj["output_format"]
 
     if verbose:
