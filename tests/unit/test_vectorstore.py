@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from architectai.vectorstore.store import VectorStore
+from mike.vectorstore.store import VectorStore
 
 
 class TestVectorStore:
@@ -14,7 +14,7 @@ class TestVectorStore:
         store = VectorStore(str(temp_dir))
 
         assert store.persist_directory == str(temp_dir)
-        assert store.collection_prefix == "architectai"
+        assert store.collection_prefix == "mike"
 
     def test_store_initialization_custom_prefix(self, temp_dir):
         """Test vector store with custom prefix."""
@@ -29,7 +29,7 @@ class TestVectorStore:
         name = store._get_collection_name("session123")
         assert name == "test_session123"
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_add_chunks_empty(self, MockClient, temp_dir):
         """Test adding empty chunks list."""
         store = VectorStore(str(temp_dir))
@@ -40,7 +40,7 @@ class TestVectorStore:
         # Collection should not be created
         MockClient.return_value.get_collection.assert_not_called()
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_add_chunks(self, MockClient, temp_dir, sample_chunks_with_embeddings):
         """Test adding chunks to vector store."""
         mock_collection = MagicMock()
@@ -62,7 +62,7 @@ class TestVectorStore:
         assert "embeddings" in call_args.kwargs
         assert "metadatas" in call_args.kwargs
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_search(self, MockClient, temp_dir):
         """Test searching vector store."""
         mock_collection = MagicMock()
@@ -82,7 +82,7 @@ class TestVectorStore:
         assert results[0]["content"] == "content1"
         assert results[0]["distance"] == 0.1
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_search_no_results(self, MockClient, temp_dir):
         """Test searching with no results."""
         mock_collection = MagicMock()
@@ -99,7 +99,7 @@ class TestVectorStore:
 
         assert results == []
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_search_by_text(self, MockClient, temp_dir, mock_embedding_service):
         """Test searching with text query."""
         mock_collection = MagicMock()
@@ -119,17 +119,17 @@ class TestVectorStore:
         assert len(results) == 1
         mock_embedding_service.embed.assert_called_once_with("test query")
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_delete_session(self, MockClient, temp_dir):
         """Test deleting session data."""
         store = VectorStore(str(temp_dir))
         store.delete_session("session123")
 
         MockClient.return_value.delete_collection.assert_called_once_with(
-            name="architectai_session123"
+            name="mike_session123"
         )
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_delete_session_nonexistent(self, MockClient, temp_dir):
         """Test deleting non-existent session (should not raise)."""
         MockClient.return_value.delete_collection.side_effect = Exception("Not found")
@@ -139,7 +139,7 @@ class TestVectorStore:
         # Should not raise exception
         store.delete_session("session123")
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_count(self, MockClient, temp_dir):
         """Test counting chunks in session."""
         mock_collection = MagicMock()
@@ -151,7 +151,7 @@ class TestVectorStore:
 
         assert count == 42
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_count_error(self, MockClient, temp_dir):
         """Test counting when collection doesn't exist."""
         MockClient.return_value.get_collection.side_effect = Exception("Not found")
@@ -162,14 +162,14 @@ class TestVectorStore:
 
         assert count == 0
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_list_sessions(self, MockClient, temp_dir):
         """Test listing all sessions."""
         # Mock collections
         mock_collection1 = MagicMock()
-        mock_collection1.name = "architectai_session1"
+        mock_collection1.name = "mike_session1"
         mock_collection2 = MagicMock()
-        mock_collection2.name = "architectai_session2"
+        mock_collection2.name = "mike_session2"
         mock_collection3 = MagicMock()
         mock_collection3.name = "other_collection"
 
@@ -186,7 +186,7 @@ class TestVectorStore:
         assert "session2" in sessions
         assert "other_collection" not in sessions
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_list_sessions_error(self, MockClient, temp_dir):
         """Test listing sessions when client fails."""
         MockClient.return_value.list_collections.side_effect = Exception("Error")
@@ -196,7 +196,7 @@ class TestVectorStore:
 
         assert sessions == []
 
-    @patch("architectai.vectorstore.store.chromadb.PersistentClient")
+    @patch("mike.vectorstore.store.chromadb.PersistentClient")
     def test_metadata_serialization(self, MockClient, temp_dir):
         """Test that complex metadata values are serialized."""
         mock_collection = MagicMock()

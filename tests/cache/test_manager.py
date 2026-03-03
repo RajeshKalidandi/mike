@@ -1,7 +1,7 @@
 import pytest
 import tempfile
 import os
-from architectai.cache.manager import CacheManager
+from mike.cache.manager import CacheManager
 
 
 class TestCacheManager:

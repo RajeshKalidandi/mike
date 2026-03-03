@@ -2,7 +2,7 @@
 
 import pytest
 
-from architectai.chunker.chunker import CodeChunker, CodeChunk
+from mike.chunker.chunker import CodeChunker, CodeChunk
 
 
 class TestCodeChunker:

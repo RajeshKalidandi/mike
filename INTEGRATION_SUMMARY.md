@@ -1,4 +1,4 @@
-# ArchitectAI - Integration Complete 🎉
+# Mike - Integration Complete 🎉
 
 ## Overview
 Successfully integrated all worktrees and built missing agents to create a unified, fully-functional local AI software architect system.
@@ -86,7 +86,7 @@ User Input → CLI → Orchestrator → Agents → Output
 ## File Structure
 
 ```
-src/architectai/
+src/mike/
 ├── __init__.py
 ├── cli.py                    # Unified CLI (954 lines)
 ├── cli_orchestrator.py       # CLI orchestrator wrapper
@@ -151,37 +151,37 @@ pydantic           # Data validation
 
 ### Scan a codebase
 ```bash
-architectai scan /path/to/repo
+mike scan /path/to/repo
 ```
 
 ### Build dependency graph
 ```bash
-architectai build-graph <session_id> --output graph.json
+mike build-graph <session_id> --output graph.json
 ```
 
 ### Generate embeddings
 ```bash
-architectai embed <session_id> --model mxbai-embed-large
+mike embed <session_id> --model mxbai-embed-large
 ```
 
 ### Search code semantically
 ```bash
-architectai search <session_id> "how does authentication work?"
+mike search <session_id> "how does authentication work?"
 ```
 
 ### Generate documentation
 ```bash
-architectai docs <session_id> --output ./docs
+mike docs <session_id> --output ./docs
 ```
 
 ### Ask questions
 ```bash
-architectai ask <session_id> "Where is the login function?"
+mike ask <session_id> "Where is the login function?"
 ```
 
 ### Analyze for refactoring
 ```bash
-architectai refactor <session_id> --output report.md
+mike refactor <session_id> --output report.md
 ```
 
 ## Key Features
@@ -226,7 +226,7 @@ architectai refactor <session_id> --output report.md
 
 3. **Try it out:**
    ```bash
-   architectai scan /path/to/your/repo
+   mike scan /path/to/your/repo
    ```
 
 4. **Set up local LLM (optional):**

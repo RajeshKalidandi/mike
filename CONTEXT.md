@@ -1,7 +1,7 @@
 # CONTEXT.md
 ## Local AI Software Architect for Private Codebases
 
-> **Project Codename:** ArchitectAI (working title)
+> **Project Codename:** Mike (working title)
 > **Version:** 0.1 — Architecture Draft
 > **Author:** Rajesh
 > **Last Updated:** March 2026
@@ -436,10 +436,10 @@ The M7 Streamlit frontend has been fully implemented with the following features
 - **Content Hashing**: Deduplication for uploaded codebases
 
 **Files Added/Modified:**
-- `src/architectai/web/app.py` (1,187 lines) - Main application
-- `src/architectai/web/components.py` (634 lines) - UI components
-- `src/architectai/web/utils.py` (535 lines) - Utilities and helpers
-- `src/architectai/web/theme_utils.py` (480 lines) - Theme system
+- `src/mike/web/app.py` (1,187 lines) - Main application
+- `src/mike/web/components.py` (634 lines) - UI components
+- `src/mike/web/utils.py` (535 lines) - Utilities and helpers
+- `src/mike/web/theme_utils.py` (480 lines) - Theme system
 - `tests/web/test_web_components.py` (37 tests) - Comprehensive test suite
 - `requirements.txt` - Added streamlit, plotly, pandas, networkx
 | M8 | Rebuilder Agent (full code generation loop) | ✅ Completed |
@@ -483,7 +483,7 @@ The M7 Streamlit frontend has been fully implemented with the following features
 **Detection Logic:**
 - Look for workspace markers: `package.json` (workspaces), `pom.xml`, `Cargo.toml` (workspace), `go.work`, `pyproject.toml`
 - Heuristic: Multiple root-level directories with their own dependency files
-- Config file: `.architectai/config.json` for explicit monorepo boundaries
+- Config file: `.mike/config.json` for explicit monorepo boundaries
 
 **Per-Sub-Project Indexing:**
 - Each detected sub-project gets its own namespace in vector store

@@ -6,9 +6,9 @@ from pathlib import Path
 
 import pytest
 
-from architectai.scanner.scanner import FileScanner
-from architectai.parser.parser import ASTParser
-from architectai.chunker.chunker import CodeChunker
+from mike.scanner.scanner import FileScanner
+from mike.parser.parser import ASTParser
+from mike.chunker.chunker import CodeChunker
 
 
 class TestPipelineEndToEnd:

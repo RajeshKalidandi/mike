@@ -1,4 +1,4 @@
-"""Setup script for ArchitectAI.
+"""Setup script for Mike.
 
 Alternative installation method using setup.py for compatibility
 with older tools and environments.
@@ -35,14 +35,14 @@ else:
     ]
 
 setup(
-    name="architectai",
+    name="mike",
     version="0.1.0",
     author="Rajesh",
     author_email="rajesh@example.com",
     description="Local AI software architect for private codebases",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/rajesh/architectai",
+    url="https://github.com/rajesh/mike",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
     classifiers=[
@@ -85,7 +85,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "architectai=architectai.cli:main",
+            "mike=mike.cli:main",
         ],
     },
     include_package_data=True,

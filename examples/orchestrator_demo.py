@@ -4,8 +4,8 @@ This demonstrates how to use the orchestrator with all four agent types.
 """
 
 from pathlib import Path
-from architectai.orchestrator import AgentOrchestrator, AgentType
-from architectai.orchestrator.engine import Agent
+from mike.orchestrator import AgentOrchestrator, AgentType
+from mike.orchestrator.engine import Agent
 
 
 class DocumentationAgent(Agent):
@@ -109,7 +109,7 @@ def main():
     """Demonstrate orchestrator usage."""
 
     print("=" * 60)
-    print("ArchitectAI Agent Orchestrator Demo")
+    print("Mike Agent Orchestrator Demo")
     print("=" * 60)
 
     # Initialize orchestrator

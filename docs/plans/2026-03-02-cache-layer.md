@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans or subagent-driven-development to implement this plan task-by-task.
 
-**Goal:** Build high-performance caching layer for ArchitectAI with 10x speedup for unchanged files, supporting AST, embeddings, and graph caching with multiple backends.
+**Goal:** Build high-performance caching layer for Mike with 10x speedup for unchanged files, supporting AST, embeddings, and graph caching with multiple backends.
 
 **Architecture:** Multi-tier caching system with memory → disk → SQLite backends, LRU eviction, TTL support, and cache warming. All components use content hashing for automatic invalidation.
 
@@ -13,14 +13,14 @@
 ## Directory Structure
 
 ```
-src/architectai/cache/
+src/mike/cache/
 ├── __init__.py          # Module exports
 ├── manager.py           # CacheManager class
 ├── ast_cache.py         # AST-specific caching
 ├── embedding_cache.py   # Embedding vector caching
 └── graph_cache.py       # Dependency graph caching
 
-src/architectai/performance/
+src/mike/performance/
 ├── __init__.py
 └── optimizer.py         # Parallel/batch processing utilities
 ```
@@ -30,18 +30,18 @@ src/architectai/performance/
 ## Task 1: Create Cache Module Structure
 
 **Files:**
-- Create: `src/architectai/cache/__init__.py`
-- Create: `src/architectai/performance/__init__.py`
+- Create: `src/mike/cache/__init__.py`
+- Create: `src/mike/performance/__init__.py`
 
 **Step 1: Create cache module init**
 
 ```python
-"""ArchitectAI caching layer for performance optimization."""
+"""Mike caching layer for performance optimization."""
 
-from architectai.cache.manager import CacheManager
-from architectai.cache.ast_cache import ASTCache
-from architectai.cache.embedding_cache import EmbeddingCache
-from architectai.cache.graph_cache import GraphCache
+from mike.cache.manager import CacheManager
+from mike.cache.ast_cache import ASTCache
+from mike.cache.embedding_cache import EmbeddingCache
+from mike.cache.graph_cache import GraphCache
 
 __all__ = [
     "CacheManager",
@@ -56,9 +56,9 @@ __version__ = "0.1.0"
 **Step 2: Create performance module init**
 
 ```python
-"""Performance optimization utilities for ArchitectAI."""
+"""Performance optimization utilities for Mike."""
 
-from architectai.performance.optimizer import (
+from mike.performance.optimizer import (
     ParallelProcessor,
     BatchProcessor,
     MemoryOptimizer,
@@ -76,7 +76,7 @@ __all__ = [
 **Step 3: Commit**
 
 ```bash
-git add src/architectai/cache/__init__.py src/architectai/performance/__init__.py
+git add src/mike/cache/__init__.py src/mike/performance/__init__.py
 git commit -m "feat(cache): initialize cache and performance modules"
 ```
 
@@ -85,7 +85,7 @@ git commit -m "feat(cache): initialize cache and performance modules"
 ## Task 2: Core Cache Manager
 
 **Files:**
-- Create: `src/architectai/cache/manager.py`
+- Create: `src/mike/cache/manager.py`
 - Test: `tests/cache/test_manager.py`
 
 **Step 1: Write the failing test**
@@ -94,7 +94,7 @@ git commit -m "feat(cache): initialize cache and performance modules"
 import pytest
 import tempfile
 import os
-from architectai.cache.manager import CacheManager
+from mike.cache.manager import CacheManager
 
 
 class TestCacheManager:
@@ -530,7 +530,7 @@ Expected: PASS
 **Step 5: Commit**
 
 ```bash
-git add src/architectai/cache/manager.py tests/cache/test_manager.py
+git add src/mike/cache/manager.py tests/cache/test_manager.py
 git commit -m "feat(cache): implement multi-tier CacheManager with memory, disk, SQLite"
 ```
 
@@ -539,7 +539,7 @@ git commit -m "feat(cache): implement multi-tier CacheManager with memory, disk,
 ## Task 3: AST Cache Implementation
 
 **Files:**
-- Create: `src/architectai/cache/ast_cache.py`
+- Create: `src/mike/cache/ast_cache.py`
 - Test: `tests/cache/test_ast_cache.py`
 
 **Step 1: Write failing test**
@@ -548,7 +548,7 @@ git commit -m "feat(cache): implement multi-tier CacheManager with memory, disk,
 import pytest
 import tempfile
 from unittest.mock import Mock
-from architectai.cache.ast_cache import ASTCache
+from mike.cache.ast_cache import ASTCache
 
 
 class TestASTCache:
@@ -594,7 +594,7 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-from architectai.cache.manager import CacheManager
+from mike.cache.manager import CacheManager
 
 
 class ASTCache:
@@ -761,7 +761,7 @@ Expected: PASS
 **Step 5: Commit**
 
 ```bash
-git add src/architectai/cache/ast_cache.py tests/cache/test_ast_cache.py
+git add src/mike/cache/ast_cache.py tests/cache/test_ast_cache.py
 git commit -m "feat(cache): implement ASTCache with language-specific keys and batch operations"
 ```
 
@@ -770,7 +770,7 @@ git commit -m "feat(cache): implement ASTCache with language-specific keys and b
 ## Task 4: Embedding Cache Implementation
 
 **Files:**
-- Create: `src/architectai/cache/embedding_cache.py`
+- Create: `src/mike/cache/embedding_cache.py`
 - Test: `tests/cache/test_embedding_cache.py`
 
 **Step 1: Write failing test**
@@ -779,7 +779,7 @@ git commit -m "feat(cache): implement ASTCache with language-specific keys and b
 import pytest
 import tempfile
 import numpy as np
-from architectai.cache.embedding_cache import EmbeddingCache
+from mike.cache.embedding_cache import EmbeddingCache
 
 
 class TestEmbeddingCache:
@@ -841,7 +841,7 @@ from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
-from architectai.cache.manager import CacheManager
+from mike.cache.manager import CacheManager
 
 
 class EmbeddingCache:
@@ -1007,7 +1007,7 @@ Expected: PASS
 **Step 5: Commit**
 
 ```bash
-git add src/architectai/cache/embedding_cache.py tests/cache/test_embedding_cache.py
+git add src/mike/cache/embedding_cache.py tests/cache/test_embedding_cache.py
 git commit -m "feat(cache): implement EmbeddingCache with vector compression and batch support"
 ```
 
@@ -1016,7 +1016,7 @@ git commit -m "feat(cache): implement EmbeddingCache with vector compression and
 ## Task 5: Graph Cache Implementation
 
 **Files:**
-- Create: `src/architectai/cache/graph_cache.py`
+- Create: `src/mike/cache/graph_cache.py`
 - Test: `tests/cache/test_graph_cache.py`
 
 **Step 1: Write failing test**
@@ -1025,7 +1025,7 @@ git commit -m "feat(cache): implement EmbeddingCache with vector compression and
 import pytest
 import tempfile
 import networkx as nx
-from architectai.cache.graph_cache import GraphCache
+from mike.cache.graph_cache import GraphCache
 
 
 class TestGraphCache:
@@ -1094,7 +1094,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import networkx as nx
 
-from architectai.cache.manager import CacheManager
+from mike.cache.manager import CacheManager
 
 
 class GraphCache:
@@ -1325,7 +1325,7 @@ Expected: PASS
 **Step 5: Commit**
 
 ```bash
-git add src/architectai/cache/graph_cache.py tests/cache/test_graph_cache.py
+git add src/mike/cache/graph_cache.py tests/cache/test_graph_cache.py
 git commit -m "feat(cache): implement GraphCache with serialization and diff computation"
 ```
 
@@ -1334,7 +1334,7 @@ git commit -m "feat(cache): implement GraphCache with serialization and diff com
 ## Task 6: Performance Optimizer Implementation
 
 **Files:**
-- Create: `src/architectai/performance/optimizer.py`
+- Create: `src/mike/performance/optimizer.py`
 - Test: `tests/performance/test_optimizer.py`
 
 **Step 1: Write failing test**
@@ -1343,7 +1343,7 @@ git commit -m "feat(cache): implement GraphCache with serialization and diff com
 import pytest
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from architectai.performance.optimizer import (
+from mike.performance.optimizer import (
     ParallelProcessor,
     BatchProcessor,
     MemoryOptimizer,
@@ -1738,7 +1738,7 @@ Expected: PASS
 **Step 5: Commit**
 
 ```bash
-git add src/architectai/performance/optimizer.py tests/performance/test_optimizer.py
+git add src/mike/performance/optimizer.py tests/performance/test_optimizer.py
 git commit -m "feat(performance): implement optimizer with parallel processing and async I/O"
 ```
 
@@ -1753,8 +1753,8 @@ import pytest
 import tempfile
 import numpy as np
 import networkx as nx
-from architectai.cache import CacheManager, ASTCache, EmbeddingCache, GraphCache
-from architectai.performance import ParallelProcessor, BatchProcessor
+from mike.cache import CacheManager, ASTCache, EmbeddingCache, GraphCache
+from mike.performance import ParallelProcessor, BatchProcessor
 
 
 class TestCacheIntegration:

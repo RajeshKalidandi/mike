@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "architectai"
+name = "mike"
 version = "0.1.0"
 description = "A fully local, offline-capable AI system for codebase analysis and architecture intelligence"
 readme = "README.md"
@@ -76,16 +76,16 @@ dev = [
     "ruff>=0.1.0",
 ]
 all = [
-    "architectai[web,dev]",
+    "mike[web,dev]",
 ]
 
 [project.scripts]
-architectai = "architectai.cli:main"
+mike = "mike.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/architectai/architectai"
-Repository = "https://github.com/architectai/architectai"
-Issues = "https://github.com/architectai/architectai/issues"
+Homepage = "https://github.com/mike/mike"
+Repository = "https://github.com/mike/mike"
+Issues = "https://github.com/mike/mike/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -119,7 +119,7 @@ addopts = [
     "--strict-config",
     "--verbose",
     "--tb=short",
-    "--cov=src/architectai",
+    "--cov=src/mike",
     "--cov-report=term-missing",
     "--cov-report=html:htmlcov",
     "--cov-report=xml:coverage.xml",
@@ -140,7 +140,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-source = ["src/architectai"]
+source = ["src/mike"]
 branch = true
 omit = [
     "*/tests/*",
@@ -172,7 +172,7 @@ precision = 2
 
 [tool.coverage.html]
 directory = "htmlcov"
-title = "ArchitectAI Coverage Report"
+title = "Mike Coverage Report"
 
 [tool.coverage.xml]
 output = "coverage.xml"

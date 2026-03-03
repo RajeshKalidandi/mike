@@ -4,10 +4,10 @@ import pytest
 from unittest.mock import MagicMock, patch
 import time
 
-from architectai.cache.manager import CacheManager
-from architectai.cache.ast_cache import ASTCache
-from architectai.cache.embedding_cache import EmbeddingCache
-from architectai.cache.graph_cache import GraphCache
+from mike.cache.manager import CacheManager
+from mike.cache.ast_cache import ASTCache
+from mike.cache.embedding_cache import EmbeddingCache
+from mike.cache.graph_cache import GraphCache
 
 
 class TestCacheManager:

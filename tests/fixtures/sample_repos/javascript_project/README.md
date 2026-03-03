@@ -1,6 +1,6 @@
 # Sample JavaScript Project
 
-A sample JavaScript/Node.js project for testing the ArchitectAI pipeline.
+A sample JavaScript/Node.js project for testing the Mike pipeline.
 
 ## Structure
 

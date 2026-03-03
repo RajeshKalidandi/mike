@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import MagicMock, patch
 from pathlib import Path
 
-from architectai.agents.rebuilder_agent import (
+from mike.agents.rebuilder_agent import (
     RebuilderAgent,
     ArchitecturePattern,
     ArchitectureTemplate,

@@ -1,6 +1,6 @@
 import pytest
 from pathlib import Path
-from architectai.parser.parser import ASTParser
+from mike.parser.parser import ASTParser
 
 
 class TestASTParser:

@@ -3,8 +3,8 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from architectai.agents.refactor_agent import RefactorAgent, RefactorReportGenerator
-from architectai.agents.patterns import CodeSmell
+from mike.agents.refactor_agent import RefactorAgent, RefactorReportGenerator
+from mike.agents.patterns import CodeSmell
 
 
 class TestRefactorAgent:

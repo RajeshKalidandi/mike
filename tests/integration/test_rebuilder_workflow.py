@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from architectai.agents.rebuilder_agent import (
+from mike.agents.rebuilder_agent import (
     RebuilderAgent,
     RebuilderWorkflow,
     ArchitectureTemplate,
@@ -12,8 +12,8 @@ from architectai.agents.rebuilder_agent import (
     BuildPlan,
     BuildPlanStatus,
 )
-from architectai.agents.code_executor import CodeExecutor
-from architectai.agents.iterative_generator import IterativeGenerator
+from mike.agents.code_executor import CodeExecutor
+from mike.agents.iterative_generator import IterativeGenerator
 
 
 class TestRebuilderIntegration:
@@ -297,7 +297,7 @@ class TestIterativeGeneratorIntegration:
 
     def test_iteration_result_creation(self):
         """Test creating IterationResult."""
-        from architectai.agents.iterative_generator import (
+        from mike.agents.iterative_generator import (
             IterationResult,
             IterationStatus,
         )
@@ -317,7 +317,7 @@ class TestIterativeGeneratorIntegration:
 
     def test_build_context_integration(self):
         """Test context building with real objects."""
-        from architectai.agents.iterative_generator import IterativeGenerator
+        from mike.agents.iterative_generator import IterativeGenerator
 
         generator = IterativeGenerator()
 

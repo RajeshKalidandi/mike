@@ -4,10 +4,10 @@ import pytest
 import os
 from unittest.mock import patch
 
-from architectai.config.settings import Settings
-from architectai.config.loader import ConfigLoader
-from architectai.config.validation import ConfigValidator
-from architectai.config.profiles import Profile
+from mike.config.settings import Settings
+from mike.config.loader import ConfigLoader
+from mike.config.validation import ConfigValidator
+from mike.config.profiles import Profile
 
 
 class TestSettings:

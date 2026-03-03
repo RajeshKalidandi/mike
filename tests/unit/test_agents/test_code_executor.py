@@ -2,7 +2,7 @@
 
 import pytest
 from pathlib import Path
-from architectai.agents.code_executor import (
+from mike.agents.code_executor import (
     CodeExecutor,
     ExecutionResult,
     ExecutionStatus,

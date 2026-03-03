@@ -1,4 +1,4 @@
-# ArchitectAI Testing Infrastructure
+# Mike Testing Infrastructure
 
 Comprehensive testing infrastructure with 90%+ code coverage target.
 
@@ -74,7 +74,7 @@ pytest -m "not slow"
 
 ### Run with coverage report
 ```bash
-pytest --cov=src/architectai --cov-report=html
+pytest --cov=src/mike --cov-report=html
 ```
 
 ### Run specific test file
@@ -236,7 +236,7 @@ Tests are designed to run in CI/CD pipeline:
 3. Run with verbose output: `pytest -v --tb=long`
 
 ### Coverage not meeting target
-1. Check coverage report: `pytest --cov=src/architectai --cov-report=html`
+1. Check coverage report: `pytest --cov=src/mike --cov-report=html`
 2. Identify uncovered code
 3. Add tests for uncovered code
 4. Update exclusions if appropriate

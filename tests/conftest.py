@@ -1,4 +1,4 @@
-"""Pytest configuration and shared fixtures for ArchitectAI tests."""
+"""Pytest configuration and shared fixtures for Mike tests."""
 
 import os
 import shutil
@@ -107,7 +107,7 @@ def mock_session_data(test_session_id: str) -> Dict[str, Any]:
 @pytest.fixture
 def temp_dir() -> Generator[Path, None, None]:
     """Create a temporary directory for testing."""
-    path = Path(tempfile.mkdtemp(prefix="architectai_test_"))
+    path = Path(tempfile.mkdtemp(prefix="mike_test_"))
     yield path
     shutil.rmtree(path, ignore_errors=True)
 

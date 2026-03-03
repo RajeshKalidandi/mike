@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import MagicMock
 
-from architectai.agents.qa_agent import (
+from mike.agents.qa_agent import (
     QAAgent,
     QueryAnalyzer,
     QueryIntent,

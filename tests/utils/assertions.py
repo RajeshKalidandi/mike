@@ -1,4 +1,4 @@
-"""Custom assertions for ArchitectAI tests."""
+"""Custom assertions for Mike tests."""
 
 from typing import Any, Dict, List, Optional
 import re

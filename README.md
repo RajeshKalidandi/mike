@@ -1,4 +1,4 @@
-# ArchitectAI 🏗️
+# Mike 🏗️
 
 **Local AI Software Architect for Private Codebases**
 
@@ -9,7 +9,7 @@
 
 > 🎉 **All 8 Milestones Complete!** Fully functional local AI software architect system with 4 intelligent agents, comprehensive web interface, and full code generation capabilities.
 
-ArchitectAI is a fully local, offline-capable AI system that ingests any codebase or GitHub repository and produces:
+Mike is a fully local, offline-capable AI system that ingests any codebase or GitHub repository and produces:
 
 - 📚 **Detailed Documentation** - README, architecture guides, API references
 - 🗺️ **Architecture Overviews** - Dependency maps, component diagrams  
@@ -25,18 +25,18 @@ ArchitectAI is a fully local, offline-capable AI system that ingests any codebas
 
 ```bash
 # Scan a codebase
-$ architectai scan ./my-project --session-name "My Project"
+$ mike scan ./my-project --session-name "My Project"
 Created session: d5634ac4-443e-4735-afa2-8cbf9cac39f0
 Found 127 files
 Scanned 127 files
 
 # Generate documentation
-$ architectai docs d5634ac4-443e-4735-afa2-8cbf9cac39f0 --output ./docs
+$ mike docs d5634ac4-443e-4735-afa2-8cbf9cac39f0 --output ./docs
 Generating documentation... completed
 Documentation generated in: ./docs
 
 # Ask questions about your code
-$ architectai ask d5634ac4-443e-4735-afa2-8cbf9cac39f0 "Where is authentication handled?"
+$ mike ask d5634ac4-443e-4735-afa2-8cbf9cac39f0 "Where is authentication handled?"
 Based on the codebase analysis:
 
 Found 3 potentially relevant files:
@@ -121,7 +121,7 @@ pip install -e "."
 
 ```bash
 # Initialize system
-mkdir -p ~/.architectai/logs ~/.architectai/output
+mkdir -p ~/.mike/logs ~/.mike/output
 
 # Optional: Download models for enhanced AI
 ollama pull mxbai-embed-large
@@ -136,7 +136,7 @@ ollama pull qwen2.5-coder:14b
 
 ```bash
 # Local directory
-architectai scan /path/to/your/project --session-name "My Project"
+mike scan /path/to/your/project --session-name "My Project"
 
 # Output:
 # Created session: d5634ac4-443e-4735-afa2-8cbf9cac39f0
@@ -148,7 +148,7 @@ architectai scan /path/to/your/project --session-name "My Project"
 
 ```bash
 # Generate all documentation types
-architectai docs <session-id> --output ./docs
+mike docs <session-id> --output ./docs
 
 # Generated files:
 # ./docs/README.md
@@ -160,17 +160,17 @@ architectai docs <session-id> --output ./docs
 ### 3️⃣ Ask Questions
 
 ```bash
-architectai ask <session-id> "Where is authentication handled?"
-architectai ask <session-id> "What are the main components?"
-architectai ask <session-id> "How does error handling work?"
+mike ask <session-id> "Where is authentication handled?"
+mike ask <session-id> "What are the main components?"
+mike ask <session-id> "How does error handling work?"
 ```
 
 ### 4️⃣ Analyze Code Quality
 
 ```bash
 # Check for code smells and improvements
-architectai refactor <session-id> -f readability
-architectai refactor <session-id> -f security
+mike refactor <session-id> -f readability
+mike refactor <session-id> -f security
 ```
 
 ---
@@ -181,51 +181,51 @@ architectai refactor <session-id> -f security
 
 ```bash
 # 1. Scan your codebase
-SESSION_ID=$(architectai scan ./my-project --session-name "My Project" 2>&1 | grep "Created session:" | awk '{print $3}')
+SESSION_ID=$(mike scan ./my-project --session-name "My Project" 2>&1 | grep "Created session:" | awk '{print $3}')
 echo "Session ID: $SESSION_ID"
 
 # 2. Parse AST and build dependencies
-architectai parse $SESSION_ID
-architectai build-graph $SESSION_ID --output graph.json
+mike parse $SESSION_ID
+mike build-graph $SESSION_ID --output graph.json
 
 # 3. Generate embeddings for semantic search
-architectai embed $SESSION_ID
+mike embed $SESSION_ID
 
 # 4. Generate documentation
-architectai docs $SESSION_ID --output ./docs
+mike docs $SESSION_ID --output ./docs
 
 # 5. Ask questions
-architectai ask $SESSION_ID "What are the main entry points?"
+mike ask $SESSION_ID "What are the main entry points?"
 
 # 6. Search semantically
-architectai search $SESSION_ID "authentication logic"
+mike search $SESSION_ID "authentication logic"
 
 # 7. Analyze for refactoring
-architectai refactor $SESSION_ID -f performance
+mike refactor $SESSION_ID -f performance
 ```
 
 ### Session Management
 
 ```bash
 # List all sessions
-architectai session list
+mike session list
 
 # Get session details
-architectai session info <session-id>
+mike session info <session-id>
 
 # Delete a session
-architectai session delete <session-id>
+mike session delete <session-id>
 ```
 
 ### System Status
 
 ```bash
 # Check system status
-architectai status
+mike status
 
 # Output:
-# ArchitectAI v0.1.0
-# Database: /Users/krissdev/.architectai/architectai.db
+# Mike v0.1.0
+# Database: /Users/krissdev/.mike/mike.db
 # Sessions: 27
 # 
 # Agents:
@@ -242,7 +242,7 @@ architectai status
 Launch the beautiful Streamlit web UI:
 
 ```bash
-streamlit run src/architectai/web/app.py
+streamlit run src/mike/web/app.py
 ```
 
 Then open http://localhost:8501 in your browser.
@@ -321,7 +321,7 @@ Works seamlessly across devices:
 ### Global Options
 
 ```bash
-architectai [OPTIONS] COMMAND [ARGS...]
+mike [OPTIONS] COMMAND [ARGS...]
 
 Options:
   --db PATH          Database file path
@@ -336,59 +336,59 @@ Options:
 
 ```bash
 # Scan codebase
-architectai scan <source> [--session-name NAME]
+mike scan <source> [--session-name NAME]
 
 # Parse AST
-architectai parse <session-id>
+mike parse <session-id>
 
 # Build dependency graph
-architectai build-graph <session-id> [--output FILE]
+mike build-graph <session-id> [--output FILE]
 
 # Generate embeddings
-architectai embed <session-id> [--model MODEL]
+mike embed <session-id> [--model MODEL]
 
 # Search codebase
-architectai search <session-id> <query> [--n-results N]
+mike search <session-id> <query> [--n-results N]
 ```
 
 #### Agent Commands
 
 ```bash
 # Generate documentation
-architectai docs <session-id> [--output DIR] [--type TYPE]
+mike docs <session-id> [--output DIR] [--type TYPE]
 
 # Ask questions
-architectai ask <session-id> <question>
+mike ask <session-id> <question>
 
 # Refactoring analysis
-architectai refactor <session-id> [-f performance|readability|structure|security]
+mike refactor <session-id> [-f performance|readability|structure|security]
 
 # Rebuild/scaffold project
-architectai rebuild <session-id> <output-dir>
+mike rebuild <session-id> <output-dir>
 ```
 
 #### Session Management
 
 ```bash
 # List sessions
-architectai session list [--limit N]
+mike session list [--limit N]
 
 # Session info
-architectai session info <session-id>
+mike session info <session-id>
 
 # Delete session
-architectai session delete <session-id> [--force]
+mike session delete <session-id> [--force]
 ```
 
 #### System
 
 ```bash
 # System status
-architectai status
+mike status
 
 # Telemetry
-architectai telemetry stats
-architectai telemetry report
+mike telemetry stats
+mike telemetry report
 ```
 
 ---
@@ -398,7 +398,7 @@ architectai telemetry report
 ### Basic Usage
 
 ```python
-from architectai import create_ai
+from mike import create_ai
 
 # Initialize
 ai = create_ai()
@@ -419,13 +419,13 @@ print(answer.text)
 ### Advanced Usage
 
 ```python
-from architectai import ArchitectAI
+from mike import Mike
 
 # With progress tracking
 def on_progress(task, progress, message):
     print(f"[{task}] {int(progress*100)}%: {message}")
 
-ai = ArchitectAI(verbose=True)
+ai = Mike(verbose=True)
 ai.add_progress_callback(on_progress)
 
 # Full analysis
@@ -550,7 +550,7 @@ pip install -e ".[dev]"
 pytest
 
 # Run with coverage
-pytest --cov=src/architectai
+pytest --cov=src/mike
 
 # Run specific test categories
 pytest -m unit
@@ -569,14 +569,14 @@ isort src tests
 ruff check src tests
 
 # Type check
-mypy src/architectai
+mypy src/mike
 ```
 
 ### Project Structure
 
 ```
-architectai/
-├── src/architectai/
+mike/
+├── src/mike/
 │   ├── __init__.py              # Public API exports
 │   ├── api.py                   # Main API interface
 │   ├── bootstrap.py             # System initialization

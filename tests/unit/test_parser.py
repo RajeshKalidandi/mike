@@ -2,8 +2,8 @@
 
 import pytest
 
-from architectai.parser.parser import ASTParser
-from architectai.parser.languages import normalize_language, is_language_supported
+from mike.parser.parser import ASTParser
+from mike.parser.languages import normalize_language, is_language_supported
 
 
 class TestASTParser:

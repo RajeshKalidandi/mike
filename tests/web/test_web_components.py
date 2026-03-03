@@ -1,4 +1,4 @@
-"""Comprehensive tests for ArchitectAI web UI components.
+"""Comprehensive tests for Mike web UI components.
 
 Tests for theme utilities, components, and web utilities.
 """
@@ -39,7 +39,7 @@ sys.modules["networkx"] = mock_nx
 sys.modules["pandas"] = mock_pd
 
 # Now import the modules under test
-from architectai.web.theme_utils import (
+from mike.web.theme_utils import (
     get_current_theme,
     set_theme,
     generate_css,
@@ -47,7 +47,7 @@ from architectai.web.theme_utils import (
     get_theme_colors,
     THEME_COLORS,
 )
-from architectai.web.utils import (
+from mike.web.utils import (
     DEFAULT_SETTINGS,
     load_settings,
     save_settings,
@@ -243,7 +243,7 @@ class TestSettingsPersistence:
     def test_load_settings_default(self, tmp_path):
         """Test loading settings returns defaults when no file exists."""
         with patch(
-            "architectai.web.utils.get_settings_path",
+            "mike.web.utils.get_settings_path",
             return_value=tmp_path / "nonexistent.json",
         ):
             settings = load_settings()
@@ -255,7 +255,7 @@ class TestSettingsPersistence:
         settings_file = tmp_path / "settings.json"
 
         with patch(
-            "architectai.web.utils.get_settings_path", return_value=settings_file
+            "mike.web.utils.get_settings_path", return_value=settings_file
         ):
             custom_settings = DEFAULT_SETTINGS.copy()
             custom_settings["theme"] = "light"
@@ -272,7 +272,7 @@ class TestSettingsPersistence:
         settings_file = tmp_path / "settings.json"
 
         with patch(
-            "architectai.web.utils.get_settings_path", return_value=settings_file
+            "mike.web.utils.get_settings_path", return_value=settings_file
         ):
             partial_settings = {"theme": "light"}
             save_settings(partial_settings)
@@ -345,7 +345,7 @@ class TestIntegrationWorkflows:
         settings_file = tmp_path / "settings.json"
 
         with patch(
-            "architectai.web.utils.get_settings_path", return_value=settings_file
+            "mike.web.utils.get_settings_path", return_value=settings_file
         ):
             # Save custom settings
             custom = DEFAULT_SETTINGS.copy()

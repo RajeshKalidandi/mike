@@ -3,12 +3,12 @@
 import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from architectai.agents.iterative_generator import (
+from mike.agents.iterative_generator import (
     IterativeGenerator,
     IterationResult,
     IterationStatus,
 )
-from architectai.agents.code_executor import ExecutionResult, ExecutionStatus
+from mike.agents.code_executor import ExecutionResult, ExecutionStatus
 
 
 class TestIterativeGenerator:

@@ -3,8 +3,8 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from architectai.agents.qa_agent import QAAgent, QueryAnalyzer, QueryIntent, QAResponse
-from architectai.agents.refactor_agent import RefactorAgent
+from mike.agents.qa_agent import QAAgent, QueryAnalyzer, QueryIntent, QAResponse
+from mike.agents.refactor_agent import RefactorAgent
 
 
 class TestQAAgent:

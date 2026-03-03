@@ -1,6 +1,6 @@
 # Sample Python Project
 
-A sample Python project for testing the ArchitectAI pipeline.
+A sample Python project for testing the Mike pipeline.
 
 ## Structure
 

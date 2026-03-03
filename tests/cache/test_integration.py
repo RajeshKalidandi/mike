@@ -2,8 +2,8 @@ import pytest
 import tempfile
 import numpy as np
 import networkx as nx
-from architectai.cache import CacheManager, ASTCache, EmbeddingCache, GraphCache
-from architectai.performance import ParallelProcessor, BatchProcessor
+from mike.cache import CacheManager, ASTCache, EmbeddingCache, GraphCache
+from mike.performance import ParallelProcessor, BatchProcessor
 
 
 class TestCacheIntegration:

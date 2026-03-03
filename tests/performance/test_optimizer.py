@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
-from architectai.performance.optimizer import (
+from mike.performance.optimizer import (
     ParallelProcessor,
     BatchProcessor,
     MemoryOptimizer,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Launcher script for the ArchitectAI Streamlit web interface.
+"""Launcher script for the Mike Streamlit web interface.
 
 This launcher provides a convenient way to start the web UI with
 prerequisite checking and automatic port selection.
@@ -57,7 +57,7 @@ def check_prerequisites() -> dict:
         status["issues"].append("streamlit not installed. Run: pip install streamlit")
 
     # Check if app exists
-    app_path = Path(__file__).parent / "src" / "architectai" / "web" / "app.py"
+    app_path = Path(__file__).parent / "src" / "mike" / "web" / "app.py"
     if app_path.exists():
         status["app_exists"] = True
     else:
@@ -72,7 +72,7 @@ def launch_web_ui(
     headless: bool = False,
     check_prereqs: bool = True,
 ) -> int:
-    """Launch the ArchitectAI web interface.
+    """Launch the Mike web interface.
 
     Args:
         port: Port to use (auto-selects if None)
@@ -110,7 +110,7 @@ def launch_web_ui(
             port = 8501
 
     # Find app path
-    app_path = Path(__file__).parent / "src" / "architectai" / "web" / "app.py"
+    app_path = Path(__file__).parent / "src" / "mike" / "web" / "app.py"
 
     if not app_path.exists():
         print(f"✗ App not found at {app_path}")
@@ -128,7 +128,7 @@ def launch_web_ui(
         "--browser.gatherUsageStats=false",
     ]
 
-    print(f"\n🚀 Launching ArchitectAI Web UI...")
+    print(f"\n🚀 Launching Mike Web UI...")
     print(f"   URL: http://localhost:{port}")
     print(f"   Press Ctrl+C to stop\n")
 
@@ -151,7 +151,7 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Launch ArchitectAI Web Interface",
+        description="Launch Mike Web Interface",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:

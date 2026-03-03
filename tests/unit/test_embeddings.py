@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from architectai.embeddings.service import EmbeddingService
+from mike.embeddings.service import EmbeddingService
 
 
 class TestEmbeddingService:
@@ -11,7 +11,7 @@ class TestEmbeddingService:
 
     def test_service_initialization_defaults(self):
         """Test service initialization with defaults."""
-        with patch("architectai.embeddings.service.ollama.Client") as MockClient:
+        with patch("mike.embeddings.service.ollama.Client") as MockClient:
             service = EmbeddingService()
 
             assert service.model == "mxbai-embed-large"
@@ -20,7 +20,7 @@ class TestEmbeddingService:
 
     def test_service_initialization_custom_model(self):
         """Test service initialization with custom model."""
-        with patch("architectai.embeddings.service.ollama.Client"):
+        with patch("mike.embeddings.service.ollama.Client"):
             service = EmbeddingService(model="nomic-embed-text")
 
             assert service.model == "nomic-embed-text"
@@ -28,7 +28,7 @@ class TestEmbeddingService:
 
     def test_service_initialization_custom_host(self):
         """Test service initialization with custom host."""
-        with patch("architectai.embeddings.service.ollama.Client") as MockClient:
+        with patch("mike.embeddings.service.ollama.Client") as MockClient:
             service = EmbeddingService(host="http://custom:11434")
 
             MockClient.assert_called_once_with(host="http://custom:11434")
@@ -36,7 +36,7 @@ class TestEmbeddingService:
     def test_embed_single_text(self, mock_ollama_client):
         """Test embedding a single text."""
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()
@@ -53,7 +53,7 @@ class TestEmbeddingService:
         mock_ollama_client.embeddings.side_effect = Exception("Connection failed")
 
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()
@@ -65,7 +65,7 @@ class TestEmbeddingService:
     def test_embed_batch(self, mock_ollama_client):
         """Test embedding multiple texts."""
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()
@@ -78,7 +78,7 @@ class TestEmbeddingService:
     def test_embed_batch_custom_size(self, mock_ollama_client):
         """Test embedding with custom batch size."""
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()
@@ -90,7 +90,7 @@ class TestEmbeddingService:
     def test_embed_chunks(self, mock_ollama_client):
         """Test embedding code chunks."""
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()
@@ -108,7 +108,7 @@ class TestEmbeddingService:
     def test_check_model_available_true(self, mock_ollama_client):
         """Test checking if model is available (true case)."""
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService(model="mxbai-embed-large")
@@ -121,7 +121,7 @@ class TestEmbeddingService:
         mock_ollama_client.list.return_value = {"models": [{"name": "other-model"}]}
 
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService(model="mxbai-embed-large")
@@ -136,7 +136,7 @@ class TestEmbeddingService:
         }
 
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService(model="mxbai-embed-large")
@@ -149,7 +149,7 @@ class TestEmbeddingService:
         mock_ollama_client.list.side_effect = Exception("Connection failed")
 
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()
@@ -180,7 +180,7 @@ class TestEmbeddingService:
 
     def test_model_dimension_property(self):
         """Test model dimension property."""
-        with patch("architectai.embeddings.service.ollama.Client"):
+        with patch("mike.embeddings.service.ollama.Client"):
             service_nomic = EmbeddingService(model="nomic-embed-text")
             service_mxbai = EmbeddingService(model="mxbai-embed-large")
 
@@ -198,7 +198,7 @@ class TestEmbeddingService:
     def test_embed_empty_text(self, mock_ollama_client):
         """Test embedding empty text."""
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()
@@ -209,7 +209,7 @@ class TestEmbeddingService:
     def test_embed_batch_empty_list(self, mock_ollama_client):
         """Test embedding empty batch."""
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()
@@ -220,7 +220,7 @@ class TestEmbeddingService:
     def test_embed_chunks_empty_list(self, mock_ollama_client):
         """Test embedding empty chunks list."""
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()
@@ -231,7 +231,7 @@ class TestEmbeddingService:
     def test_embed_unicode_text(self, mock_ollama_client):
         """Test embedding text with unicode characters."""
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()
@@ -242,7 +242,7 @@ class TestEmbeddingService:
     def test_embed_long_text(self, mock_ollama_client):
         """Test embedding long text."""
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()
@@ -254,7 +254,7 @@ class TestEmbeddingService:
     def test_embed_multiline_text(self, mock_ollama_client):
         """Test embedding multiline text."""
         with patch(
-            "architectai.embeddings.service.ollama.Client",
+            "mike.embeddings.service.ollama.Client",
             return_value=mock_ollama_client,
         ):
             service = EmbeddingService()

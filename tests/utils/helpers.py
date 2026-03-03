@@ -9,7 +9,7 @@ from contextlib import contextmanager
 
 
 @contextmanager
-def temp_directory(prefix: str = "architectai_test_") -> Generator[Path, None, None]:
+def temp_directory(prefix: str = "mike_test_") -> Generator[Path, None, None]:
     """Create a temporary directory for testing.
 
     Args:

@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from architectai.graph.builder import DependencyGraphBuilder
+from mike.graph.builder import DependencyGraphBuilder
 
 
 class TestDependencyGraphBuilder:

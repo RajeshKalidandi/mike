@@ -2,7 +2,7 @@
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task.
 
-**Goal:** Build a comprehensive configuration management system for ArchitectAI with Pydantic validation, profiles, and CLI integration.
+**Goal:** Build a comprehensive configuration management system for Mike with Pydantic validation, profiles, and CLI integration.
 
 **Architecture:** Settings management using Pydantic v2 for validation, with hierarchical config loading (defaults → files → env vars → CLI args), profile-based presets, and hot-reload capability.
 
@@ -13,7 +13,7 @@
 ## Task 1: Core Settings Module
 
 **Files:**
-- Create: `src/architectai/config/settings.py`
+- Create: `src/mike/config/settings.py`
 - Test: `tests/config/test_settings.py`
 
 **Implementation:**
@@ -43,7 +43,7 @@ Create comprehensive Settings class with all configuration categories:
 ## Task 2: Profile Management
 
 **Files:**
-- Create: `src/architectai/config/profiles.py`
+- Create: `src/mike/config/profiles.py`
 - Test: `tests/config/test_profiles.py`
 
 **Implementation:**
@@ -71,7 +71,7 @@ Create profile management system:
 ## Task 3: Configuration Validation
 
 **Files:**
-- Create: `src/architectai/config/validation.py`
+- Create: `src/mike/config/validation.py`
 - Test: `tests/config/test_validation.py`
 
 **Implementation:**
@@ -102,22 +102,22 @@ Create validation utilities:
 ## Task 4: Configuration Loader
 
 **Files:**
-- Create: `src/architectai/config/loader.py`
+- Create: `src/mike/config/loader.py`
 - Test: `tests/config/test_loader.py`
 
 **Implementation:**
 Create hierarchical config loading:
 - `ConfigLoader` class
 - Support YAML, JSON, TOML formats
-- Loading precedence: defaults → ~/.architectai/config.yaml → ./.architectai/config.yaml → env vars → CLI args
+- Loading precedence: defaults → ~/.mike/config.yaml → ./.mike/config.yaml → env vars → CLI args
 - Environment variable mapping (ARCHITECTAI_DATABASE_PATH, etc.)
 - Deep merging of nested configs
 - Hot-reload capability with file watching
 - Config migration support (version checking)
 
 **Config file locations:**
-- `~/.architectai/config.yaml` - User config
-- `./.architectai/config.yaml` - Project config
+- `~/.mike/config.yaml` - User config
+- `./.mike/config.yaml` - Project config
 
 **Step 1:** Write failing test for config loading
 **Step 2:** Run test, verify it fails
@@ -130,21 +130,21 @@ Create hierarchical config loading:
 ## Task 5: Module Initialization and CLI Integration
 
 **Files:**
-- Create: `src/architectai/config/__init__.py`
-- Modify: `src/architectai/cli.py` (add config commands)
+- Create: `src/mike/config/__init__.py`
+- Modify: `src/mike/cli.py` (add config commands)
 - Test: `tests/config/test_init.py`
 
 **Implementation:**
 Create module exports and CLI commands:
 - `__init__.py` with exports (Settings, ProfileManager, ConfigLoader, etc.)
 - CLI commands:
-  * `architectai config init` - Create default config file
-  * `architectai config show` - Display current config
-  * `architectai config validate` - Validate config
-  * `architectai config set <key> <value>` - Set value
-  * `architectai config get <key>` - Get value
-  * `architectai config profiles` - List profiles
-  * `architectai config use-profile <name>` - Switch profile
+  * `mike config init` - Create default config file
+  * `mike config show` - Display current config
+  * `mike config validate` - Validate config
+  * `mike config set <key> <value>` - Set value
+  * `mike config get <key>` - Get value
+  * `mike config profiles` - List profiles
+  * `mike config use-profile <name>` - Switch profile
 
 **Features:**
 - Default config generation with comments
@@ -188,7 +188,7 @@ Integration tests and final setup:
 **Total Tasks:** 6
 **Estimated Time:** 2-3 hours
 **Deliverables:**
-- 5 new Python modules in `src/architectai/config/`
+- 5 new Python modules in `src/mike/config/`
 - 6 test files in `tests/config/`
 - Updated CLI with 7 config commands
 - Updated pyproject.toml

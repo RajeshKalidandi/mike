@@ -1,7 +1,7 @@
 import pytest
 import tempfile
 import networkx as nx
-from architectai.cache.graph_cache import GraphCache
+from mike.cache.graph_cache import GraphCache
 
 
 class TestGraphCache:

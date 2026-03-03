@@ -8,8 +8,8 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from architectai.cli import main
-from architectai.db.models import Database
+from mike.cli import main
+from mike.db.models import Database
 
 
 class TestIntegration:
@@ -109,7 +109,7 @@ module.exports = { init };
                 return str(mock_repo)
 
             # Patch clone_repository where it's imported in cli module
-            monkeypatch.setattr("architectai.cli.clone_repository", mock_clone)
+            monkeypatch.setattr("mike.cli.clone_repository", mock_clone)
 
             db_path = os.path.join(tmpdir, "test.db")
 

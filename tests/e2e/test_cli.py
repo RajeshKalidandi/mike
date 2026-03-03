@@ -7,7 +7,7 @@ from click.testing import CliRunner
 
 import pytest
 
-from architectai.cli import main
+from mike.cli import main
 
 
 class TestCLIScan:
@@ -250,7 +250,7 @@ class TestCLIStatus:
         result = runner.invoke(main, ["--db", str(temp_dir / "test.db"), "status"])
 
         assert result.exit_code == 0
-        assert "ArchitectAI" in result.output or "version" in result.output.lower()
+        assert "Mike" in result.output or "version" in result.output.lower()
 
     def test_status_json_output(self, temp_dir):
         """Test status with JSON output."""

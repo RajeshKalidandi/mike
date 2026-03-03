@@ -1,7 +1,7 @@
 import pytest
 import tempfile
 import numpy as np
-from architectai.cache.embedding_cache import EmbeddingCache
+from mike.cache.embedding_cache import EmbeddingCache
 
 
 class TestEmbeddingCache:

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from architectai.scanner.scanner import FileScanner
+from mike.scanner.scanner import FileScanner
 
 
 class TestFileScanner:

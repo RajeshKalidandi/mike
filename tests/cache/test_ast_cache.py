@@ -1,7 +1,7 @@
 import pytest
 import tempfile
 from unittest.mock import Mock
-from architectai.cache.ast_cache import ASTCache
+from mike.cache.ast_cache import ASTCache
 
 
 class TestASTCache:

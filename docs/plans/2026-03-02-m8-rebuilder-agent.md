@@ -32,7 +32,7 @@ The existing Rebuilder Agent has:
 ## Task 1: Create Code Execution Sandbox
 
 **Files:**
-- Create: `src/architectai/agents/code_executor.py`
+- Create: `src/mike/agents/code_executor.py`
 - Test: `tests/unit/test_agents/test_code_executor.py`
 
 **Step 1: Write the failing test**
@@ -41,7 +41,7 @@ The existing Rebuilder Agent has:
 # tests/unit/test_agents/test_code_executor.py
 import pytest
 from pathlib import Path
-from architectai.agents.code_executor import CodeExecutor, ExecutionResult
+from mike.agents.code_executor import CodeExecutor, ExecutionResult
 
 class TestCodeExecutor:
     def test_initialization(self):
@@ -105,7 +105,7 @@ Expected: FAIL with "module not found"
 **Step 3: Implement the CodeExecutor**
 
 ```python
-# src/architectai/agents/code_executor.py
+# src/mike/agents/code_executor.py
 """Code execution sandbox for testing generated code.
 
 Provides isolated execution environment for testing code
@@ -477,7 +477,7 @@ Expected: PASS
 **Step 5: Commit**
 
 ```bash
-git add src/architectai/agents/code_executor.py tests/unit/test_agents/test_code_executor.py
+git add src/mike/agents/code_executor.py tests/unit/test_agents/test_code_executor.py
 git commit -m "feat: add CodeExecutor for sandboxed code execution and testing"
 ```
 
@@ -486,8 +486,8 @@ git commit -m "feat: add CodeExecutor for sandboxed code execution and testing"
 ## Task 2: Implement Iterative Code Generator
 
 **Files:**
-- Create: `src/architectai/agents/iterative_generator.py`
-- Modify: `src/architectai/agents/rebuilder_agent.py` (integrate iterative generator)
+- Create: `src/mike/agents/iterative_generator.py`
+- Modify: `src/mike/agents/rebuilder_agent.py` (integrate iterative generator)
 - Test: `tests/unit/test_agents/test_iterative_generator.py`
 
 **Step 1: Write the failing test**
@@ -497,8 +497,8 @@ git commit -m "feat: add CodeExecutor for sandboxed code execution and testing"
 import pytest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-from architectai.agents.iterative_generator import IterativeGenerator, IterationResult
-from architectai.agents.rebuilder_agent import FileSpec, BuildPlan, BuildPlanStatus
+from mike.agents.iterative_generator import IterativeGenerator, IterationResult
+from mike.agents.rebuilder_agent import FileSpec, BuildPlan, BuildPlanStatus
 
 class TestIterativeGenerator:
     def test_initialization(self):
@@ -587,7 +587,7 @@ Expected: FAIL with module not found
 **Step 3: Implement the IterativeGenerator**
 
 ```python
-# src/architectai/agents/iterative_generator.py
+# src/mike/agents/iterative_generator.py
 """Iterative code generator with write-test-fix loop.
 
 Implements AutoGen-style iterative refinement where code is generated,
@@ -962,7 +962,7 @@ Expected: PASS
 **Step 5: Commit**
 
 ```bash
-git add src/architectai/agents/iterative_generator.py tests/unit/test_agents/test_iterative_generator.py
+git add src/mike/agents/iterative_generator.py tests/unit/test_agents/test_iterative_generator.py
 git commit -m "feat: add IterativeGenerator with write-test-fix loop"
 ```
 
@@ -971,12 +971,12 @@ git commit -m "feat: add IterativeGenerator with write-test-fix loop"
 ## Task 3: Update RebuilderAgent to Use Iterative Generator
 
 **Files:**
-- Modify: `src/architectai/agents/rebuilder_agent.py`
+- Modify: `src/mike/agents/rebuilder_agent.py`
 - Test: `tests/unit/test_agents/test_rebuilder_agent.py` (update existing)
 
 **Step 1: Update imports and initialization**
 
-Edit `src/architectai/agents/rebuilder_agent.py`:
+Edit `src/mike/agents/rebuilder_agent.py`:
 - Add import for IterativeGenerator
 - Update __init__ to accept iterative generator
 - Add execution_memory tracking
@@ -993,7 +993,7 @@ Expected: PASS
 **Step 4: Commit**
 
 ```bash
-git add src/architectai/agents/rebuilder_agent.py
+git add src/mike/agents/rebuilder_agent.py
 git commit -m "feat: integrate IterativeGenerator into RebuilderAgent"
 ```
 
@@ -1002,7 +1002,7 @@ git commit -m "feat: integrate IterativeGenerator into RebuilderAgent"
 ## Task 4: Add Execution Memory to RebuilderAgent
 
 **Files:**
-- Modify: `src/architectai/agents/rebuilder_agent.py`
+- Modify: `src/mike/agents/rebuilder_agent.py`
 
 **Step 1: Add execution memory tracking**
 
@@ -1023,7 +1023,7 @@ Ensure all major actions are logged to execution memory.
 **Step 4: Commit**
 
 ```bash
-git add src/architectai/agents/rebuilder_agent.py
+git add src/mike/agents/rebuilder_agent.py
 git commit -m "feat: add execution memory tracking to RebuilderAgent"
 ```
 
@@ -1040,7 +1040,7 @@ git commit -m "feat: add execution memory tracking to RebuilderAgent"
 # tests/integration/test_rebuilder_workflow.py
 import pytest
 from pathlib import Path
-from architectai.agents.rebuilder_agent import RebuilderAgent, RebuilderWorkflow
+from mike.agents.rebuilder_agent import RebuilderAgent, RebuilderWorkflow
 
 class TestRebuilderWorkflow:
     def test_full_workflow_with_mock(self, tmp_path):
@@ -1056,7 +1056,7 @@ class TestRebuilderWorkflow:
         )
         
         # Create a simple template
-        from architectai.agents.rebuilder_agent import (
+        from mike.agents.rebuilder_agent import (
             ArchitectureTemplate,
             BuildPlan,
         )
@@ -1106,7 +1106,7 @@ git commit -m "test: add integration tests for Rebuilder workflow"
 ## Task 6: Update Agent Orchestrator Integration
 
 **Files:**
-- Modify: `src/architectai/orchestrator/engine.py` (if exists)
+- Modify: `src/mike/orchestrator/engine.py` (if exists)
 - OR Create integration in CLI
 
 **Step 1: Add RebuilderAgent to orchestrator or CLI**
@@ -1143,8 +1143,8 @@ Expected: All PASS
 
 ```bash
 # Check for available lint/type commands
-black --check src/architectai/agents/
-mypy src/architectai/agents/
+black --check src/mike/agents/
+mypy src/mike/agents/
 ```
 
 **Step 3: Update milestone status**
