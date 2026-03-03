@@ -17,8 +17,8 @@ import plotly.graph_objects as go
 import streamlit as st
 from plotly.subplots import make_subplots
 
-from .utils import format_file_size, format_timestamp
-from .theme_utils import (
+from ..utils import format_file_size, format_timestamp
+from ..theme_utils import (
     apply_chart_theme,
     get_chart_theme,
     get_current_theme,
@@ -261,7 +261,7 @@ def render_dependency_graph(
         edge_y.extend([y0, y1, None])
 
         edge_type = edge[2].get("type", "depends_on")
-        edge_colors.append(edge_type_colors.get(edge_type, colors['accent_gray']))
+        edge_colors.append(edge_type_colors.get(edge_type, colors["accent_gray"]))
 
     # Create nodes
     node_x = []
@@ -287,7 +287,7 @@ def render_dependency_graph(
             x=edge_x,
             y=edge_y,
             mode="lines",
-            line=dict(width=1, color=colors['accent_gray']),
+            line=dict(width=1, color=colors["accent_gray"]),
             hoverinfo="none",
         )
     )
@@ -300,12 +300,12 @@ def render_dependency_graph(
             mode="markers+text",
             marker=dict(
                 size=node_sizes,
-                color=colors['accent_blue'],
-                line=dict(width=2, color=colors['primary']),
+                color=colors["accent_blue"],
+                line=dict(width=2, color=colors["primary"]),
             ),
             text=node_text,
             textposition="top center",
-            textfont=dict(size=8, color=colors['text']),
+            textfont=dict(size=8, color=colors["text"]),
             hovertemplate="%{text}<br>Connections: %{marker.size}<extra></extra>",
         )
     )
@@ -319,12 +319,9 @@ def render_dependency_graph(
         xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         height=height,
-        title=dict(
-            text="Dependency Graph",
-            font=dict(color=colors['text'])
-        ),
-        paper_bgcolor=chart_theme['paper_bgcolor'],
-        plot_bgcolor=chart_theme['plot_bgcolor'],
+        title=dict(text="Dependency Graph", font=dict(color=colors["text"])),
+        paper_bgcolor=chart_theme["paper_bgcolor"],
+        plot_bgcolor=chart_theme["plot_bgcolor"],
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -380,16 +377,16 @@ def render_language_chart(languages: Dict[str, int]) -> None:
         textinfo="percent+label",
         marker=dict(
             colors=[
-                colors['primary'],
-                colors['accent_blue'],
-                colors['accent_green'],
-                colors['accent_purple'],
-                colors['warning'],
-                colors['info'],
-                colors['accent_gray'],
-                colors['text_secondary'],
-            ][:len(labels)]
-        )
+                colors["primary"],
+                colors["accent_blue"],
+                colors["accent_green"],
+                colors["accent_purple"],
+                colors["warning"],
+                colors["info"],
+                colors["accent_gray"],
+                colors["text_secondary"],
+            ][: len(labels)]
+        ),
     )
 
     # Apply theme
@@ -431,8 +428,8 @@ def render_file_size_chart(files: List[Dict[str, Any]]) -> None:
 
     # Apply theme colors
     fig.update_traces(
-        marker_color=colors['accent_blue'],
-        marker_line_color=colors['primary'],
+        marker_color=colors["accent_blue"],
+        marker_line_color=colors["primary"],
         marker_line_width=1,
     )
 
@@ -468,17 +465,17 @@ def render_log_viewer(
     logs = list(reversed(logs))
 
     # Create log display with theme colors
-    log_html = f'''<div style="
+    log_html = f"""<div style="
         font-family: monospace; 
         font-size: 12px; 
         max-height: {max_height}px; 
         overflow-y: auto; 
-        background-color: {colors['card_background']}; 
-        color: {colors['text']};
+        background-color: {colors["card_background"]}; 
+        color: {colors["text"]};
         padding: 10px; 
         border-radius: 5px;
-        border: 1px solid {colors['border']};
-    ">'''
+        border: 1px solid {colors["border"]};
+    ">"""
 
     for log in logs:
         timestamp = format_timestamp(log.get("timestamp"))
@@ -488,13 +485,13 @@ def render_log_viewer(
         # Escape HTML
         message = message.replace("<", "&lt;").replace(">", "&gt;")
 
-        color = log_colors.get(level, colors['text_secondary'])
+        color = log_colors.get(level, colors["text_secondary"])
 
-        log_html += f'''<div style="margin-bottom: 4px;">
-            <span style="color: {colors['text_secondary']};">[{timestamp}]</span> 
+        log_html += f"""<div style="margin-bottom: 4px;">
+            <span style="color: {colors["text_secondary"]};">[{timestamp}]</span> 
             <span style="color: {color}; font-weight: bold;">{level}</span> 
             {message}
-        </div>'''
+        </div>"""
 
     log_html += "</div>"
 
