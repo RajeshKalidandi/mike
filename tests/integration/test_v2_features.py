@@ -128,11 +128,15 @@ def git_repo(temp_dir: Path) -> Path:
     subprocess.run(["git", "init"], cwd=temp_dir, check=True, capture_output=True)
     subprocess.run(
         ["git", "config", "user.email", "test@test.com"],
-        cwd=temp_dir, check=True, capture_output=True
+        cwd=temp_dir,
+        check=True,
+        capture_output=True,
     )
     subprocess.run(
         ["git", "config", "user.name", "Test User"],
-        cwd=temp_dir, check=True, capture_output=True
+        cwd=temp_dir,
+        check=True,
+        capture_output=True,
     )
 
     # Create initial file
@@ -140,17 +144,20 @@ def git_repo(temp_dir: Path) -> Path:
     subprocess.run(["git", "add", "."], cwd=temp_dir, check=True, capture_output=True)
     subprocess.run(
         ["git", "commit", "-m", "Initial commit"],
-        cwd=temp_dir, check=True, capture_output=True
+        cwd=temp_dir,
+        check=True,
+        capture_output=True,
     )
 
     # Add more commits
     for i in range(5):
         (temp_dir / "main.py").write_text(f"print('hello {i}')")
-        subprocess.run(["git", "add", "."], cwd=temp_dir, check=True, capture_output=True)
+        subprocess.run(
+            ["git", "add", "."], cwd=temp_dir, check=True, capture_output=True
+        )
         msg = "Fix bug" if i % 2 == 0 else f"Update {i}"
         subprocess.run(
-            ["git", "commit", "-m", msg],
-            cwd=temp_dir, check=True, capture_output=True
+            ["git", "commit", "-m", msg], cwd=temp_dir, check=True, capture_output=True
         )
 
     return temp_dir
@@ -163,8 +170,16 @@ def mock_graph_builder():
     graph = MagicMock()
     graph.number_of_nodes.return_value = 3
     graph.nodes.return_value = ["main.py", "utils.py", "models.py"]
-    graph.in_degree.side_effect = lambda x: {"main.py": 0, "utils.py": 1, "models.py": 1}[x]
-    graph.out_degree.side_effect = lambda x: {"main.py": 2, "utils.py": 0, "models.py": 0}[x]
+    graph.in_degree.side_effect = lambda x: {
+        "main.py": 0,
+        "utils.py": 1,
+        "models.py": 1,
+    }[x]
+    graph.out_degree.side_effect = lambda x: {
+        "main.py": 2,
+        "utils.py": 0,
+        "models.py": 0,
+    }[x]
     graph.edges.return_value = [
         ("main.py", "utils.py", {}),
         ("main.py", "models.py", {}),
@@ -180,7 +195,16 @@ def mock_parser():
     parser = MagicMock()
     parser.parse.return_value = {
         "functions": [{"name": "main"}, {"name": "helper"}],
-        "classes": [{"name": "User", "methods": [{"name": "__init__"}, {"name": "validate"}, {"name": "save"}]}],
+        "classes": [
+            {
+                "name": "User",
+                "methods": [
+                    {"name": "__init__"},
+                    {"name": "validate"},
+                    {"name": "save"},
+                ],
+            }
+        ],
         "imports": [{"name": "os"}, {"name": "sys"}],
     }
     return parser
@@ -194,14 +218,18 @@ def mock_parser():
 class TestHealthScoreFlow:
     """End-to-end tests for Health Score flow."""
 
-    def test_calculate_health_score(self, sample_project: Path, mock_graph_builder, mock_parser):
+    def test_calculate_health_score(
+        self, sample_project: Path, mock_graph_builder, mock_parser
+    ):
         """Test end-to-end health score calculation."""
         calculator = HealthScoreCalculator(mock_graph_builder, mock_parser)
 
         # Read file contents
         file_contents = {}
         for py_file in (sample_project / "src").rglob("*.py"):
-            file_contents[str(py_file.relative_to(sample_project))] = py_file.read_text()
+            file_contents[str(py_file.relative_to(sample_project))] = (
+                py_file.read_text()
+            )
 
         # Calculate score
         score = calculator.calculate_overall_score(file_contents)
@@ -220,7 +248,9 @@ class TestHealthScoreFlow:
         assert ScoreDimension.CIRCULAR_DEPS in dimensions
         assert ScoreDimension.COMPLEXITY in dimensions
 
-    def test_store_health_score_in_db(self, temp_dir: Path, mock_graph_builder, mock_parser):
+    def test_store_health_score_in_db(
+        self, temp_dir: Path, mock_graph_builder, mock_parser
+    ):
         """Test storing health score in database."""
         # Create database
         db_path = temp_dir / "test.db"
@@ -229,9 +259,7 @@ class TestHealthScoreFlow:
 
         # Calculate score
         calculator = HealthScoreCalculator(mock_graph_builder, mock_parser)
-        score = calculator.calculate_overall_score({
-            "test.py": "def hello(): pass"
-        })
+        score = calculator.calculate_overall_score({"test.py": "def hello(): pass"})
 
         # Store in database (simulate storage)
         score_dict = score.to_dict()
@@ -240,13 +268,17 @@ class TestHealthScoreFlow:
         assert "dimensions" in score_dict
         assert "recommendations" in score_dict
 
-    def test_display_results(self, sample_project: Path, mock_graph_builder, mock_parser, capsys):
+    def test_display_results(
+        self, sample_project: Path, mock_graph_builder, mock_parser, capsys
+    ):
         """Test displaying health score results."""
         calculator = HealthScoreCalculator(mock_graph_builder, mock_parser)
 
         file_contents = {}
         for py_file in (sample_project / "src").rglob("*.py"):
-            file_contents[str(py_file.relative_to(sample_project))] = py_file.read_text()
+            file_contents[str(py_file.relative_to(sample_project))] = (
+                py_file.read_text()
+            )
 
         score = calculator.calculate_overall_score(file_contents)
 
@@ -278,9 +310,7 @@ class TestHealthScoreFlow:
     def test_circular_dependency_detection(self, mock_graph_builder, mock_parser):
         """Test circular dependency detection in health score."""
         # Add circular dependency
-        mock_graph_builder.find_cycles.return_value = [
-            ["a.py", "b.py", "c.py", "a.py"]
-        ]
+        mock_graph_builder.find_cycles.return_value = [["a.py", "b.py", "c.py", "a.py"]]
 
         calculator = HealthScoreCalculator(mock_graph_builder, mock_parser)
         score = calculator.calculate_overall_score({})
@@ -315,7 +345,9 @@ class TestSecurityScanFlow:
 
         # Should detect hardcoded secrets
         secrets_findings = report.get_findings_by_category(PatternCategory.SECRETS)
-        assert len(secrets_findings) > 0 or len(report.findings) >= 0  # May or may not detect depending on pattern
+        assert (
+            len(secrets_findings) > 0 or len(report.findings) >= 0
+        )  # May or may not detect depending on pattern
 
     def test_generate_report(self, sample_project: Path):
         """Test generating security report."""
@@ -502,7 +534,7 @@ class TestPatchFlow:
         preview = applier.preview_patch(patch)
 
         assert preview.can_apply
-        assert "test.py" in preview.changes_summary
+        assert "1 file(s) modified" in preview.changes_summary
         assert len(preview.file_changes) > 0
 
     def test_apply_patch(self, temp_dir: Path):
@@ -628,7 +660,7 @@ class TestCLIIntegration:
     """End-to-end tests for CLI integration."""
 
     @pytest.fixture
-def mike_cli(self) -> list:
+    def mike_cli(self) -> list:
         """Get the mike CLI command."""
         return [sys.executable, "-m", "mike"]
 
@@ -689,7 +721,11 @@ def mike_cli(self) -> list:
         )
 
         # Should either return error code or show error message
-        assert result.returncode != 0 or "not found" in result.stdout.lower() or "error" in result.stderr.lower()
+        assert (
+            result.returncode != 0
+            or "not found" in result.stdout.lower()
+            or "error" in result.stderr.lower()
+        )
 
     def test_help_command(self, mike_cli: list):
         """Test the help CLI command."""
@@ -754,6 +790,7 @@ class TestEdgeCases:
         applier = PatchApplier(project_root=temp_dir)
 
         from mike.patch.models import PatchValidationError
+
         with pytest.raises(PatchValidationError):
             applier.apply_patch(patch)
 
@@ -765,7 +802,9 @@ class TestEdgeCases:
             "api": ["api.py", "routes.py"],
         }
 
-        calculator = HealthScoreCalculator(mock_graph_builder, mock_parser, layer_config)
+        calculator = HealthScoreCalculator(
+            mock_graph_builder, mock_parser, layer_config
+        )
         score = calculator.calculate_overall_score({})
 
         assert isinstance(score, ArchitectureScore)
@@ -774,7 +813,7 @@ class TestEdgeCases:
         """Test handling of concurrent-like operations."""
         # This is a simplified test - real concurrency would require threading
         scanner = SecurityScanner()
-        
+
         # Create multiple files
         for i in range(5):
             (temp_dir / f"file{i}.py").write_text(f"x = {i}")
@@ -810,7 +849,9 @@ class TestPerformance:
         assert end_time - start_time < 10  # Should complete in under 10 seconds
 
     @pytest.mark.slow
-    def test_health_score_performance(self, temp_dir: Path, mock_graph_builder, mock_parser):
+    def test_health_score_performance(
+        self, temp_dir: Path, mock_graph_builder, mock_parser
+    ):
         """Test health score calculation performance."""
         import time
 

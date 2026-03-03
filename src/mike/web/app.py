@@ -46,6 +46,10 @@ from mike.web.components import (
     render_session_card,
     render_timeline_chart,
 )
+from mike.web.pages.health import render_health_dashboard
+from mike.web.pages.security import render_security_scanner
+from mike.web.pages.git import render_git_analytics
+from mike.web.pages.patch import render_patch_manager
 from mike.web.utils import (
     add_log,
     format_duration,
@@ -99,20 +103,56 @@ def render_sidebar():
 
         st.divider()
 
-        # Navigation
-        pages = {
+        # Navigation - Main
+        st.markdown("**📍 Main**")
+        pages_main = {
             "home": "🏠 Home",
             "upload": "📤 Upload",
             "sessions": "📁 Sessions",
-            "analysis": "🔍 Analysis",
-            "visualizations": "📊 Visualizations",
-            "settings": "⚙️ Settings",
         }
 
-        for key, label in pages.items():
+        for key, label in pages_main.items():
             if st.button(label, key=f"nav_{key}", use_container_width=True):
                 st.session_state.current_page = key
                 st.rerun()
+
+        st.divider()
+
+        # Navigation - Analysis
+        st.markdown("**🔍 Analysis**")
+        pages_analysis = {
+            "analysis": "🤖 Agents",
+            "visualizations": "📊 Visualizations",
+        }
+
+        for key, label in pages_analysis.items():
+            if st.button(label, key=f"nav_{key}", use_container_width=True):
+                st.session_state.current_page = key
+                st.rerun()
+
+        st.divider()
+
+        # Navigation - Phase 1 Features
+        st.markdown("**✨ Phase 1 Features**")
+        pages_phase1 = {
+            "health": "🏥 Health",
+            "security": "🔒 Security",
+            "git": "📈 Git Analytics",
+            "patch": "🔧 Patches",
+        }
+
+        for key, label in pages_phase1.items():
+            if st.button(label, key=f"nav_{key}", use_container_width=True):
+                st.session_state.current_page = key
+                st.rerun()
+
+        st.divider()
+
+        # Navigation - System
+        st.markdown("**⚙️ System**")
+        if st.button("⚙️ Settings", key="nav_settings", use_container_width=True):
+            st.session_state.current_page = "settings"
+            st.rerun()
 
         st.divider()
 
@@ -1406,6 +1446,14 @@ def main():
         render_analysis()
     elif page == "visualizations":
         render_visualizations()
+    elif page == "health":
+        render_health_dashboard()
+    elif page == "security":
+        render_security_scanner()
+    elif page == "git":
+        render_git_analytics()
+    elif page == "patch":
+        render_patch_manager()
     elif page == "settings":
         render_settings()
     else:

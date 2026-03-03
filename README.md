@@ -74,6 +74,105 @@ Found 3 potentially relevant files:
 - **Dependency Graphs** - Visualize and analyze code relationships
 - **Agent Orchestration** - Multi-agent system for complex tasks
 
+### 🆕 v2 Phase 1 Features
+
+| Feature | Description | Status |
+|---------|-------------|--------|
+| **🏥 Health Score** | Architecture health scoring with 7 dimensions | ✅ Active |
+| **🔒 Security Scanner** | Vulnerability detection with SARIF export | ✅ Active |
+| **📊 Git Intelligence** | Code churn, hotspots, and contributor analytics | ✅ Active |
+| **🩹 Patch Apply Mode** | Safe patch application with rollback | ✅ Active |
+
+#### Architecture Health Score
+
+Comprehensive codebase health assessment:
+- **Coupling Analysis** - Fan-in/fan-out metrics
+- **Cohesion Scoring** - LCOM (Lack of Cohesion of Methods)
+- **Circular Dependency Detection** - Import chain analysis
+- **Complexity Metrics** - Cyclomatic complexity tracking
+- **Layer Violations** - Architectural rule enforcement
+- **Unused Exports** - Dead code detection
+
+```bash
+# Calculate health score
+mike health <session-id> --output health_report.json
+
+# View detailed breakdown
+mike health <session-id> --format markdown
+```
+
+Learn more: [docs/v2/health-score.md](./docs/v2/health-score.md)
+
+#### Security Agent
+
+Pattern-based security vulnerability scanning:
+- **Secrets Detection** - API keys, passwords, tokens
+- **Injection Detection** - SQL, command, and code injection
+- **Cryptographic Issues** - Weak algorithms, insecure modes
+- **SARIF Export** - Standard security report format
+- **Risk Scoring** - Weighted severity assessment
+
+```bash
+# Scan for vulnerabilities
+mike security . --format sarif --output security.sarif
+
+# Check risk score
+mike security . --fail-on-critical
+```
+
+Learn more: [docs/v2/security.md](./docs/v2/security.md)
+
+#### Git Intelligence
+
+Repository analytics and code archaeology:
+- **Code Churn** - Line change tracking
+- **Hotspot Detection** - High-frequency change areas
+- **Bug-Prone Files** - Files with frequent bug fixes
+- **Contributor Stats** - Author metrics and patterns
+- **Rework Rate** - Code modification analysis
+
+```bash
+# Analyze repository
+mike git analyze . --since-days 90
+
+# Find hotspots
+mike git hotspots . --top 20
+
+# Export metrics
+mike git export . --format json
+```
+
+Learn more: [docs/v2/git-intelligence.md](./docs/v2/git-intelligence.md)
+
+#### Patch Apply Mode
+
+Safe code modification with automatic backup:
+- **Preview Mode** - Dry-run before applying
+- **Validation** - Conflict detection
+- **Automatic Backup** - Pre-change snapshots
+- **Easy Rollback** - One-command undo
+- **Multi-Operation** - Create, modify, delete, rename
+
+```python
+from mike.patch import PatchApplier, PatchGenerator
+
+# Generate patch from suggestion
+generator = PatchGenerator()
+patch = generator.from_refactor_suggestion(suggestion)
+
+# Preview changes
+applier = PatchApplier()
+preview = applier.preview_patch(patch)
+
+# Apply with backup
+application = applier.apply_patch(patch)
+
+# Rollback if needed
+applier.rollback_patch(patch.id)
+```
+
+Learn more: [docs/v2/patch-mode.md](./docs/v2/patch-mode.md)
+
 ### 🤖 AI Agents
 
 | Agent | Description | Status |
