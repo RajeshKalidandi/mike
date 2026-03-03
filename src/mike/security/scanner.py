@@ -320,27 +320,28 @@ class SecurityScanner:
         if "os.environ" in matched_text or "os.getenv" in matched_text:
             return True
 
-        # Skip placeholder values
-        placeholders = [
-            "your-api-key",
-            "your_api_key",
-            "example",
-            "placeholder",
-            "test-value",
-            "test_value",
-            "dummy",
-            "sample",
-            "changeme",
-            "password123",
-            "admin",
-            "root",
-            "user",
-            "default",
-        ]
-        lower_text = matched_text.lower()
-        for placeholder in placeholders:
-            if placeholder in lower_text:
-                return True
+        # Skip placeholder values (only for secrets, not for injection patterns)
+        if hasattr(pattern, "category") and pattern.category == PatternCategory.SECRETS:
+            placeholders = [
+                "your-api-key",
+                "your_api_key",
+                "example",
+                "placeholder",
+                "test-value",
+                "test_value",
+                "dummy",
+                "sample",
+                "changeme",
+                "password123",
+                "admin",
+                "root",
+                "user",
+                "default",
+            ]
+            lower_text = matched_text.lower()
+            for placeholder in placeholders:
+                if placeholder in lower_text:
+                    return True
 
         # Skip config/setting references
         if matched_text.startswith("settings.") or matched_text.startswith("config."):

@@ -459,7 +459,7 @@ class PatternDatabase:
         return [
             p
             for p in self.patterns
-            if p.languages is None
+            if not p.languages
             or language.lower() in [lang.lower() for lang in p.languages]
         ]
 
@@ -488,7 +488,7 @@ class PatternDatabase:
             patterns = [
                 p
                 for p in patterns
-                if p.languages is None
+                if not p.languages
                 or language.lower() in [lang.lower() for lang in p.languages]
             ]
 
