@@ -17,12 +17,12 @@ class DashboardCard(Static):
 
     def compose(self):
         yield Static(self.card_title, classes="dashboard-card-title")
-        yield Static(self.card_value, classes="dashboard-card-value", id="card-value")
+        yield Static(self.card_value, classes="dashboard-card-value")
 
     def update_value(self, value: str):
         """Update the card value."""
         self.card_value = value
-        value_widget = self.query_one("#card-value", Static)
+        value_widget = self.query_one(".dashboard-card-value", Static)
         value_widget.update(value)
 
 
