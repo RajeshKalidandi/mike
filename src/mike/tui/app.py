@@ -97,7 +97,12 @@ class MikeApp(App):
         """Watch for theme changes and update CSS paths."""
         self._set_theme_css_paths(theme)
         self.refresh_css()
-        self.notify(f"Theme changed to {theme}", severity="information")
+        # Only notify if app is mounted (screen stack exists)
+        try:
+            _ = self.screen
+            self.notify(f"Theme changed to {theme}", severity="information")
+        except Exception:
+            pass  # App not yet mounted, skip notification
 
     def action_toggle_theme(self):
         """Toggle between light and dark themes."""
@@ -124,8 +129,12 @@ class MikeApp(App):
             container.notify(message, level)
         except Exception:
             # Fallback if notifications not available
-            status_bar = self.query_one(StatusBar)
-            status_bar.set_message(message)
+            try:
+                status_bar = self.query_one(StatusBar)
+                status_bar.set_message(message)
+            except Exception:
+                # App not fully mounted yet, ignore
+                pass
 
 
 def safe_action(func):

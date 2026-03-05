@@ -15,10 +15,10 @@ class Notification(Static):
     timestamp = reactive("")
 
     def __init__(self, message: str, level: str = "info", **kwargs):
+        super().__init__(**kwargs)
         self.message = message
         self.level = level
         self.timestamp = datetime.now().strftime("%H:%M:%S")
-        super().__init__(**kwargs)
 
     def compose(self):
         """Compose the notification."""
