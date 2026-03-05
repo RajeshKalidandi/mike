@@ -1755,5 +1755,32 @@ def refactor(
         sys.exit(1)
 
 
+@main.command()
+@click.option(
+    "--theme",
+    default="dark",
+    type=click.Choice(["dark", "light"]),
+    help="Theme for the TUI (dark or light)",
+)
+@click.pass_context
+def tui(ctx: click.Context, theme: str) -> None:
+    """Launch the interactive Terminal User Interface.
+
+    Opens Mike in a full-screen terminal interface with:
+    - Dashboard showing system status
+    - Sessions list with management
+    - Live log viewer
+    - Keyboard-driven navigation
+
+    Examples:
+        mike tui              # Launch with dark theme (default)
+        mike tui --theme light # Launch with light theme
+    """
+    from mike.tui import launch_tui
+
+    db_path = ctx.obj.get("db_path")
+    launch_tui(db_path=db_path, theme=theme)
+
+
 if __name__ == "__main__":
     main()
