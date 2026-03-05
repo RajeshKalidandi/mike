@@ -145,3 +145,39 @@ StatusBar {
 #detail-content .markdown h3 {
     color: #b4befe;
 }
+
+#logs-header {
+    height: 3;
+    background: #181825;
+    padding: 0 1;
+}
+
+#logs-title {
+    width: 10;
+    text-style: bold;
+    color: #89b4fa;
+    content-align: center middle;
+}
+
+#level-select {
+    width: 20;
+    margin: 0 1;
+}
+
+#logs-controls {
+    width: 1fr;
+    color: #a6adc8;
+    content-align: right middle;
+}
+
+#log-viewer {
+    height: 1fr;
+    background: #1e1e2e;
+    color: #cdd6f4;
+    border: solid #45475a;
+    padding: 0 1;
+}
+
+#log-viewer .rich-log--line {
+    color: #cdd6f4;
+}

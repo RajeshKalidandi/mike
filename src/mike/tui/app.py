@@ -7,6 +7,7 @@ from textual.reactive import reactive
 from mike.tui.screens.dashboard import DashboardScreen
 from mike.tui.screens.sessions import SessionsScreen
 from mike.tui.screens.session_detail import SessionDetailScreen
+from mike.tui.screens.logs import LogsScreen
 from mike.tui.widgets.sidebar import Sidebar
 from mike.tui.widgets.status_bar import StatusBar
 
@@ -26,6 +27,7 @@ class MikeApp(App):
         "dashboard": DashboardScreen,
         "sessions": SessionsScreen,
         "session_detail": SessionDetailScreen,
+        "logs": LogsScreen,
     }
 
     BINDINGS = [
@@ -33,7 +35,7 @@ class MikeApp(App):
         ("question_mark", "push_screen('help')", "Help"),
         ("1", "switch_screen('dashboard')", "Dashboard"),
         ("2", "switch_screen('sessions')", "Sessions"),
-        ("3", "action_not_implemented", "Logs"),
+        ("3", "switch_screen('logs')", "Logs"),
     ]
 
     theme = reactive("dark")
@@ -67,7 +69,7 @@ class MikeApp(App):
         elif event.item == "Sessions":
             self.switch_screen("sessions")
         elif event.item == "Logs":
-            status_bar.set_message("Logs screen not yet implemented")
+            self.switch_screen("logs")
 
     def action_not_implemented(self):
         """Show not implemented message."""
