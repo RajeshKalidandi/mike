@@ -181,3 +181,54 @@ StatusBar {
 #log-viewer .rich-log--line {
     color: #cdd6f4;
 }
+
+/* Help Screen */
+HelpScreen {
+    align: center middle;
+}
+
+#help-container {
+    background: #313244;
+    border: solid #89b4fa;
+    padding: 1 2;
+}
+
+#help-title {
+    text-align: center;
+    text-style: bold;
+    color: #89b4fa;
+}
+
+#help-content {
+    background: #1e1e2e;
+}
+
+#help-content .markdown {
+    color: #cdd6f4;
+}
+
+#help-content .markdown h1 {
+    color: #89b4fa;
+}
+
+#help-content .markdown h2 {
+    color: #b4befe;
+}
+
+#help-content .markdown th {
+    color: #89b4fa;
+}
+
+#help-content .markdown td {
+    color: #cdd6f4;
+}
+
+#help-content .markdown code {
+    color: #f5c2e7;
+    background: #181825;
+}
+
+#help-footer {
+    text-align: center;
+    color: #a6adc8;
+}

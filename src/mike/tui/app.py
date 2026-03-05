@@ -8,6 +8,7 @@ from mike.tui.screens.dashboard import DashboardScreen
 from mike.tui.screens.sessions import SessionsScreen
 from mike.tui.screens.session_detail import SessionDetailScreen
 from mike.tui.screens.logs import LogsScreen
+from mike.tui.screens.help import HelpScreen
 from mike.tui.widgets.sidebar import Sidebar
 from mike.tui.widgets.status_bar import StatusBar
 
@@ -32,7 +33,7 @@ class MikeApp(App):
 
     BINDINGS = [
         ("q", "quit", "Quit"),
-        ("question_mark", "push_screen('help')", "Help"),
+        ("question_mark", "action_show_help", "Help"),
         ("1", "switch_screen('dashboard')", "Dashboard"),
         ("2", "switch_screen('sessions')", "Sessions"),
         ("3", "switch_screen('logs')", "Logs"),
@@ -75,3 +76,7 @@ class MikeApp(App):
         """Show not implemented message."""
         status_bar = self.query_one(StatusBar)
         status_bar.set_message("Feature coming soon...")
+
+    def action_show_help(self):
+        """Show help screen."""
+        self.push_screen(HelpScreen())
