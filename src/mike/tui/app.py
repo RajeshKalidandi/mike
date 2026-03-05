@@ -11,6 +11,7 @@ from mike.tui.screens.logs import LogsScreen
 from mike.tui.screens.help import HelpScreen
 from mike.tui.widgets.sidebar import Sidebar
 from mike.tui.widgets.status_bar import StatusBar
+from mike.tui.widgets.notifications import NotificationContainer
 
 
 class MikeApp(App):
@@ -63,6 +64,7 @@ class MikeApp(App):
             with Vertical(id="content"):
                 yield DashboardScreen()
         yield StatusBar()
+        yield NotificationContainer(id="notifications")
 
     def on_mount(self):
         """Handle app mount."""
@@ -100,3 +102,39 @@ class MikeApp(App):
     def action_toggle_theme(self):
         """Toggle between light and dark themes."""
         self.ui_theme = "light" if self.ui_theme == "dark" else "dark"
+
+    def notify(self, message: str, severity: str = "information", **kwargs):
+        """Show a notification toast.
+
+        Args:
+            message: The message to display
+            severity: Severity level (information, warning, error, success)
+        """
+        # Map severity names
+        level_map = {
+            "information": "info",
+            "warning": "warning",
+            "error": "error",
+            "success": "success",
+        }
+        level = level_map.get(severity, "info")
+
+        try:
+            container = self.query_one("#notifications", NotificationContainer)
+            container.notify(message, level)
+        except Exception:
+            # Fallback if notifications not available
+            status_bar = self.query_one(StatusBar)
+            status_bar.set_message(message)
+
+
+def safe_action(func):
+    """Decorator to catch exceptions in actions and show notification."""
+
+    def wrapper(self, *args, **kwargs):
+        try:
+            return func(self, *args, **kwargs)
+        except Exception as e:
+            self.app.notify(f"Error: {str(e)}", severity="error")
+
+    return wrapper

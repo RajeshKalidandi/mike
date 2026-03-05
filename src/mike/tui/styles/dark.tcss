@@ -232,3 +232,31 @@ HelpScreen {
     text-align: center;
     color: #a6adc8;
 }
+
+/* Notifications */
+#notifications {
+    layer: notification;
+    width: 40;
+    height: auto;
+    dock: top;
+}
+
+.notification {
+    background: #313244;
+    color: #cdd6f4;
+    padding: 1;
+    margin: 0 1 1 0;
+    border: solid #89b4fa;
+}
+
+.notification.error {
+    border: solid #f38ba8;
+}
+
+.notification.warning {
+    border: solid #f9e2af;
+}
+
+.notification.success {
+    border: solid #a6e3a1;
+}
