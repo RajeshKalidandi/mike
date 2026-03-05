@@ -114,9 +114,10 @@ class SessionsScreen(Screen):
             self.app.notify("No session selected", severity="warning")
             return
 
-        self.app.notify(
-            f"Opening {self.selected_session_id[:8]}... (not implemented yet)"
-        )
+        # Create new detail screen instance with session_id
+        from mike.tui.screens.session_detail import SessionDetailScreen
+
+        self.app.push_screen(SessionDetailScreen(session_id=self.selected_session_id))
 
 
 class ConfirmationModal(Screen):

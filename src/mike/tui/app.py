@@ -6,6 +6,7 @@ from textual.reactive import reactive
 
 from mike.tui.screens.dashboard import DashboardScreen
 from mike.tui.screens.sessions import SessionsScreen
+from mike.tui.screens.session_detail import SessionDetailScreen
 from mike.tui.widgets.sidebar import Sidebar
 from mike.tui.widgets.status_bar import StatusBar
 
@@ -24,6 +25,7 @@ class MikeApp(App):
     SCREENS = {
         "dashboard": DashboardScreen,
         "sessions": SessionsScreen,
+        "session_detail": SessionDetailScreen,
     }
 
     BINDINGS = [
