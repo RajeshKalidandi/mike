@@ -37,14 +37,24 @@ class MikeApp(App):
         ("1", "switch_screen('dashboard')", "Dashboard"),
         ("2", "switch_screen('sessions')", "Sessions"),
         ("3", "switch_screen('logs')", "Logs"),
+        ("ctrl+t", "toggle_theme", "Toggle Theme"),
     ]
 
-    theme = reactive("dark")
+    ui_theme = reactive("dark")
 
     def __init__(self, db_path: str = None, theme: str = "dark", **kwargs):
         self.db_path = db_path
-        self.theme = theme
+        # Set CSS paths based on theme before super().__init__
+        self._set_theme_css_paths(theme)
         super().__init__(**kwargs)
+        self.ui_theme = theme  # Set reactive after super().__init__()
+
+    def _set_theme_css_paths(self, theme: str):
+        """Set CSS paths based on the current theme."""
+        self.CSS_PATHS = [
+            "styles/base.tcss",
+            f"styles/{theme}.tcss",
+        ]
 
     def compose(self) -> ComposeResult:
         """Compose the main app layout."""
@@ -80,3 +90,13 @@ class MikeApp(App):
     def action_show_help(self):
         """Show help screen."""
         self.push_screen(HelpScreen())
+
+    def watch_ui_theme(self, theme: str):
+        """Watch for theme changes and update CSS paths."""
+        self._set_theme_css_paths(theme)
+        self.refresh_css()
+        self.notify(f"Theme changed to {theme}", severity="information")
+
+    def action_toggle_theme(self):
+        """Toggle between light and dark themes."""
+        self.ui_theme = "light" if self.ui_theme == "dark" else "dark"
