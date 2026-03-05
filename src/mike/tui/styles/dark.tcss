@@ -1,0 +1,49 @@
+/* Dark theme - Catppuccin Mocha inspired */
+Screen {
+    background: #1e1e2e;
+}
+
+Sidebar {
+    background: #181825;
+    color: #cdd6f4;
+}
+
+Sidebar .list-item {
+    color: #cdd6f4;
+}
+
+Sidebar .list-item:hover {
+    background: #313244;
+}
+
+Sidebar .list-item--selected {
+    background: #45475a;
+    color: #89b4fa;
+    text-style: bold;
+}
+
+StatusBar {
+    background: #11111b;
+    color: #a6adc8;
+}
+
+#content {
+    background: #1e1e2e;
+    color: #cdd6f4;
+}
+
+.dashboard-card {
+    background: #313244;
+    border: solid #45475a;
+    padding: 1 2;
+}
+
+.dashboard-card-title {
+    color: #89b4fa;
+    text-style: bold;
+}
+
+.dashboard-card-value {
+    color: #cdd6f4;
+    text-style: bold;
+}

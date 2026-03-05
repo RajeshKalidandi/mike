@@ -1,0 +1,22 @@
+/* Base layout styles */
+Screen {
+    layout: grid;
+    grid-size: 2 1;
+    grid-columns: 20 1fr;
+}
+
+Sidebar {
+    width: 100%;
+    height: 100%;
+    dock: left;
+}
+
+#content {
+    width: 100%;
+    height: 100%;
+}
+
+StatusBar {
+    height: 1;
+    dock: bottom;
+}
