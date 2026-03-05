@@ -15,23 +15,102 @@ class EmbeddingService:
         "mxbai-embed-large": 1024,
         "bge-m3": 1024,
         "snowflake-arctic-embed": 768,
+        "qwen3-embedding": 768,
+        "qwen3-embedding:0.6b": 768,
     }
 
-    def __init__(self, model: str = "mxbai-embed-large", host: Optional[str] = None):
+    # Model name patterns that indicate embedding capability
+    EMBEDDING_PATTERNS = [
+        "embed",
+        "embedding",
+    ]
+
+    def __init__(self, model: Optional[str] = None, host: Optional[str] = None):
         """Initialize embedding service.
 
         Args:
-            model: Model name to use for embeddings
+            model: Model name to use for embeddings (auto-detected if None)
             host: Ollama host URL (defaults to localhost)
         """
-        self.model = model
         self.host = host or os.getenv("OLLAMA_HOST", "http://localhost:11434")
 
         # Initialize Ollama client
         self.client = ollama.Client(host=self.host)
 
+        # Auto-detect model if not specified
+        if model is None:
+            model = self._auto_detect_model()
+
+        self.model = model
+
         # Get expected dimension
         self.dimension = self.MODELS.get(model, 1024)
+
+    def _is_embedding_model(self, model_name: str) -> bool:
+        """Check if a model name indicates it's an embedding model.
+
+        Args:
+            model_name: Name of the model
+
+        Returns:
+            True if the model appears to be an embedding model
+        """
+        model_name_lower = model_name.lower()
+        return any(pattern in model_name_lower for pattern in self.EMBEDDING_PATTERNS)
+
+    def _get_ollama_models(self) -> List[str]:
+        """Get list of all available models from Ollama.
+
+        Returns:
+            List of model names
+        """
+        try:
+            response = self.client.list()
+            raw_models = response.get("models", [])
+            available_models = []
+            for m in raw_models:
+                # Newer Ollama SDK returns Model objects; older versions return dicts
+                if hasattr(m, "model"):
+                    available_models.append(m.model)
+                elif isinstance(m, dict):
+                    model_name = m.get("name") or m.get("model", "")
+                    if model_name:
+                        available_models.append(model_name)
+            return available_models
+        except Exception:
+            return []
+
+    def _auto_detect_model(self) -> str:
+        """Auto-detect an available embedding model from Ollama.
+
+        Returns:
+            Name of the first available embedding model, or default if none found
+        """
+        available_models = self._get_ollama_models()
+
+        if not available_models:
+            print("Warning: Could not connect to Ollama or no models found.")
+            print("Using default model: mxbai-embed-large")
+            return "mxbai-embed-large"
+
+        # Find embedding models
+        embedding_models = [m for m in available_models if self._is_embedding_model(m)]
+
+        if embedding_models:
+            # Use the first available embedding model
+            selected = embedding_models[0]
+            print(f"Auto-detected embedding model: {selected}")
+            return selected
+        else:
+            # No embedding models found - warn user
+            print("Warning: No embedding models found in Ollama.")
+            print(f"Available models: {', '.join(available_models[:5])}")
+            print("Please install an embedding model, e.g.:")
+            print("  ollama pull mxbai-embed-large")
+            print("  ollama pull nomic-embed-text")
+            print("  ollama pull qwen3-embedding:0.6b")
+            print("\nUsing default model: mxbai-embed-large")
+            return "mxbai-embed-large"
 
     def embed(self, text: str) -> List[float]:
         """Generate embedding for a single text.
@@ -101,23 +180,15 @@ class EmbeddingService:
         Returns:
             True if model is available, False otherwise
         """
-        try:
-            models = self.client.list()
-            raw_models = models.get("models", [])
-            available_models = []
-            for m in raw_models:
-                # Newer Ollama SDK returns Model objects; older versions return dicts
-                if hasattr(m, "model"):
-                    available_models.append(m.model)
-                elif isinstance(m, dict):
-                    available_models.append(m.get("name") or m.get("model", ""))
-            return (
-                self.model in available_models
-                or f"{self.model}:latest" in available_models
-            )
-        except Exception:
+        available_models = self._get_ollama_models()
+
+        if not available_models:
             return False
 
+        # Check if the model (or model:latest) is available
+        return (
+            self.model in available_models or f"{self.model}:latest" in available_models
+        )
 
     @classmethod
     def get_available_models(cls) -> List[str]:
@@ -127,6 +198,43 @@ class EmbeddingService:
             List of model names
         """
         return list(cls.MODELS.keys())
+
+    @classmethod
+    def detect_embedding_models(cls, host: Optional[str] = None) -> List[str]:
+        """Detect which embedding models are available in Ollama.
+
+        Args:
+            host: Ollama host URL
+
+        Returns:
+            List of available embedding model names
+        """
+        host = host or os.getenv("OLLAMA_HOST", "http://localhost:11434")
+
+        try:
+            client = ollama.Client(host=host)
+            response = client.list()
+            raw_models = response.get("models", [])
+
+            available_models = []
+            for m in raw_models:
+                if hasattr(m, "model"):
+                    available_models.append(m.model)
+                elif isinstance(m, dict):
+                    model_name = m.get("name") or m.get("model", "")
+                    if model_name:
+                        available_models.append(model_name)
+
+            # Filter for embedding models
+            embedding_models = [
+                m
+                for m in available_models
+                if any(pattern in m.lower() for pattern in cls.EMBEDDING_PATTERNS)
+            ]
+
+            return embedding_models
+        except Exception:
+            return []
 
     @classmethod
     def get_model_dimension(cls, model: str) -> int:

@@ -772,7 +772,11 @@ def build_graph(ctx: click.Context, session_id: str, output: str, verbose: bool)
 
 @main.command()
 @click.argument("session_id")
-@click.option("--model", default="mxbai-embed-large", help="Embedding model to use")
+@click.option(
+    "--model",
+    default=None,
+    help="Embedding model to use (auto-detected if not specified)",
+)
 @click.option(
     "--vector-dir", default="./vector_store", help="Directory for vector store"
 )
@@ -781,7 +785,7 @@ def build_graph(ctx: click.Context, session_id: str, output: str, verbose: bool)
 def embed(
     ctx: click.Context,
     session_id: str,
-    model: str,
+    model: Optional[str],
     vector_dir: str,
     verbose: bool,
 ):
@@ -791,7 +795,10 @@ def embed(
 
     if verbose:
         click.echo(f"Embedding session: {session_id}")
-        click.echo(f"Using model: {model}")
+        if model:
+            click.echo(f"Using model: {model}")
+        else:
+            click.echo("Auto-detecting embedding model...")
 
     from mike.chunker.chunker import CodeChunker
     from mike.embeddings.service import EmbeddingService
@@ -806,9 +813,9 @@ def embed(
         vector_store = VectorStore(vector_dir)
 
         if not embed_service.check_model_available():
-            msg = f"Warning: Model {model} not found in Ollama"
+            msg = f"Warning: Model {embed_service.model} not found in Ollama"
             click.echo(msg)
-            click.echo("Please run: ollama pull " + model)
+            click.echo("Please run: ollama pull " + embed_service.model)
             return
 
         files = db.get_files_for_session(session_id)
@@ -869,7 +876,11 @@ def embed(
 @click.option(
     "--vector-dir", default="./vector_store", help="Directory for vector store"
 )
-@click.option("--model", default="mxbai-embed-large", help="Embedding model to use")
+@click.option(
+    "--model",
+    default=None,
+    help="Embedding model to use (auto-detected if not specified)",
+)
 @click.option("--n-results", default=5, help="Number of results")
 @click.option("--verbose", "-v", is_flag=True, help="Verbose output")
 @click.pass_context
@@ -878,7 +889,7 @@ def search(
     session_id: str,
     query: str,
     vector_dir: str,
-    model: str,
+    model: Optional[str],
     n_results: int,
     verbose: bool,
 ):

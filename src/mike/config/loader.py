@@ -68,9 +68,7 @@ class ConfigLoader:
             Path(user_config_dir) if user_config_dir else (Path.home() / ".mike")
         )
         self.project_config_dir = (
-            Path(project_config_dir)
-            if project_config_dir
-            else (Path.cwd() / ".mike")
+            Path(project_config_dir) if project_config_dir else (Path.cwd() / ".mike")
         )
 
         self._settings: Optional[Settings] = None
@@ -86,7 +84,7 @@ class ConfigLoader:
         self,
         cli_overrides: Optional[Dict[str, Any]] = None,
         profile: Optional[str] = None,
-    ) -> Dict[str, Any]:
+    ) -> Settings:
         """Load configuration from all sources.
 
         Args:
@@ -94,7 +92,7 @@ class ConfigLoader:
             profile: Profile to apply
 
         Returns:
-            Loaded and merged configuration as a dictionary
+            Loaded and merged configuration as a Settings object
         """
         # Start with defaults
         settings_dict: Dict[str, Any] = {}
@@ -141,7 +139,7 @@ class ConfigLoader:
         if self._hot_reload:
             self._start_hot_reload()
 
-        return settings_dict
+        return self._settings
 
     def save(self, config: Dict[str, Any]) -> None:
         """Save configuration to file.
@@ -382,11 +380,11 @@ class ConfigLoader:
         """
         return self._settings
 
-    def reload(self) -> Dict[str, Any]:
+    def reload(self) -> Settings:
         """Reload configuration from files.
 
         Returns:
-            Reloaded configuration as a dictionary
+            Reloaded configuration as a Settings object
 
         Raises:
             ConfigLoadError: If not previously loaded
@@ -607,7 +605,7 @@ def load_config(
     project_config_dir: Optional[Path] = None,
     cli_overrides: Optional[Dict[str, Any]] = None,
     profile: Optional[str] = None,
-) -> Dict[str, Any]:
+) -> Settings:
     """Convenience function to load configuration.
 
     Args:
@@ -617,7 +615,7 @@ def load_config(
         profile: Profile to apply
 
     Returns:
-        Loaded configuration as a dictionary
+        Loaded configuration as a Settings object
     """
     loader = ConfigLoader(
         user_config_dir=user_config_dir,

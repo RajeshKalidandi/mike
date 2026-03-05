@@ -153,7 +153,9 @@ class GitAnalyzer:
 
         return total_churn
 
-    def identify_hotspots(self, limit: int = 100, top_n: int = 10) -> List[FileHotspot]:
+    def identify_hotspots(
+        self, limit: int = 100, top_n: int = 10, since_days: Optional[int] = None
+    ) -> List[FileHotspot]:
         """Identify files with high change frequency and bug correlation.
 
         Hotspots are files that change frequently and have a high correlation
@@ -162,11 +164,12 @@ class GitAnalyzer:
         Args:
             limit: Maximum number of commits to analyze
             top_n: Number of top hotspots to return
+            since_days: Only analyze commits from last N days (None for all)
 
         Returns:
             List of FileHotspot objects sorted by score (highest first)
         """
-        commits = self._get_commits(limit)
+        commits = self._get_commits(limit, since_days)
         file_stats: Dict[str, Dict] = defaultdict(
             lambda: {
                 "commits": 0,
