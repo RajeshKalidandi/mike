@@ -5,6 +5,7 @@ from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 
 from mike.tui.screens.dashboard import DashboardScreen
+from mike.tui.screens.sessions import SessionsScreen
 from mike.tui.widgets.sidebar import Sidebar
 from mike.tui.widgets.status_bar import StatusBar
 
@@ -22,13 +23,14 @@ class MikeApp(App):
 
     SCREENS = {
         "dashboard": DashboardScreen,
+        "sessions": SessionsScreen,
     }
 
     BINDINGS = [
         ("q", "quit", "Quit"),
         ("question_mark", "push_screen('help')", "Help"),
         ("1", "switch_screen('dashboard')", "Dashboard"),
-        ("2", "action_not_implemented", "Sessions"),
+        ("2", "switch_screen('sessions')", "Sessions"),
         ("3", "action_not_implemented", "Logs"),
     ]
 
@@ -61,7 +63,7 @@ class MikeApp(App):
         if event.item == "Dashboard":
             self.switch_screen("dashboard")
         elif event.item == "Sessions":
-            status_bar.set_message("Sessions screen not yet implemented")
+            self.switch_screen("sessions")
         elif event.item == "Logs":
             status_bar.set_message("Logs screen not yet implemented")
 

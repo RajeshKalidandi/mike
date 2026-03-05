@@ -47,3 +47,45 @@ StatusBar {
     color: #cdd6f4;
     text-style: bold;
 }
+
+#sessions-title {
+    text-align: center;
+    text-style: bold;
+    color: #89b4fa;
+    height: 1;
+}
+
+#sessions-table {
+    background: #313244;
+    color: #cdd6f4;
+    height: 1fr;
+}
+
+#sessions-table .datatable--header {
+    background: #45475a;
+    color: #cdd6f4;
+    text-style: bold;
+}
+
+#sessions-table .datatable--cursor {
+    background: #585b70;
+}
+
+#sessions-hints {
+    height: 1;
+    color: #a6adc8;
+}
+
+#modal-content {
+    background: #313244;
+    border: solid #89b4fa;
+    padding: 1 2;
+    width: 60;
+    height: auto;
+    align: center middle;
+}
+
+#modal-message {
+    text-align: center;
+    margin-bottom: 1;
+}
