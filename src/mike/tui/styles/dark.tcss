@@ -1,0 +1,359 @@
+/* Modern Dark Theme - Claude Code Inspired */
+
+Screen {
+    background: #1a1a1a;
+}
+
+/* ========== MAIN SCREEN LAYOUT ========== */
+#main-container {
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
+}
+
+/* Header Bar */
+#header-bar {
+    height: 1;
+    background: #1a1a1a;
+    color: #e5e5e5;
+    content-align: left middle;
+    padding: 0 1;
+    text-style: none;
+}
+
+/* Output Area (scrolls upward) */
+#output-log {
+    height: 1fr;
+    background: #1a1a1a;
+    color: #e5e5e5;
+    padding: 1;
+    border: none;
+}
+
+#output-log .rich-log--line {
+    color: #e5e5e5;
+}
+
+/* Dotted Separator Line */
+#input-separator {
+    height: 1;
+    color: #404040;
+    text-style: dim;
+    content-align: center middle;
+}
+
+/* TextArea Input - 4 rows with orange border */
+#command-input {
+    height: 4;
+    max-height: 4;
+    background: #252525;
+    color: #e5e5e5;
+    border: solid #404040;
+    padding: 0 1;
+    text-style: none;
+}
+
+#command-input:focus {
+    border: solid #d97757;
+}
+
+/* TextArea inner content */
+#command-input .text-area--text {
+    background: #252525;
+    color: #e5e5e5;
+}
+
+#command-input .text-area--cursor {
+    color: #e5e5e5;
+    background: #d97757;
+}
+
+/* Hint Footer */
+#input-hints {
+    height: 1;
+    background: #1a1a1a;
+    color: #6b6b6b;
+    text-style: dim;
+    content-align: left middle;
+    padding: 0 1;
+}
+
+/* ========== WELCOME SCREEN ========== */
+#welcome-container {
+    width: 100%;
+    height: 100%;
+    align: center middle;
+    background: #1a1a1a;
+}
+
+#welcome-logo {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #d97757;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#welcome-title {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #6b6b6b;
+    text-style: none;
+    margin-bottom: 2;
+}
+
+#welcome-hint {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #6b6b6b;
+    text-style: dim;
+}
+
+/* ========== SESSIONS SCREEN ========== */
+#sessions-title {
+    text-align: center;
+    text-style: bold;
+    color: #d97757;
+    height: 1;
+    padding: 1 0;
+}
+
+#sessions-table {
+    background: #252525;
+    color: #e5e5e5;
+    height: 1fr;
+}
+
+#sessions-table .datatable--header {
+    background: #333333;
+    color: #e5e5e5;
+    text-style: bold;
+}
+
+#sessions-table .datatable--cursor {
+    background: #3d3d3d;
+}
+
+#sessions-hints {
+    height: 1;
+    color: #6b6b6b;
+    content-align: center middle;
+}
+
+/* ========== HELP SCREEN ========== */
+HelpScreen {
+    align: center middle;
+}
+
+#help-container {
+    width: 80;
+    height: auto;
+    max-height: 90%;
+    background: #252525;
+    border: solid #d97757;
+    padding: 1 2;
+}
+
+#help-title {
+    text-align: center;
+    text-style: bold;
+    color: #d97757;
+}
+
+#help-content {
+    background: #1a1a1a;
+}
+
+#help-content .markdown {
+    color: #e5e5e5;
+}
+
+#help-footer {
+    text-align: center;
+    color: #6b6b6b;
+}
+
+/* ========== LOGS SCREEN ========== */
+#logs-header {
+    height: 3;
+    background: #252525;
+    padding: 0 1;
+}
+
+#logs-title {
+    width: 10;
+    text-style: bold;
+    color: #d97757;
+    content-align: center middle;
+}
+
+#level-select {
+    width: 20;
+    margin: 0 1;
+}
+
+#logs-controls {
+    width: 1fr;
+    color: #6b6b6b;
+    content-align: right middle;
+}
+
+#log-viewer {
+    height: 1fr;
+    background: #1a1a1a;
+    color: #e5e5e5;
+    border: none;
+    padding: 0 1;
+}
+
+/* ========== MODAL ========== */
+#modal-content {
+    background: #252525;
+    border: solid #d97757;
+    padding: 1 2;
+}
+
+#modal-message {
+    text-align: center;
+    margin-bottom: 1;
+    color: #e5e5e5;
+}
+
+/* ========== NOTIFICATIONS ========== */
+#notifications {
+    layer: notification;
+    width: 40;
+    height: auto;
+    dock: top;
+}
+
+.notification {
+    background: #252525;
+    color: #e5e5e5;
+    padding: 1;
+    margin: 0 1 1 0;
+    border: solid #d97757;
+}
+
+.notification.error {
+    border: solid #ff6b6b;
+}
+
+.notification.warning {
+    border: solid #f9ca24;
+}
+
+.notification.success {
+    border: solid #6c5ce7;
+}
+
+/* ========== SESSION DETAIL SCREEN ========== */
+#file-tree-container {
+    width: 50%;
+    height: 100%;
+    border-right: solid #333333;
+}
+
+#files-header {
+    text-style: bold;
+    color: #d97757;
+    height: 1;
+    padding: 0 1;
+}
+
+#file-tree-widget {
+    height: 1fr;
+    background: #252525;
+}
+
+#file-tree-widget .tree--label {
+    color: #e5e5e5;
+}
+
+#file-tree-widget .tree--cursor {
+    background: #3d3d3d;
+}
+
+#session-info {
+    width: 50%;
+    height: 100%;
+    padding: 0 1;
+}
+
+#detail-header {
+    text-style: bold;
+    color: #d97757;
+    height: 1;
+    padding: 0 1;
+}
+
+#detail-content {
+    height: 1fr;
+    background: #1a1a1a;
+    color: #e5e5e5;
+}
+
+/* ========== GENERAL WIDGETS ========== */
+Static {
+    color: #e5e5e5;
+}
+
+Input {
+    background: #252525;
+    color: #e5e5e5;
+    border: solid #333333;
+}
+
+Input:focus {
+    border: solid #d97757;
+}
+
+DataTable {
+    background: #252525;
+    color: #e5e5e5;
+}
+
+DataTable .datatable--header {
+    background: #333333;
+    color: #e5e5e5;
+    text-style: bold;
+}
+
+DataTable .datatable--cursor {
+    background: #3d3d3d;
+}
+
+ListView {
+    background: #252525;
+}
+
+ListItem {
+    color: #e5e5e5;
+}
+
+ListItem:hover {
+    background: #333333;
+}
+
+ListItem.--selected {
+    background: #d97757;
+    color: #1a1a1a;
+    text-style: bold;
+}
+
+Select {
+    background: #252525;
+    color: #e5e5e5;
+}
+
+/* Remove old input container styles */
+#input-container {
+    display: none;
+}
+
+#input-prompt {
+    display: none;
+}

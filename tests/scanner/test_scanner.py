@@ -2,7 +2,7 @@ import pytest
 import tempfile
 import os
 from pathlib import Path
-from architectai.scanner.scanner import FileScanner
+from mike.scanner.scanner import FileScanner
 
 
 class TestFileScanner:
