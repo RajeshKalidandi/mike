@@ -3,49 +3,77 @@ Screen {
     background: #fbf1c7;
 }
 
-Sidebar {
-    background: #ebdbb2;
-    color: #3c3836;
+/* Welcome Screen */
+#welcome-container {
+    width: 100%;
+    height: 100%;
+    align: center middle;
+    background: #fbf1c7;
 }
 
-Sidebar .list-item {
-    color: #3c3836;
-}
-
-Sidebar .list-item:hover {
-    background: #d5c4a1;
-}
-
-Sidebar .list-item--selected {
-    background: #bdae93;
-    color: #076678;
+#welcome-logo {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #d65d0e;
     text-style: bold;
+    margin-bottom: 1;
 }
 
-StatusBar {
-    background: #d5c4a1;
-    color: #665c54;
+#welcome-title {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #7c6f64;
+    text-style: none;
+    margin-bottom: 2;
 }
 
-#content {
+#welcome-hint {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #7c6f64;
+    text-style: dim;
+}
+
+/* Main Screen */
+#main-container {
+    width: 100%;
+    height: 100%;
+    background: #fbf1c7;
+}
+
+#output-log {
+    height: 1fr;
     background: #fbf1c7;
     color: #3c3836;
+    padding: 1;
+    border: none;
 }
 
-.dashboard-card {
-    background: #ebdbb2;
-    border: solid #d5c4a1;
-    padding: 1 2;
+#input-container {
+    height: 1;
+    background: #fbf1c7;
+    padding: 0 1;
 }
 
-.dashboard-card-title {
-    color: #076678;
+#input-prompt {
+    width: auto;
+    content-align: center middle;
+    color: #d65d0e;
     text-style: bold;
 }
 
-.dashboard-card-value {
+#command-input {
+    width: 1fr;
+    background: #fbf1c7;
     color: #3c3836;
-    text-style: bold;
+    border: none;
+}
+
+#command-input:focus {
+    border: none;
 }
 
 /* Sessions Screen */
@@ -54,11 +82,13 @@ StatusBar {
     text-style: bold;
     color: #076678;
     height: 1;
+    padding: 1 0;
 }
 
 #sessions-table {
     background: #ebdbb2;
     color: #3c3836;
+    height: 1fr;
 }
 
 #sessions-table .datatable--header {
@@ -72,20 +102,130 @@ StatusBar {
 }
 
 #sessions-hints {
-    color: #665c54;
+    height: 1;
+    color: #7c6f64;
+    content-align: center middle;
+}
+
+/* Help Screen */
+HelpScreen {
+    align: center middle;
+}
+
+#help-container {
+    background: #ebdbb2;
+    border: solid #076678;
+    padding: 1 2;
+}
+
+#help-title {
+    text-align: center;
+    text-style: bold;
+    color: #076678;
+}
+
+#help-content {
+    background: #fbf1c7;
+}
+
+#help-content .markdown {
+    color: #3c3836;
+}
+
+#help-footer {
+    text-align: center;
+    color: #7c6f64;
+}
+
+/* Logs Screen */
+#logs-header {
+    height: 3;
+    background: #ebdbb2;
+    padding: 0 1;
+}
+
+#logs-title {
+    width: 10;
+    text-style: bold;
+    color: #076678;
+    content-align: center middle;
+}
+
+#logs-filter {
+    width: 1fr;
+}
+
+#logs-controls {
+    width: 1fr;
+    color: #7c6f64;
+    content-align: right middle;
+}
+
+#log-viewer {
+    height: 1fr;
+    background: #fbf1c7;
+    color: #3c3836;
+    border: none;
+    padding: 0 1;
+}
+
+/* Modal */
+#modal-content {
+    background: #ebdbb2;
+    border: solid #076678;
+    padding: 1 2;
+}
+
+#modal-message {
+    text-align: center;
+    margin-bottom: 1;
+    color: #3c3836;
+}
+
+/* Notifications */
+#notifications {
+    layer: notification;
+    width: 40;
+    height: auto;
+    dock: top;
+}
+
+.notification {
+    background: #ebdbb2;
+    color: #3c3836;
+    padding: 1;
+    margin: 0 1 1 0;
+    border: solid #076678;
+}
+
+.notification.error {
+    border: solid #cc241d;
+}
+
+.notification.warning {
+    border: solid #d79921;
+}
+
+.notification.success {
+    border: solid #98971a;
 }
 
 /* Session Detail Screen */
 #file-tree-container {
+    width: 50%;
+    height: 100%;
     border-right: solid #d5c4a1;
 }
 
 #files-header {
     text-style: bold;
     color: #076678;
+    height: 1;
+    padding: 0 1;
 }
 
 #file-tree-widget {
+    height: 1fr;
     background: #ebdbb2;
 }
 
@@ -97,48 +237,74 @@ StatusBar {
     background: #d5c4a1;
 }
 
+#session-info {
+    width: 50%;
+    height: 100%;
+    padding: 0 1;
+}
+
 #detail-header {
     text-style: bold;
     color: #076678;
+    height: 1;
+    padding: 0 1;
 }
 
 #detail-content {
+    height: 1fr;
     background: #fbf1c7;
-}
-
-#detail-content .markdown {
     color: #3c3836;
 }
 
-#detail-content .markdown h2 {
-    color: #076678;
+/* General Widgets */
+Static {
+    color: #3c3836;
 }
 
-#detail-content .markdown h3 {
-    color: #8f3f71;
-}
-
-/* Logs Screen */
-#logs-header {
+Input {
     background: #ebdbb2;
-}
-
-#logs-title {
-    color: #076678;
-}
-
-#logs-controls {
-    color: #665c54;
-}
-
-#log-viewer {
-    background: #fbf1c7;
     color: #3c3836;
     border: solid #d5c4a1;
 }
 
-/* Modal */
-#modal-content {
-    background: #ebdbb2;
+Input:focus {
     border: solid #076678;
+}
+
+DataTable {
+    background: #ebdbb2;
+    color: #3c3836;
+}
+
+DataTable .datatable--header {
+    background: #d5c4a1;
+    color: #3c3836;
+    text-style: bold;
+}
+
+DataTable .datatable--cursor {
+    background: #bdae93;
+}
+
+ListView {
+    background: #ebdbb2;
+}
+
+ListItem {
+    color: #3c3836;
+}
+
+ListItem:hover {
+    background: #d5c4a1;
+}
+
+ListItem.--selected {
+    background: #076678;
+    color: #fbf1c7;
+    text-style: bold;
+}
+
+Select {
+    background: #ebdbb2;
+    color: #3c3836;
 }

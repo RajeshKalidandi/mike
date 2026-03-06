@@ -14,6 +14,7 @@ class SessionsScreen(Screen):
         ("r", "refresh", "Refresh"),
         ("d", "delete", "Delete"),
         ("enter", "open_detail", "Open"),
+        ("escape", "go_back", "Back"),
     ]
 
     sessions = reactive([])
@@ -21,13 +22,13 @@ class SessionsScreen(Screen):
 
     def compose(self):
         """Compose the screen."""
-        yield Static("Sessions", id="sessions-title")
+        yield Static(" Sessions", id="sessions-title")
         table = DataTable(id="sessions-table")
         table.add_columns("ID", "Source", "Type", "Status", "Created")
         table.cursor_type = "row"
         yield table
         yield Static(
-            "Press [r] to refresh, [Enter] to open, [d] to delete", id="sessions-hints"
+            " r refresh · enter open · d delete · tab back", id="sessions-hints"
         )
 
     def on_mount(self):
@@ -118,6 +119,10 @@ class SessionsScreen(Screen):
         from mike.tui.screens.session_detail import SessionDetailScreen
 
         self.app.push_screen(SessionDetailScreen(session_id=self.selected_session_id))
+
+    def action_go_back(self):
+        """Go back to main screen."""
+        self.app.switch_screen("main")
 
 
 class ConfirmationModal(Screen):

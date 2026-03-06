@@ -1202,13 +1202,15 @@ def health(
 
     try:
         from mike.health.calculator import HealthScoreCalculator
-        from mike.graph.builder import DependencyGraphBuilder
+        from mike.pipeline.graph_pipeline import GraphPipeline
+        from mike.parser.parser import ASTParser
 
-        graph_builder = DependencyGraphBuilder(session_id, db)
-        graph_builder.build_graph()
+        pipeline = GraphPipeline(db)
+        graph_builder = pipeline.build_from_session(session_id)
 
-        calculator = HealthScoreCalculator(graph_builder)
-        score = calculator.calculate_all_scores()
+        parser = ASTParser()
+        calculator = HealthScoreCalculator(graph_builder, parser)
+        score = calculator.calculate_overall_score()
 
         if save:
             from mike.db.health_repository import HealthRepository
@@ -1536,10 +1538,10 @@ def git(
             )
             result["hotspots"] = [
                 {
-                    "file_path": h.file_path,
+                    "file_path": h.path,
                     "commits": h.commit_count,
-                    "bug_fixes": h.bug_fix_count,
-                    "authors": h.unique_authors,
+                    "bug_fixes": h.bug_fixes,
+                    "authors": h.contributor_count,
                     "score": h.score,
                 }
                 for h in hotspots_list
@@ -1634,6 +1636,15 @@ def refactor(
 
     if not project_path:
         project_path = session["source_path"]
+
+    # Validate that action flags are provided when needed
+    if suggestion_id and not (preview or apply):
+        error_msg = "Error: --preview or --apply required when using --suggestion-id"
+        if output_format == "json":
+            click.echo(json.dumps({"error": error_msg}))
+        else:
+            click.echo(error_msg, err=True)
+        sys.exit(1)
 
     try:
         from mike.patch.applier import PatchApplier

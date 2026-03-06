@@ -8,12 +8,14 @@ def test_theme_loading():
     # Test dark theme
     app = MikeApp(theme="dark")
     assert app.ui_theme == "dark"
-    assert "dark" in app.CSS_PATHS[1]
+    css_paths = [str(p) for p in app.CSS_PATH]
+    assert any("dark" in p for p in css_paths)
 
     # Test light theme
     app = MikeApp(theme="light")
     assert app.ui_theme == "light"
-    assert "light" in app.CSS_PATHS[1]
+    css_paths = [str(p) for p in app.CSS_PATH]
+    assert any("light" in p for p in css_paths)
 
 
 def test_light_css_exists():

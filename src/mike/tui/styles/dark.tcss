@@ -1,161 +1,161 @@
-/* Dark theme - Catppuccin Mocha inspired */
+/* Modern Dark Theme - Inspired by Claude Code */
+
 Screen {
-    background: #1e1e2e;
+    background: #1a1a1a;
 }
 
-Sidebar {
-    background: #181825;
-    color: #cdd6f4;
+/* Welcome Screen - Minimal */
+#welcome-container {
+    width: 100%;
+    height: 100%;
+    align: center middle;
+    background: #1a1a1a;
 }
 
-Sidebar .list-item {
-    color: #cdd6f4;
+#welcome-logo {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #d97757;
+    text-style: bold;
+    margin-bottom: 1;
 }
 
-Sidebar .list-item:hover {
-    background: #313244;
+#welcome-title {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #6b6b6b;
+    text-style: none;
+    margin-bottom: 2;
 }
 
-Sidebar .list-item--selected {
-    background: #45475a;
-    color: #89b4fa;
+#welcome-hint {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #6b6b6b;
+    text-style: dim;
+}
+
+/* Main Screen - Minimal */
+#main-container {
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
+}
+
+#output-log {
+    height: 1fr;
+    background: #1a1a1a;
+    color: #e5e5e5;
+    padding: 1;
+    border: none;
+}
+
+#output-log .rich-log--line {
+    color: #e5e5e5;
+}
+
+#input-container {
+    height: 1;
+    background: #1a1a1a;
+    padding: 0 1;
+}
+
+#input-prompt {
+    width: auto;
+    content-align: center middle;
+    color: #d97757;
     text-style: bold;
 }
 
-StatusBar {
-    background: #11111b;
-    color: #a6adc8;
+#command-input {
+    width: 1fr;
+    background: #1a1a1a;
+    color: #e5e5e5;
+    border: none;
 }
 
-#content {
-    background: #1e1e2e;
-    color: #cdd6f4;
+#command-input:focus {
+    border: none;
 }
 
-.dashboard-card {
-    background: #313244;
-    border: solid #45475a;
-    padding: 1 2;
-}
-
-.dashboard-card-title {
-    color: #89b4fa;
-    text-style: bold;
-}
-
-.dashboard-card-value {
-    color: #cdd6f4;
-    text-style: bold;
-}
-
+/* Sessions Screen */
 #sessions-title {
     text-align: center;
     text-style: bold;
-    color: #89b4fa;
+    color: #d97757;
     height: 1;
+    padding: 1 0;
 }
 
 #sessions-table {
-    background: #313244;
-    color: #cdd6f4;
+    background: #252525;
+    color: #e5e5e5;
     height: 1fr;
 }
 
 #sessions-table .datatable--header {
-    background: #45475a;
-    color: #cdd6f4;
+    background: #333333;
+    color: #e5e5e5;
     text-style: bold;
 }
 
 #sessions-table .datatable--cursor {
-    background: #585b70;
+    background: #3d3d3d;
 }
 
 #sessions-hints {
     height: 1;
-    color: #a6adc8;
+    color: #6b6b6b;
+    content-align: center middle;
 }
 
-#modal-content {
-    background: #313244;
-    border: solid #89b4fa;
-    padding: 1 2;
-    width: 60;
-    height: auto;
+/* Help Screen */
+HelpScreen {
     align: center middle;
 }
 
-#modal-message {
+#help-container {
+    width: 80;
+    height: auto;
+    max-height: 90%;
+    background: #252525;
+    border: solid #d97757;
+    padding: 1 2;
+}
+
+#help-title {
     text-align: center;
-    margin-bottom: 1;
-}
-
-#file-tree-container {
-    width: 50%;
-    height: 100%;
-    border-right: solid #45475a;
-}
-
-#files-header {
     text-style: bold;
-    color: #89b4fa;
-    height: 1;
-    padding: 0 1;
+    color: #d97757;
 }
 
-#file-tree-widget {
-    height: 1fr;
-    background: #181825;
+#help-content {
+    background: #1a1a1a;
 }
 
-#file-tree-widget .tree--label {
-    color: #cdd6f4;
+#help-content .markdown {
+    color: #e5e5e5;
 }
 
-#file-tree-widget .tree--cursor {
-    background: #45475a;
+#help-footer {
+    text-align: center;
+    color: #6b6b6b;
 }
 
-#session-info {
-    width: 50%;
-    height: 100%;
-    padding: 0 1;
-}
-
-#detail-header {
-    text-style: bold;
-    color: #89b4fa;
-    height: 1;
-    padding: 0 1;
-}
-
-#detail-content {
-    height: 1fr;
-    background: #1e1e2e;
-}
-
-#detail-content .markdown {
-    color: #cdd6f4;
-}
-
-#detail-content .markdown h2 {
-    color: #89b4fa;
-}
-
-#detail-content .markdown h3 {
-    color: #b4befe;
-}
-
+/* Logs Screen */
 #logs-header {
     height: 3;
-    background: #181825;
+    background: #252525;
     padding: 0 1;
 }
 
 #logs-title {
     width: 10;
     text-style: bold;
-    color: #89b4fa;
+    color: #d97757;
     content-align: center middle;
 }
 
@@ -166,71 +166,29 @@ StatusBar {
 
 #logs-controls {
     width: 1fr;
-    color: #a6adc8;
+    color: #6b6b6b;
     content-align: right middle;
 }
 
 #log-viewer {
     height: 1fr;
-    background: #1e1e2e;
-    color: #cdd6f4;
-    border: solid #45475a;
+    background: #1a1a1a;
+    color: #e5e5e5;
+    border: none;
     padding: 0 1;
 }
 
-#log-viewer .rich-log--line {
-    color: #cdd6f4;
-}
-
-/* Help Screen */
-HelpScreen {
-    align: center middle;
-}
-
-#help-container {
-    background: #313244;
-    border: solid #89b4fa;
+/* Modal */
+#modal-content {
+    background: #252525;
+    border: solid #d97757;
     padding: 1 2;
 }
 
-#help-title {
+#modal-message {
     text-align: center;
-    text-style: bold;
-    color: #89b4fa;
-}
-
-#help-content {
-    background: #1e1e2e;
-}
-
-#help-content .markdown {
-    color: #cdd6f4;
-}
-
-#help-content .markdown h1 {
-    color: #89b4fa;
-}
-
-#help-content .markdown h2 {
-    color: #b4befe;
-}
-
-#help-content .markdown th {
-    color: #89b4fa;
-}
-
-#help-content .markdown td {
-    color: #cdd6f4;
-}
-
-#help-content .markdown code {
-    color: #f5c2e7;
-    background: #181825;
-}
-
-#help-footer {
-    text-align: center;
-    color: #a6adc8;
+    margin-bottom: 1;
+    color: #e5e5e5;
 }
 
 /* Notifications */
@@ -242,21 +200,120 @@ HelpScreen {
 }
 
 .notification {
-    background: #313244;
-    color: #cdd6f4;
+    background: #252525;
+    color: #e5e5e5;
     padding: 1;
     margin: 0 1 1 0;
-    border: solid #89b4fa;
+    border: solid #d97757;
 }
 
 .notification.error {
-    border: solid #f38ba8;
+    border: solid #ff6b6b;
 }
 
 .notification.warning {
-    border: solid #f9e2af;
+    border: solid #f9ca24;
 }
 
 .notification.success {
-    border: solid #a6e3a1;
+    border: solid #6c5ce7;
+}
+
+/* Session Detail Screen */
+#file-tree-container {
+    width: 50%;
+    height: 100%;
+    border-right: solid #333333;
+}
+
+#files-header {
+    text-style: bold;
+    color: #d97757;
+    height: 1;
+    padding: 0 1;
+}
+
+#file-tree-widget {
+    height: 1fr;
+    background: #252525;
+}
+
+#file-tree-widget .tree--label {
+    color: #e5e5e5;
+}
+
+#file-tree-widget .tree--cursor {
+    background: #3d3d3d;
+}
+
+#session-info {
+    width: 50%;
+    height: 100%;
+    padding: 0 1;
+}
+
+#detail-header {
+    text-style: bold;
+    color: #d97757;
+    height: 1;
+    padding: 0 1;
+}
+
+#detail-content {
+    height: 1fr;
+    background: #1a1a1a;
+    color: #e5e5e5;
+}
+
+/* General Widgets */
+Static {
+    color: #e5e5e5;
+}
+
+Input {
+    background: #252525;
+    color: #e5e5e5;
+    border: solid #333333;
+}
+
+Input:focus {
+    border: solid #d97757;
+}
+
+DataTable {
+    background: #252525;
+    color: #e5e5e5;
+}
+
+DataTable .datatable--header {
+    background: #333333;
+    color: #e5e5e5;
+    text-style: bold;
+}
+
+DataTable .datatable--cursor {
+    background: #3d3d3d;
+}
+
+ListView {
+    background: #252525;
+}
+
+ListItem {
+    color: #e5e5e5;
+}
+
+ListItem:hover {
+    background: #333333;
+}
+
+ListItem.--selected {
+    background: #d97757;
+    color: #1a1a1a;
+    text-style: bold;
+}
+
+Select {
+    background: #252525;
+    color: #e5e5e5;
 }

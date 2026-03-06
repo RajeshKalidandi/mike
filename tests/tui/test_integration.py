@@ -21,7 +21,9 @@ class TestTUIApp:
 
         app = MikeApp(db_path=temp_db_path, theme="light")
         assert app.ui_theme == "light"
-        assert "light" in app.CSS_PATHS[1]
+        # Check that light theme CSS file is in the path (CSS_PATH is a list of Path objects)
+        css_paths = [str(p) for p in app.CSS_PATH]
+        assert any("light" in p for p in css_paths)
 
     def test_app_widgets_exist(self, temp_db_path):
         """Test that all main widgets can be imported."""

@@ -1,43 +1,44 @@
-"""Main TUI Application for Mike."""
+"""Main TUI Application for Mike - Modern interface inspired by Claude Code."""
 
+from pathlib import Path
 from textual.app import App, ComposeResult
-from textual.containers import Horizontal, Vertical
 from textual.reactive import reactive
 
-from mike.tui.screens.dashboard import DashboardScreen
+from mike.tui.screens.welcome import WelcomeScreen
+from mike.tui.screens.main import MainScreen
 from mike.tui.screens.sessions import SessionsScreen
 from mike.tui.screens.session_detail import SessionDetailScreen
 from mike.tui.screens.logs import LogsScreen
 from mike.tui.screens.help import HelpScreen
-from mike.tui.widgets.sidebar import Sidebar
-from mike.tui.widgets.status_bar import StatusBar
-from mike.tui.widgets.notifications import NotificationContainer
+
+# Get the directory containing this file
+TUI_DIR = Path(__file__).parent
 
 
 class MikeApp(App):
     """Main Mike TUI Application."""
 
-    CSS_PATHS = [
-        "styles/base.tcss",
-        "styles/dark.tcss",
+    # CSS paths relative to this file's directory
+    CSS_PATH = [
+        TUI_DIR / "styles" / "base.tcss",
+        TUI_DIR / "styles" / "dark.tcss",
     ]
 
     TITLE = "Mike"
     SUB_TITLE = "Local AI Software Architect"
 
     SCREENS = {
-        "dashboard": DashboardScreen,
+        "welcome": WelcomeScreen,
+        "main": MainScreen,
         "sessions": SessionsScreen,
         "session_detail": SessionDetailScreen,
         "logs": LogsScreen,
+        "help": HelpScreen,
     }
 
     BINDINGS = [
         ("q", "quit", "Quit"),
         ("question_mark", "action_show_help", "Help"),
-        ("1", "switch_screen('dashboard')", "Dashboard"),
-        ("2", "switch_screen('sessions')", "Sessions"),
-        ("3", "switch_screen('logs')", "Logs"),
         ("ctrl+t", "toggle_theme", "Toggle Theme"),
     ]
 
@@ -52,46 +53,18 @@ class MikeApp(App):
 
     def _set_theme_css_paths(self, theme: str):
         """Set CSS paths based on the current theme."""
-        self.CSS_PATHS = [
-            "styles/base.tcss",
-            f"styles/{theme}.tcss",
+        self.CSS_PATH = [
+            TUI_DIR / "styles" / "base.tcss",
+            TUI_DIR / "styles" / f"{theme}.tcss",
         ]
-
-    def compose(self) -> ComposeResult:
-        """Compose the main app layout."""
-        with Horizontal():
-            yield Sidebar()
-            with Vertical(id="content"):
-                yield DashboardScreen()
-        yield StatusBar()
-        yield NotificationContainer(id="notifications")
 
     def on_mount(self):
         """Handle app mount."""
-        self.push_screen("dashboard")
-        status_bar = self.query_one(StatusBar)
-        status_bar.mode = "Dashboard"
-
-    def on_sidebar_selected(self, event: Sidebar.Selected):
-        """Handle sidebar navigation."""
-        status_bar = self.query_one(StatusBar)
-        status_bar.mode = event.item
-
-        if event.item == "Dashboard":
-            self.switch_screen("dashboard")
-        elif event.item == "Sessions":
-            self.switch_screen("sessions")
-        elif event.item == "Logs":
-            self.switch_screen("logs")
-
-    def action_not_implemented(self):
-        """Show not implemented message."""
-        status_bar = self.query_one(StatusBar)
-        status_bar.set_message("Feature coming soon...")
+        self.push_screen("welcome")
 
     def action_show_help(self):
         """Show help screen."""
-        self.push_screen(HelpScreen())
+        self.push_screen("help")
 
     def watch_ui_theme(self, theme: str):
         """Watch for theme changes and update CSS paths."""
@@ -109,13 +82,7 @@ class MikeApp(App):
         self.ui_theme = "light" if self.ui_theme == "dark" else "dark"
 
     def notify(self, message: str, severity: str = "information", **kwargs):
-        """Show a notification toast.
-
-        Args:
-            message: The message to display
-            severity: Severity level (information, warning, error, success)
-        """
-        # Map severity names
+        """Show a notification toast."""
         level_map = {
             "information": "info",
             "warning": "warning",
@@ -125,16 +92,13 @@ class MikeApp(App):
         level = level_map.get(severity, "info")
 
         try:
+            from mike.tui.widgets.notifications import NotificationContainer
+
             container = self.query_one("#notifications", NotificationContainer)
             container.notify(message, level)
         except Exception:
             # Fallback if notifications not available
-            try:
-                status_bar = self.query_one(StatusBar)
-                status_bar.set_message(message)
-            except Exception:
-                # App not fully mounted yet, ignore
-                pass
+            pass
 
 
 def safe_action(func):

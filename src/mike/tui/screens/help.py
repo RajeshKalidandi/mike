@@ -8,22 +8,22 @@ from textual.containers import Vertical, VerticalScroll
 HELP_MARKDOWN = """
 # Mike Keyboard Shortcuts
 
-## Navigation
+## Global
 
 | Key | Action |
 |-----|--------|
-| `1` | Open Dashboard |
-| `2` | Open Sessions list |
-| `3` | Open Logs viewer |
-| `Tab` / `Shift+Tab` | Next/Previous widget |
+| `Ctrl+T` | Toggle light/dark theme |
 | `?` | Show this help |
 | `q` / `Ctrl+C` | Quit |
 
-## Dashboard
+## Main Screen
 
 | Key | Action |
 |-----|--------|
-| `r` | Refresh status |
+| `Tab` / `Shift+Tab` | Next/Previous widget |
+| `/sessions` | Open sessions list |
+| `/scan <path>` | Scan a codebase |
+| `/help` | Show commands |
 
 ## Sessions
 
@@ -33,6 +33,7 @@ HELP_MARKDOWN = """
 | `Enter` | Open session detail |
 | `r` | Refresh list |
 | `d` | Delete selected session |
+| `Esc` | Go back to main |
 
 ## Session Detail
 
@@ -49,13 +50,6 @@ HELP_MARKDOWN = """
 | `s` | Toggle auto-scroll |
 | `c` | Clear logs |
 | `r` | Refresh/restart tailing |
-
-## Global
-
-| Key | Action |
-|-----|--------|
-| `Ctrl+T` | Toggle theme |
-| `F1` / `?` | Show help |
 
 ---
 
