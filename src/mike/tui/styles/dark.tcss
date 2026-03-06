@@ -1,10 +1,84 @@
-/* Modern Dark Theme - Inspired by Claude Code */
+/* Modern Dark Theme - Claude Code Inspired */
 
 Screen {
     background: #1a1a1a;
 }
 
-/* Welcome Screen - Minimal */
+/* ========== MAIN SCREEN LAYOUT ========== */
+#main-container {
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
+}
+
+/* Header Bar */
+#header-bar {
+    height: 1;
+    background: #1a1a1a;
+    color: #e5e5e5;
+    content-align: left middle;
+    padding: 0 1;
+    text-style: none;
+}
+
+/* Output Area (scrolls upward) */
+#output-log {
+    height: 1fr;
+    background: #1a1a1a;
+    color: #e5e5e5;
+    padding: 1;
+    border: none;
+}
+
+#output-log .rich-log--line {
+    color: #e5e5e5;
+}
+
+/* Dotted Separator Line */
+#input-separator {
+    height: 1;
+    color: #404040;
+    text-style: dim;
+    content-align: center middle;
+}
+
+/* TextArea Input - 4 rows with orange border */
+#command-input {
+    height: 4;
+    max-height: 4;
+    background: #252525;
+    color: #e5e5e5;
+    border: solid #404040;
+    padding: 0 1;
+    text-style: none;
+}
+
+#command-input:focus {
+    border: solid #d97757;
+}
+
+/* TextArea inner content */
+#command-input .text-area--text {
+    background: #252525;
+    color: #e5e5e5;
+}
+
+#command-input .text-area--cursor {
+    color: #e5e5e5;
+    background: #d97757;
+}
+
+/* Hint Footer */
+#input-hints {
+    height: 1;
+    background: #1a1a1a;
+    color: #6b6b6b;
+    text-style: dim;
+    content-align: left middle;
+    padding: 0 1;
+}
+
+/* ========== WELCOME SCREEN ========== */
 #welcome-container {
     width: 100%;
     height: 100%;
@@ -38,50 +112,7 @@ Screen {
     text-style: dim;
 }
 
-/* Main Screen - Minimal */
-#main-container {
-    width: 100%;
-    height: 100%;
-    background: #1a1a1a;
-}
-
-#output-log {
-    height: 1fr;
-    background: #1a1a1a;
-    color: #e5e5e5;
-    padding: 1;
-    border: none;
-}
-
-#output-log .rich-log--line {
-    color: #e5e5e5;
-}
-
-#input-container {
-    height: 1;
-    background: #1a1a1a;
-    padding: 0 1;
-}
-
-#input-prompt {
-    width: auto;
-    content-align: center middle;
-    color: #d97757;
-    text-style: bold;
-}
-
-#command-input {
-    width: 1fr;
-    background: #1a1a1a;
-    color: #e5e5e5;
-    border: none;
-}
-
-#command-input:focus {
-    border: none;
-}
-
-/* Sessions Screen */
+/* ========== SESSIONS SCREEN ========== */
 #sessions-title {
     text-align: center;
     text-style: bold;
@@ -112,7 +143,7 @@ Screen {
     content-align: center middle;
 }
 
-/* Help Screen */
+/* ========== HELP SCREEN ========== */
 HelpScreen {
     align: center middle;
 }
@@ -145,7 +176,7 @@ HelpScreen {
     color: #6b6b6b;
 }
 
-/* Logs Screen */
+/* ========== LOGS SCREEN ========== */
 #logs-header {
     height: 3;
     background: #252525;
@@ -178,7 +209,7 @@ HelpScreen {
     padding: 0 1;
 }
 
-/* Modal */
+/* ========== MODAL ========== */
 #modal-content {
     background: #252525;
     border: solid #d97757;
@@ -191,7 +222,7 @@ HelpScreen {
     color: #e5e5e5;
 }
 
-/* Notifications */
+/* ========== NOTIFICATIONS ========== */
 #notifications {
     layer: notification;
     width: 40;
@@ -219,7 +250,7 @@ HelpScreen {
     border: solid #6c5ce7;
 }
 
-/* Session Detail Screen */
+/* ========== SESSION DETAIL SCREEN ========== */
 #file-tree-container {
     width: 50%;
     height: 100%;
@@ -265,7 +296,7 @@ HelpScreen {
     color: #e5e5e5;
 }
 
-/* General Widgets */
+/* ========== GENERAL WIDGETS ========== */
 Static {
     color: #e5e5e5;
 }
@@ -316,4 +347,13 @@ ListItem.--selected {
 Select {
     background: #252525;
     color: #e5e5e5;
+}
+
+/* Remove old input container styles */
+#input-container {
+    display: none;
+}
+
+#input-prompt {
+    display: none;
 }

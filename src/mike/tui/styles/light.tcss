@@ -37,11 +37,21 @@ Screen {
     text-style: dim;
 }
 
-/* Main Screen */
+/* Main Screen Layout */
 #main-container {
     width: 100%;
     height: 100%;
     background: #fbf1c7;
+}
+
+/* Header Bar */
+#header-bar {
+    height: 1;
+    background: #fbf1c7;
+    color: #3c3836;
+    content-align: left middle;
+    padding: 0 1;
+    text-style: none;
 }
 
 #output-log {
@@ -52,28 +62,57 @@ Screen {
     border: none;
 }
 
-#input-container {
+/* Dotted Separator Line */
+#input-separator {
     height: 1;
-    background: #fbf1c7;
-    padding: 0 1;
-}
-
-#input-prompt {
-    width: auto;
+    color: #bdae93;
+    text-style: dim;
     content-align: center middle;
-    color: #d65d0e;
-    text-style: bold;
 }
 
+/* TextArea Input - 4 rows with orange border */
 #command-input {
-    width: 1fr;
-    background: #fbf1c7;
+    height: 4;
+    max-height: 4;
+    background: #ebdbb2;
     color: #3c3836;
-    border: none;
+    border: solid #d5c4a1;
+    padding: 0 1;
+    text-style: none;
 }
 
 #command-input:focus {
-    border: none;
+    border: solid #d65d0e;
+}
+
+/* TextArea inner content */
+#command-input .text-area--text {
+    background: #ebdbb2;
+    color: #3c3836;
+}
+
+#command-input .text-area--cursor {
+    color: #fbf1c7;
+    background: #d65d0e;
+}
+
+/* Hint Footer */
+#input-hints {
+    height: 1;
+    background: #fbf1c7;
+    color: #7c6f64;
+    text-style: dim;
+    content-align: left middle;
+    padding: 0 1;
+}
+
+/* Remove old input styles */
+#input-container {
+    display: none;
+}
+
+#input-prompt {
+    display: none;
 }
 
 /* Sessions Screen */
