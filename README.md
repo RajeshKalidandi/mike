@@ -1,770 +1,561 @@
-# Mike 🏗️
+<div align="center">
 
-**Local AI Software Architect for Private Codebases**
+# Mike - AI Software Architect
+
+### The open-source, fully local multi-agent system that understands your entire codebase
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Tests](https://img.shields.io/badge/tests-739%20passing-brightgreen.svg)](./tests)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Tests](https://img.shields.io/badge/tests-467%20passing-brightgreen.svg)](./tests)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
 
-> 🎉 **All 8 Milestones Complete!** Fully functional local AI software architect system with 4 intelligent agents, comprehensive web interface, and full code generation capabilities.
+**No API keys. No cloud. No data leaves your machine.**
+Works with any open model: Gemma, Qwen, Llama, Mistral, DeepSeek, and more.
 
-Mike is a fully local, offline-capable AI system that ingests any codebase or GitHub repository and produces:
+[Getting Started](#-getting-started) | [How It Works](#-how-it-works) | [Web UI](#-web-interface) | [Python API](#-python-api) | [Contributing](#-contributing)
 
-- 📚 **Detailed Documentation** - README, architecture guides, API references
-- 🗺️ **Architecture Overviews** - Dependency maps, component diagrams  
-- ❓ **Natural Language Q&A** - Ask questions about your codebase in plain English
-- 🔧 **Refactor Suggestions** - Detect code smells and improvement opportunities
-- 🏗️ **Code Generation** - Scaffold new projects from existing architecture
-
-**🔒 No third-party APIs. No code leaves your machine. Everything runs on local models and local infrastructure.**
+</div>
 
 ---
 
-## 🎬 Demo
+## Why Mike?
 
-```bash
-# Scan a codebase
-$ mike scan ./my-project --session-name "My Project"
-Created session: d5634ac4-443e-4735-afa2-8cbf9cac39f0
-Found 127 files
-Scanned 127 files
+Most "AI code tools" are wrappers around a single LLM call. Mike is different.
 
-# Generate documentation
-$ mike docs d5634ac4-443e-4735-afa2-8cbf9cac39f0 --output ./docs
-Generating documentation... completed
-Documentation generated in: ./docs
+Mike is a **multi-agent orchestration system** that scans your entire codebase, builds a knowledge graph, and coordinates specialized AI agents to answer questions, generate docs, find bugs, and scaffold new projects.
 
-# Ask questions about your code
-$ mike ask d5634ac4-443e-4735-afa2-8cbf9cac39f0 "Where is authentication handled?"
-Based on the codebase analysis:
+**What makes it real multi-agent (not fake):**
+- A **planning layer** that decides which agents to run and in what order
+- A **context engine** that gives each agent exactly the right code context
+- A **DAG executor** that runs agents in parallel with dependency resolution
+- **Execution traces** so you can see exactly what each agent did and why
 
-Found 3 potentially relevant files:
-- `src/auth.py` (lines 15-45)
-- `src/middleware/auth.py` (lines 8-32)
-- `src/routes/login.py` (lines 12-28)
-```
+> "Most multi-agent systems are just `for agent in agents: agent.run()`. Mike has actual orchestration." 
 
 ---
 
-## 📋 Table of Contents
-
-- [Features](#-features)
-- [Installation](#-installation)
-- [Quick Start](#-quick-start)
-- [Usage](#-usage)
-- [Web Interface](#-web-interface)
-- [CLI Reference](#-cli-reference)
-- [Python API](#-python-api)
-- [Architecture](#-architecture)
-- [Development](#-development)
-- [Milestones](#-milestones)
-- [License](#-license)
-
----
-
-## ✨ Features
-
-### 🧠 Core Capabilities
-
-- **100% Local Processing** - No data leaves your machine
-- **Multi-Language Support** - Python, JavaScript/TypeScript, Go, Java, Rust, C/C++, Ruby, PHP
-- **AST Analysis** - Deep code understanding via tree-sitter parsing
-- **Semantic Search** - Vector-based code search with embeddings
-- **Dependency Graphs** - Visualize and analyze code relationships
-- **Agent Orchestration** - Multi-agent system for complex tasks
-
-### 🆕 v2 Phase 1 Features
-
-| Feature | Description | Status |
-|---------|-------------|--------|
-| **🏥 Health Score** | Architecture health scoring with 7 dimensions | ✅ Active |
-| **🔒 Security Scanner** | Vulnerability detection with SARIF export | ✅ Active |
-| **📊 Git Intelligence** | Code churn, hotspots, and contributor analytics | ✅ Active |
-| **🩹 Patch Apply Mode** | Safe patch application with rollback | ✅ Active |
-
-#### Architecture Health Score
-
-Comprehensive codebase health assessment:
-- **Coupling Analysis** - Fan-in/fan-out metrics
-- **Cohesion Scoring** - LCOM (Lack of Cohesion of Methods)
-- **Circular Dependency Detection** - Import chain analysis
-- **Complexity Metrics** - Cyclomatic complexity tracking
-- **Layer Violations** - Architectural rule enforcement
-- **Unused Exports** - Dead code detection
+## What Can Mike Do?
 
 ```bash
-# Calculate health score
-mike health <session-id> --output health_report.json
+# Scan any codebase (local dir, git repo, or ZIP)
+mike scan ./your-project --session-name "My App"
 
-# View detailed breakdown
-mike health <session-id> --format markdown
-```
+# Ask questions in plain English
+mike ask <session> "Where is authentication handled?"
+mike ask <session> "What are the main entry points?"
+mike ask <session> "How does error handling work?"
 
-Learn more: [docs/v2/health-score.md](./docs/v2/health-score.md)
+# Generate full documentation
+mike docs <session> --output ./docs
 
-#### Security Agent
+# Find code smells and security issues  
+mike refactor <session> -f security
+mike security <session> --format sarif
 
-Pattern-based security vulnerability scanning:
-- **Secrets Detection** - API keys, passwords, tokens
-- **Injection Detection** - SQL, command, and code injection
-- **Cryptographic Issues** - Weak algorithms, insecure modes
-- **SARIF Export** - Standard security report format
-- **Risk Scoring** - Weighted severity assessment
+# Scaffold a new project from existing architecture
+mike rebuild <session> ./new-project
 
-```bash
-# Scan for vulnerabilities
-mike security . --format sarif --output security.sarif
+# Architecture health scoring
+mike health <session> --format markdown
 
-# Check risk score
-mike security . --fail-on-critical
-```
-
-Learn more: [docs/v2/security.md](./docs/v2/security.md)
-
-#### Git Intelligence
-
-Repository analytics and code archaeology:
-- **Code Churn** - Line change tracking
-- **Hotspot Detection** - High-frequency change areas
-- **Bug-Prone Files** - Files with frequent bug fixes
-- **Contributor Stats** - Author metrics and patterns
-- **Rework Rate** - Code modification analysis
-
-```bash
-# Analyze repository
+# Git intelligence (churn, hotspots, contributors)
 mike git analyze . --since-days 90
-
-# Find hotspots
-mike git hotspots . --top 20
-
-# Export metrics
-mike git export . --format json
 ```
 
-Learn more: [docs/v2/git-intelligence.md](./docs/v2/git-intelligence.md)
+---
 
-#### Patch Apply Mode
+## Key Features
 
-Safe code modification with automatic backup:
-- **Preview Mode** - Dry-run before applying
-- **Validation** - Conflict detection
-- **Automatic Backup** - Pre-change snapshots
-- **Easy Rollback** - One-command undo
-- **Multi-Operation** - Create, modify, delete, rename
+### Multi-Agent Orchestration (Real, Not Fake)
+
+Mike doesn't just call one model. It plans, decomposes, and coordinates:
+
+```
+User Query
+    |
+    v
+Intent Classifier (LLM) --> "architecture_review" + "multi_step"
+    |
+    v
+Strategy Router --> TemplatePlanner
+    |
+    v
+Execution Plan (DAG):
+    [scan] --> [health] --> [suggest]
+      |                       |
+      +--> [docs] (parallel)  +--> [verify] (conditional)
+    |
+    v
+DAG Executor (async, parallel branches, cancellation)
+    |
+    v
+Aggregated Results + Execution Trace (JSONL)
+```
+
+**Progressive Planning Architecture (PPA):**
+- Simple queries --> direct agent routing (fast)
+- Known workflows --> parametric templates (reliable)
+- Novel queries --> LLM-composed plans with constraints (flexible)
+
+### 4 Specialized AI Agents
+
+| Agent | What It Does |
+|-------|-------------|
+| **Documentation** | Generates README, architecture guides, API reference, env guides |
+| **Q&A** | Answers questions with source attribution and confidence scores |
+| **Refactor** | Detects code smells, security issues, complexity, performance problems |
+| **Rebuilder** | Scaffolds entire projects from architecture templates with approval workflow |
+
+### Works With Any Open Model
+
+Mike uses a **ModelProvider abstraction** that works with any model backend:
+
+| Backend | Models | Setup |
+|---------|--------|-------|
+| **Ollama** (default) | Gemma 3, Qwen 2.5 Coder, Llama 3.3, Mistral, DeepSeek Coder, CodeLlama | `ollama pull qwen2.5-coder:14b` |
+| **OpenAI-compatible** | Any model via vLLM, LM Studio, Together AI, OpenRouter | Point to your endpoint |
+| **Local GGUF** | Any model via llama.cpp / Ollama | Pull or load locally |
 
 ```python
-from mike.patch import PatchApplier, PatchGenerator
+# Use any model
+from mike.orchestrator import OllamaProvider, OpenAICompatibleProvider
 
-# Generate patch from suggestion
-generator = PatchGenerator()
-patch = generator.from_refactor_suggestion(suggestion)
+# Ollama (default)
+provider = OllamaProvider(model="gemma3:12b")
 
-# Preview changes
-applier = PatchApplier()
-preview = applier.preview_patch(patch)
-
-# Apply with backup
-application = applier.apply_patch(patch)
-
-# Rollback if needed
-applier.rollback_patch(patch.id)
+# vLLM / LM Studio / any OpenAI-compatible API
+provider = OpenAICompatibleProvider(
+    model="llama-3.3-70b",
+    endpoint="http://localhost:8000/v1"
+)
 ```
 
-Learn more: [docs/v2/patch-mode.md](./docs/v2/patch-mode.md)
+### Three-Layer Memory Architecture
 
-### 🤖 AI Agents
+| Layer | What It Stores | Technology |
+|-------|---------------|------------|
+| **Structural** | AST nodes, dependency graphs, import trees | Tree-sitter + NetworkX + SQLite |
+| **Semantic** | Code embeddings, chunks, summaries | ChromaDB + Ollama embeddings |
+| **Execution** | Agent reasoning history, learned patterns, failure memory | In-memory + JSON |
 
-| Agent | Description | Status |
-|-------|-------------|--------|
-| **📚 Documentation** | Generate README, architecture guides, API reference | ✅ Active |
-| **❓ Q&A** | Answer questions with source attribution | ✅ Active |
-| **🔧 Refactor** | Detect code smells, security issues, improvements | ✅ Active |
-| **🏗️ Rebuilder** | Scaffold new projects from architecture templates | ✅ Active |
+### Context Engine (The Secret Sauce)
 
-### 🧠 Three-Layer Memory Architecture
+> Context quality matters more than model quality.
 
-| Layer | Stores | Implementation |
-|-------|--------|----------------|
-| **Structural** | AST nodes, dependency graphs, import trees | NetworkX + SQLite |
-| **Semantic** | Embeddings, code chunks, summaries | ChromaDB |
-| **Execution** | Agent reasoning history, learned patterns | In-memory + JSON |
+Mike's ContextEngine assembles rich, token-budgeted context for every agent call:
+
+1. **Semantic retrieval** -- embed query, search vector store for relevant code chunks
+2. **Graph-aware expansion** -- fetch callers and callees of relevant files
+3. **Execution memory** -- inject past successes/failures to avoid repeating mistakes
+4. **Token budget management** -- trim context to fit model window with priority-based pruning
+
+### Execution Traces (Debuggable AI)
+
+Every pipeline run produces a structured JSONL trace:
+
+```
+=== Execution Trace: a1b2c3d4 ===
+Query: "Review the architecture"
+Intent: architecture_review (confidence: 0.92, multi_step)
+Plan: template (3 nodes) -- "Using architecture_review template"
+
+[1] scan (qa)      OK  1.2s | 4200 tokens | 3 chunks
+[2] health (refactor) OK  2.1s | 3800 tokens | 2 chunks
+[3] suggest (refactor) OK  1.8s | 5100 tokens | 4 chunks
+
+Status: success | Total: 5.1s
+```
+
+Each node trace captures the **exact context the model saw** -- not references, not IDs, the actual prompt context. When a node hallucinates, you can see exactly why.
+
+### 8-Language Support
+
+Deep AST analysis via Tree-sitter for:
+
+Python | JavaScript/TypeScript | Go | Java | Rust | C/C++ | Ruby | PHP
+
+### Architecture Health Scoring
+
+7-dimension health assessment:
+
+- Coupling analysis (fan-in/fan-out)
+- Cohesion scoring (LCOM)
+- Circular dependency detection
+- Cyclomatic complexity
+- Layer violation detection
+- Dead code identification
+- Test coverage integration
+
+### Security Scanning
+
+Pattern-based vulnerability detection:
+
+- Secrets (API keys, passwords, tokens)
+- Injection vulnerabilities (SQL, command, code)
+- Cryptographic issues
+- SARIF export for CI/CD integration
+
+### Git Intelligence
+
+Repository analytics:
+
+- Code churn tracking
+- Hotspot detection (high-frequency change areas)
+- Bug-prone file identification
+- Contributor statistics
+- Rework rate analysis
 
 ---
 
-## 🚀 Installation
+## Getting Started
 
 ### Prerequisites
 
-- **Python** 3.10 or higher
-- **Git** (for cloning repositories)
-- **Ollama** (optional, for LLM support) - [Install from ollama.ai](https://ollama.ai)
+- **Python 3.10+**
+- **Ollama** (recommended) -- [Install from ollama.ai](https://ollama.ai)
 
-### Option 1: Install from Source
+### Install
 
 ```bash
 git clone https://github.com/RajeshKalidandi/mike.git
 cd mike
 pip install -e ".[web,dev]"
+
+# Pull a model (pick one)
+ollama pull qwen2.5-coder:14b    # Best for code tasks
+ollama pull gemma3:12b            # Good general purpose
+ollama pull mxbai-embed-large     # For embeddings
 ```
 
-### Option 2: Install CLI Only
+### First Run
 
 ```bash
-git clone https://github.com/RajeshKalidandi/mike.git
-cd mike
-pip install -e "."
-```
+# Scan a project
+mike scan ./your-project --session-name "My App"
+# Output: Created session: d5634ac4-...
 
-### Post-Installation
+# Ask a question
+mike ask d5634ac4 "What does this project do?"
 
-```bash
-# Initialize system
-mkdir -p ~/.mike/logs ~/.mike/output
+# Generate docs
+mike docs d5634ac4 --output ./docs
 
-# Optional: Download models for enhanced AI
-ollama pull mxbai-embed-large
-ollama pull qwen2.5-coder:14b
+# Launch web UI
+streamlit run src/mike/web/app.py
 ```
 
 ---
 
-## 🎯 Quick Start
+## How It Works
 
-### 1️⃣ Scan a Codebase
+### System Architecture
 
-```bash
-# Local directory
-mike scan /path/to/your/project --session-name "My Project"
-
-# Output:
-# Created session: d5634ac4-443e-4735-afa2-8cbf9cac39f0
-# Found 127 files
-# Scanned 127 files
+```
+User Query
+    |
+    v
+Intent Classifier (LLM-powered, keyword fallback)
+    |
+    v
+Strategy Router
+    |
+    +--> RulePlanner (simple queries)
+    +--> TemplatePlanner (known workflows)  
+    +--> LLMPlanner (novel queries, constrained composition)
+    |
+    v
+Validated Agent DAG
+    |
+    v
+DAG Executor (Kahn's algorithm, async parallel)
+    |
+    +---> Agent A ---> ContextEngine.build() ---> ModelProvider.generate()
+    +---> Agent B ---> ContextEngine.build() ---> ModelProvider.generate()
+    |
+    v
+Aggregated Results + Execution Trace (JSONL)
 ```
 
-### 2️⃣ Generate Documentation
+### The Orchestration Pipeline
 
-```bash
-# Generate all documentation types
-mike docs <session-id> --output ./docs
+1. **Intent Classification** -- LLM classifies the query (explain, refactor, document, etc.) with complexity level (simple/multi-step/open-ended)
 
-# Generated files:
-# ./docs/README.md
-# ./docs/ARCHITECTURE.md
-# ./docs/API_REFERENCE.md
-# ./docs/ENV_GUIDE.md
+2. **Progressive Planning** -- Based on complexity:
+   - Simple --> single agent, direct routing
+   - Multi-step --> parametric workflow template (5 built-in templates)
+   - Open-ended --> LLM composes a plan from the known agent set (constrained, max 4 nodes)
+
+3. **DAG Execution** -- Kahn's algorithm with:
+   - Parallel branch execution (asyncio.gather)
+   - Result passing between dependent nodes
+   - Conditional execution (skip nodes based on predecessor output)
+   - Cancellation propagation (failed node cancels dependents, independent branches continue)
+
+4. **Context Assembly** -- Per-node, the ContextEngine builds rich context:
+   - Semantic search (embed query, search ChromaDB)
+   - Graph expansion (1-hop neighbors via NetworkX)
+   - Execution memory (avoid past failures)
+   - Token budgeting (priority-based trimming)
+
+5. **Trace Capture** -- Full JSONL trace of every step for debugging and evaluation
+
+### Data Pipeline
+
 ```
-
-### 3️⃣ Ask Questions
-
-```bash
-mike ask <session-id> "Where is authentication handled?"
-mike ask <session-id> "What are the main components?"
-mike ask <session-id> "How does error handling work?"
-```
-
-### 4️⃣ Analyze Code Quality
-
-```bash
-# Check for code smells and improvements
-mike refactor <session-id> -f readability
-mike refactor <session-id> -f security
-```
-
----
-
-## 💻 Usage
-
-### Complete Workflow Example
-
-```bash
-# 1. Scan your codebase
-SESSION_ID=$(mike scan ./my-project --session-name "My Project" 2>&1 | grep "Created session:" | awk '{print $3}')
-echo "Session ID: $SESSION_ID"
-
-# 2. Parse AST and build dependencies
-mike parse $SESSION_ID
-mike build-graph $SESSION_ID --output graph.json
-
-# 3. Generate embeddings for semantic search
-mike embed $SESSION_ID
-
-# 4. Generate documentation
-mike docs $SESSION_ID --output ./docs
-
-# 5. Ask questions
-mike ask $SESSION_ID "What are the main entry points?"
-
-# 6. Search semantically
-mike search $SESSION_ID "authentication logic"
-
-# 7. Analyze for refactoring
-mike refactor $SESSION_ID -f performance
-```
-
-### Session Management
-
-```bash
-# List all sessions
-mike session list
-
-# Get session details
-mike session info <session-id>
-
-# Delete a session
-mike session delete <session-id>
-```
-
-### System Status
-
-```bash
-# Check system status
-mike status
-
-# Output:
-# Mike v0.1.0
-# Database: /Users/krissdev/.mike/mike.db
-# Sessions: 27
-# 
-# Agents:
-#   [✓] docs         - Documentation generation
-#   [✓] qa           - Question answering
-#   [✓] refactor     - Refactoring analysis
-#   [✓] rebuild      - Project scaffolding
+Source Code --> File Scanner --> AST Parser (Tree-sitter)
+    |                              |
+    v                              v
+Language Detection          Dependency Graph (NetworkX)
+    |                              |
+    v                              v
+Code Chunker -----------> Embedding Model (Ollama)
+                                   |
+                                   v
+                          Vector Store (ChromaDB)
+                                   |
+                                   v
+                          Context Engine (retrieval + expansion + budgeting)
+                                   |
+                                   v
+                          Agent Orchestrator (planning + DAG execution)
 ```
 
 ---
 
-## 🌐 Web Interface
+## Web Interface
 
-Launch the beautiful Streamlit web UI:
+Launch the Streamlit web UI:
 
 ```bash
 streamlit run src/mike/web/app.py
 ```
 
-Then open http://localhost:8501 in your browser.
+**10 pages:**
 
-### Web Interface Features
+| Page | What It Does |
+|------|-------------|
+| Home | System overview, stats, recent activity |
+| Upload | Scan directories, upload ZIPs, clone git repos |
+| Sessions | Browse, filter, delete analysis sessions |
+| Analysis | Run all 4 agents with visual progress |
+| Visualizations | Dependency graphs, language charts, file trees |
+| Health | 7-dimension architecture health scoring |
+| Security | Vulnerability detection with SARIF export |
+| Git Analytics | Code churn, hotspots, contributor stats |
+| Patches | Refactoring suggestions with preview and rollback |
+| Settings | Model config, database paths, UI preferences |
 
-- 🏠 **Home**: System overview with stats, quick actions, and recent activity
-- 📤 **Upload**: 
-  - Scan local directories with real-time progress
-  - Upload and extract ZIP files
-  - Content hashing to prevent duplicate uploads
-  - File preview before creating session
-- 📁 **Sessions**: 
-  - Browse all sessions with filtering and sorting
-  - View session statistics (files, lines, languages)
-  - Delete sessions with confirmation
-  - Quick load recent sessions
-- 🔍 **Analysis**: 
-  - Run all 4 agents with visual progress indicators
-  - **Documentation Agent**: Generate README, ARCHITECTURE, API_REFERENCE, ENV_GUIDE
-  - **Q&A Agent**: Ask questions with source attribution
-  - **Refactor Agent**: Detect code smells with file references
-  - **Rebuilder Agent**: Scaffold new projects with build plan approval
-- 📊 **Visualizations**: 
-  - Language distribution pie charts
-  - File size bar charts
-  - Interactive dependency graphs (NetworkX + Plotly)
-  - Collapsible file tree browser
-  - Code viewer with syntax highlighting (15+ languages)
-  - Real-time execution logs
-- ⚙️ **Settings**: 
-  - Model configuration (provider, name, temperature)
-  - Embedding model selection
-  - Database and output paths
-  - UI preferences (theme, line numbers, syntax highlighting)
-  - System information display
-
-### 🎨 Theme Support
-
-Toggle between **Dark** and **Light** modes:
-- Dynamic CSS generation based on theme
-- Plotly charts automatically themed
-- Session preference persistence
-- System preference detection
-
-### 📋 Build Plan Approval
-
-The Rebuilder Agent now includes a **3-phase workflow**:
-1. **Configure**: Set output directory and constraints
-2. **Generate Plan**: Preview complete project structure
-3. **Review & Approve**: 
-   - View file tree with descriptions
-   - See dependencies and configuration
-   - Check for ambiguities and warnings
-   - Approve, regenerate, or cancel
-4. **Execute**: Scaffold project after approval
-
-### 📥 Downloads
-
-- **One-click ZIP**: Download entire generated projects
-- **Individual files**: Download specific files with preview
-- **Documentation**: Export generated docs as ZIP
-- **Clipboard**: Copy file contents directly
-
-### 📱 Responsive Design
-
-Works seamlessly across devices:
-- **Desktop**: Full sidebar, multi-column layouts
-- **Tablet**: Adaptive grids, optimized spacing  
-- **Mobile**: Collapsible navigation, touch-friendly buttons (44px+), scrollable tables
+Dark/light theme support. Responsive design (desktop, tablet, mobile).
 
 ---
 
-## 📖 CLI Reference
-
-### Global Options
-
-```bash
-mike [OPTIONS] COMMAND [ARGS...]
-
-Options:
-  --db PATH          Database file path
-  -v, --verbose      Enable verbose output
-  -o, --output       Output format: plain, json, markdown
-  --help             Show help message
-```
-
-### Commands
-
-#### Core Operations
-
-```bash
-# Scan codebase
-mike scan <source> [--session-name NAME]
-
-# Parse AST
-mike parse <session-id>
-
-# Build dependency graph
-mike build-graph <session-id> [--output FILE]
-
-# Generate embeddings
-mike embed <session-id> [--model MODEL]
-
-# Search codebase
-mike search <session-id> <query> [--n-results N]
-```
-
-#### Agent Commands
-
-```bash
-# Generate documentation
-mike docs <session-id> [--output DIR] [--type TYPE]
-
-# Ask questions
-mike ask <session-id> <question>
-
-# Refactoring analysis
-mike refactor <session-id> [-f performance|readability|structure|security]
-
-# Rebuild/scaffold project
-mike rebuild <session-id> <output-dir>
-```
-
-#### Session Management
-
-```bash
-# List sessions
-mike session list [--limit N]
-
-# Session info
-mike session info <session-id>
-
-# Delete session
-mike session delete <session-id> [--force]
-```
-
-#### System
-
-```bash
-# System status
-mike status
-
-# Telemetry
-mike telemetry stats
-mike telemetry report
-```
-
----
-
-## 🐍 Python API
-
-### Basic Usage
-
-```python
-from mike import create_ai
-
-# Initialize
-ai = create_ai()
-
-# Scan codebase
-result = ai.scan_codebase("/path/to/project")
-print(f"Session: {result.session_id}")
-print(f"Files: {result.files_scanned}")
-
-# Generate docs
-docs = ai.generate_docs(result.session_id, output_dir="./docs")
-
-# Ask questions
-answer = ai.ask_question(result.session_id, "Where is auth?")
-print(answer.text)
-```
-
-### Advanced Usage
+## Python API
 
 ```python
 from mike import Mike
 
-# With progress tracking
-def on_progress(task, progress, message):
-    print(f"[{task}] {int(progress*100)}%: {message}")
+ai = Mike()
 
-ai = Mike(verbose=True)
-ai.add_progress_callback(on_progress)
+# Scan and analyze
+session = ai.scan_codebase("./my-project")
 
-# Full analysis
-result = ai.scan_codebase("./project")
-ai.parse(result.session_id)
-ai.build_graph(result.session_id)
-ai.embed(result.session_id)
+# Ask questions
+answer = ai.ask_question(session.session_id, "How does auth work?")
+print(answer.text)
+print(answer.sources)  # File:line references
 
-# Run agents
-ai.generate_docs(result.session_id)
-refactor = ai.suggest_refactoring(result.session_id)
+# Generate docs
+ai.generate_docs(session.session_id, output_dir="./docs")
+
+# Refactoring suggestions
+suggestions = ai.suggest_refactoring(session.session_id)
+
+# Scaffold new project
+ai.rebuild_project(session.session_id, output_dir="./new-project")
 ```
 
-### Session Management
+### Using the Orchestrator Directly
 
 ```python
-# List sessions
-sessions = ai.list_sessions(limit=10)
-for session in sessions:
-    print(f"{session.session_id[:8]}: {session.file_count} files")
+from mike.orchestrator import (
+    AgentOrchestrator, OllamaProvider, ContextEngine,
+    IntentClassifier, StrategyRouter, RulePlanner,
+    TemplatePlanner, LLMPlanner, DAGExecutor, format_trace,
+)
 
-# Get details
-info = ai.get_session(session_id)
-print(f"Languages: {info.languages}")
+# Set up the full pipeline
+provider = OllamaProvider(model="qwen2.5-coder:14b")
+context_engine = ContextEngine(vector_store=vs, embedding_service=es)
+classifier = IntentClassifier(provider)
+router = StrategyRouter(
+    rule_planner=RulePlanner(),
+    template_planner=TemplatePlanner(),
+    llm_planner=LLMPlanner(provider),
+)
 
-# Delete
-ai.delete_session(session_id)
+orchestrator = AgentOrchestrator()
+orchestrator.intent_classifier = classifier
+orchestrator.strategy_router = router
+orchestrator.context_engine = context_engine
+orchestrator.dag_executor = DAGExecutor(
+    agent_registry=orchestrator.registry,
+    context_engine=context_engine,
+)
+
+# Run a query through the full pipeline
+result = orchestrator.run("Review the architecture of this project")
+
+# Print the execution trace
+print(format_trace(result.trace))
 ```
 
 ---
 
-## 🏛️ Architecture
+## CLI Reference
 
-```
-User Input → CLI → Orchestrator → Agents → Output
-                    ↓
-            Context Assembler
-                    ↓
-    Structural (Graph) + Semantic (Vector) Memory
-```
-
-### System Pipeline
-
-```
-User Upload (Repo / Folder / ZIP)
-        │
-        ▼
-File Scanner + Language Detection
-        │
-        ▼
-AST Parsing (Tree-sitter)
-        │
-        ▼
-Dependency Graph Builder (NetworkX)
-        │
-        ▼
-Hierarchical Summarizer (Bottom-Up)
-        │
-        ▼
-Chunker + Metadata Tagger
-        │
-        ▼
-Local Embedding Model (Ollama)
-        │
-        ▼
-Vector Store (ChromaDB)
-        │
-        ▼
-Code Knowledge Graph
-        │
-        ▼
-Agent Orchestrator (LangGraph-style)
-        │
-        ├──── 📚 Documentation Agent
-        ├──── ❓ Q&A Agent
-        ├──── 🔧 Refactor Agent
-        └──── 🏗️ Rebuilder Agent
-        │
-        ▼
-Structured Output (Markdown / JSON / Code)
-```
-
-### Context Assembly Pipeline
-
-```
-Query (natural language)
-        │
-        ▼
-Semantic Search → Top-K Chunks
-        │
-        ▼
-Graph-Aware Expansion (callers + callees)
-        │
-        ▼
-Hierarchical Summary Injection
-        │
-        ▼
-Token Budget Manager
-        │
-        ▼
-Assembled Context → Agent
+```bash
+mike scan <source> [--session-name NAME]        # Scan codebase
+mike parse <session-id>                          # Parse AST
+mike build-graph <session-id>                    # Build dependency graph
+mike embed <session-id>                          # Generate embeddings
+mike search <session-id> <query>                 # Semantic search
+mike docs <session-id> [--output DIR]            # Generate documentation
+mike ask <session-id> <question>                 # Ask questions
+mike refactor <session-id> [-f FOCUS]            # Refactoring analysis
+mike rebuild <session-id> <output-dir>           # Scaffold project
+mike health <session-id>                         # Health scoring
+mike security <source> [--format sarif]          # Security scan
+mike git analyze <source>                        # Git analytics
+mike session list                                # List sessions
+mike status                                      # System status
 ```
 
 ---
 
-## 🛠️ Development
-
-### Setup
-
-```bash
-git clone https://github.com/RajeshKalidandi/mike.git
-cd mike
-python -m venv venv
-source venv/bin/activate
-pip install -e ".[dev]"
-```
-
-### Run Tests
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=src/mike
-
-# Run specific test categories
-pytest -m unit
-pytest -m integration
-pytest -m e2e
-```
-
-### Code Quality
-
-```bash
-# Format
-black src tests
-isort src tests
-
-# Lint
-ruff check src tests
-
-# Type check
-mypy src/mike
-```
-
-### Project Structure
+## Project Structure
 
 ```
 mike/
-├── src/mike/
-│   ├── __init__.py              # Public API exports
-│   ├── api.py                   # Main API interface
-│   ├── bootstrap.py             # System initialization
-│   ├── cli.py                   # Command-line interface
-│   ├── cli_orchestrator.py      # CLI task orchestration
-│   ├── agents/                  # AI agents
-│   │   ├── qa_agent.py          # Q&A Agent (825 lines)
-│   │   ├── refactor_agent.py    # Refactor Agent (673 lines)
-│   │   ├── rebuilder_agent.py   # Rebuilder Agent (2500+ lines)
-│   │   └── patterns.py          # Pattern detection (876 lines)
-│   ├── chunker/                 # Code chunking
-│   ├── config/                  # Configuration management
-│   ├── context/                 # Context assembly pipeline
-│   ├── db/                      # Database models
-│   ├── docs/                    # Documentation generation
-│   ├── embeddings/              # Embedding service
-│   ├── graph/                   # Dependency graph
-│   ├── orchestrator/            # Agent orchestration
-│   │   ├── engine.py            # Main orchestrator (983 lines)
-│   │   └── state.py             # State management (434 lines)
-│   ├── parser/                  # AST parsing (904 lines)
-│   ├── scanner/                 # File scanning (269 lines)
-│   ├── vectorstore/             # Vector database (215 lines)
-│   └── web/                     # Streamlit web UI (1184 lines)
-├── tests/                       # Comprehensive test suite (393 tests)
-├── docs/                        # Project documentation
-├── examples/                    # Usage examples
-└── requirements.txt             # Dependencies
+  src/mike/
+    orchestrator/           # Multi-agent orchestration engine
+      engine.py             # AgentOrchestrator with run() pipeline
+      planner.py            # Progressive Planning Architecture (3-tier)
+      dag_executor.py       # DAG execution with Kahn's algorithm
+      context_engine.py     # Semantic retrieval + graph expansion + token budgeting
+      model_provider.py     # ModelProvider abstraction (Ollama, OpenAI-compatible)
+      trace.py              # Structured execution tracing (JSONL)
+      state.py              # Session and execution state management
+    agents/                 # 4 specialized AI agents
+    parser/                 # Tree-sitter AST parsing (8 languages)
+    graph/                  # Dependency graph (NetworkX)
+    embeddings/             # Embedding service (Ollama)
+    vectorstore/            # Vector database (ChromaDB)
+    security/               # Vulnerability scanning
+    health/                 # Architecture health scoring
+    git/                    # Git analytics
+    patch/                  # Safe code modification with rollback
+    web/                    # Streamlit web interface (10 pages)
+    tui/                    # Terminal UI (Textual)
+    config/                 # Configuration management (Pydantic v2)
+    db/                     # SQLite database models
+    cache/                  # DiskCache for AST, embeddings, graphs
+    monitoring/             # Telemetry and metrics
+  tests/                    # 739+ tests
+  docs/                     # Documentation and specs
 ```
 
 ---
 
-## 🎯 Milestones
+## Tech Stack
 
-| Milestone | Status | Description | Lines of Code |
-|-----------|--------|-------------|---------------|
-| **M1** | ✅ Complete | File scanner + language detection + AST parsing | 1,200+ |
-| **M2** | ✅ Complete | Dependency graph + chunker + embeddings + vector store | 1,500+ |
-| **M3** | ✅ Complete | Documentation Agent with Jinja2 templates | 500+ |
-| **M4** | ✅ Complete | Q&A Agent with intent classification | 825+ |
-| **M5** | ✅ Complete | Refactor Agent with code smell detection | 673+ |
-| **M6** | ✅ Complete | Rebuilder Agent (basic scaffolding) | 2,500+ |
-| **M7** | ✅ Complete | Streamlit frontend + full integration | 1,184+ |
-| **M8** | ✅ Complete | Rebuilder Agent (full code generation) | 2,697+ |
-
-**Web Interface Highlights:**
-- 🎨 Dark/Light theme support with dynamic CSS switching
-- 📋 Build Plan Approval - Preview project structure before generation
-- 📥 One-click downloads - ZIP export of generated projects
-- 📱 Responsive design - Works on desktop, tablet, and mobile
-- 📊 Interactive visualizations - Dependency graphs, language charts
-- 🖥️ Code viewer - Syntax highlighting with 15+ languages
-
-**Total**: 8,000+ lines of production code + 467 tests
+| Component | Technology |
+|-----------|-----------|
+| AST Parsing | Tree-sitter (8 language bindings) |
+| Dependency Graphs | NetworkX |
+| Vector Database | ChromaDB |
+| LLM Integration | Ollama + OpenAI-compatible API |
+| Database | SQLite |
+| Configuration | Pydantic v2 |
+| Web UI | Streamlit + Plotly |
+| Terminal UI | Textual |
+| Caching | DiskCache |
+| HTTP Client | httpx |
+| Git Analysis | GitPython |
 
 ---
 
-## 🔒 Security
+## Comparison With Other Tools
 
-- ✅ **No external API calls** - All processing is local
-- ✅ **No telemetry** - No data sent to external servers  
-- ✅ **Code isolation** - Rebuilder runs in sandboxed subprocess
-- ✅ **Prompt injection protection** - Input sanitization built-in
-- ✅ **Graph poisoning protection** - Cycle detection and limits
-
----
-
-## 🙏 Acknowledgments
-
-- [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) - AST parsing
-- [Ollama](https://ollama.ai) - Local LLM hosting
-- [ChromaDB](https://www.trychroma.com/) - Vector database
-- [NetworkX](https://networkx.org/) - Graph analysis
-- [Streamlit](https://streamlit.io/) - Web interface
+| Feature | Mike | Cursor/Copilot | Aider | SWE-Agent |
+|---------|------|---------------|-------|-----------|
+| Fully local / offline | Yes | No | No | No |
+| Multi-agent orchestration | Yes (DAG) | No | No | Partial |
+| Codebase-wide understanding | Yes | File-level | File-level | Repo-level |
+| Architecture health scoring | Yes | No | No | No |
+| Security scanning | Yes | No | No | No |
+| Dependency graph analysis | Yes | No | No | No |
+| Works with any open model | Yes | GPT/Claude only | GPT/Claude | GPT/Claude |
+| Execution traces | Yes | No | No | No |
+| Web UI + CLI + Python API | All three | IDE only | CLI only | CLI only |
+| Free and open source | MIT | Paid | Free/Paid | MIT |
 
 ---
 
-## 📄 License
+## Contributing
 
-MIT License - see [LICENSE](LICENSE) file for details.
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+```bash
+# Setup development environment
+git clone https://github.com/RajeshKalidandi/mike.git
+cd mike
+pip install -e ".[dev]"
+
+# Run tests
+python3 -m pytest tests/ -v
+
+# Code quality
+black src tests && isort src tests && ruff check src tests
+```
 
 ---
 
-## 👤 Author
+## Roadmap
 
-**Rajesh** - [GitHub](https://github.com/RajeshKalidandi)
+- [x] Multi-agent orchestration with DAG execution
+- [x] Progressive Planning Architecture (3-tier)
+- [x] Context Engine with semantic retrieval and graph expansion
+- [x] ModelProvider abstraction (any open model)
+- [x] Execution traces (JSONL)
+- [ ] Feedback loop (query -> plan -> outcome storage for self-improvement)
+- [ ] Skills/plugin system (runtime-loadable agent capabilities)
+- [ ] Streaming results from agents
+- [ ] Context ranking improvements (recency, structural importance)
+- [ ] Multi-repo analysis
 
 ---
 
-**Built with ❤️ for the developer community**
+## Star History
 
-⭐ Star this repo if you find it useful!
+If Mike helps you understand or improve your codebase, consider giving it a star. It helps others discover the project.
+
+---
+
+## License
+
+MIT License -- see [LICENSE](LICENSE) for details.
+
+## Author
+
+**Rajesh Kalidandi** -- [GitHub](https://github.com/RajeshKalidandi)
+
+---
+
+<div align="center">
+
+**Built for developers who want AI that actually understands their code.**
+
+[Star this repo](https://github.com/RajeshKalidandi/mike) | [Report an issue](https://github.com/RajeshKalidandi/mike/issues) | [Contribute](CONTRIBUTING.md)
+
+</div>
