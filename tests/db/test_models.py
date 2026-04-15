@@ -2,7 +2,7 @@ import pytest
 import sqlite3
 import tempfile
 import os
-from architectai.db.models import Database, Session, FileRecord
+from mike.db.models import Database, Session, FileRecord
 
 
 class TestDatabase:

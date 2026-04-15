@@ -1,0 +1,4 @@
+/* Base styles - shared across all themes */
+Screen {
+    layout: vertical;
+}

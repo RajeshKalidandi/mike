@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-from architectai.cli import main
+from mike.cli import main
 
 
 class TestCLI:
@@ -128,7 +128,7 @@ class TestCLI:
         result = runner.invoke(main, ["--help"])
 
         assert result.exit_code == 0
-        assert "ArchitectAI" in result.output
+        assert "Mike" in result.output
 
     def test_scan_help(self):
         """Test scan command help."""

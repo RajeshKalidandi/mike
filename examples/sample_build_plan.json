@@ -1,0 +1,110 @@
+{
+  "plan_id": "abc123def456",
+  "project_name": "my_new_project",
+  "description": "Generated from template session abc123",
+  "target_language": "python",
+  "target_framework": "fastapi",
+  "architecture_pattern": "layered",
+  "constraints": [
+    "Make it multi-tenant",
+    "Add JWT authentication"
+  ],
+  "files": [
+    {
+      "path": "src/main.py",
+      "purpose": "Main entry point and FastAPI app initialization",
+      "estimated_lines": 50,
+      "template_hints": {
+        "type": "python",
+        "framework": "fastapi"
+      }
+    },
+    {
+      "path": "src/api/routes.py",
+      "purpose": "API route definitions and endpoint handlers",
+      "estimated_lines": 120,
+      "template_hints": {
+        "type": "python",
+        "framework": "fastapi"
+      }
+    },
+    {
+      "path": "src/models/schemas.py",
+      "purpose": "Pydantic models and data validation schemas",
+      "estimated_lines": 80,
+      "template_hints": {
+        "type": "python"
+      }
+    },
+    {
+      "path": "src/services/auth.py",
+      "purpose": "Authentication and authorization services",
+      "estimated_lines": 150,
+      "template_hints": {
+        "type": "python"
+      }
+    },
+    {
+      "path": "src/db/database.py",
+      "purpose": "Database connection and session management",
+      "estimated_lines": 60,
+      "template_hints": {
+        "type": "python"
+      }
+    },
+    {
+      "path": "tests/test_main.py",
+      "purpose": "Unit tests for main application",
+      "estimated_lines": 40,
+      "template_hints": {
+        "type": "test"
+      }
+    },
+    {
+      "path": "requirements.txt",
+      "purpose": "Python dependencies",
+      "estimated_lines": 15,
+      "template_hints": {
+        "type": "config"
+      }
+    },
+    {
+      "path": "README.md",
+      "purpose": "Project documentation and setup instructions",
+      "estimated_lines": 100,
+      "template_hints": {
+        "type": "documentation"
+      }
+    }
+  ],
+  "dependencies": {
+    "python": [
+      "fastapi>=0.100.0",
+      "uvicorn[standard]",
+      "pydantic>=2.0.0",
+      "sqlalchemy>=2.0.0",
+      "alembic",
+      "python-jose[cryptography]",
+      "passlib[bcrypt]",
+      "python-multipart"
+    ]
+  },
+  "config_requirements": {
+    "files": [
+      ".env.example",
+      "pyproject.toml",
+      "alembic.ini"
+    ],
+    "environment_variables": [
+      "DATABASE_URL",
+      "SECRET_KEY",
+      "JWT_ALGORITHM",
+      "ACCESS_TOKEN_EXPIRE_MINUTES"
+    ]
+  },
+  "ambiguities": [
+    "Database choice not specified - defaulting to PostgreSQL",
+    "Authentication provider not specified - using local JWT"
+  ],
+  "warnings": []
+}

@@ -17,7 +17,7 @@
 - Create: `requirements.txt` (project root)
 - Create: `.gitignore` (project root)
 - Create: `README.md` (project root - basic setup)
-- Create: `src/architectai/__init__.py`
+- Create: `src/mike/__init__.py`
 - Create: `tests/__init__.py`
 
 **Step 1: Create project structure**
@@ -29,7 +29,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "architectai"
+name = "mike"
 version = "0.1.0"
 description = "Local AI software architect for private codebases"
 readme = "README.md"
@@ -76,7 +76,7 @@ dev = [
 ]
 
 [project.scripts]
-architectai = "architectai.cli:main"
+mike = "mike.cli:main"
 
 [tool.black]
 line-length = 100
@@ -96,7 +96,7 @@ strict = true
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-addopts = "--cov=src/architectai --cov-report=term-missing"
+addopts = "--cov=src/mike --cov-report=term-missing"
 ```
 
 **Step 2: Create requirements.txt**
@@ -176,9 +176,9 @@ Thumbs.db
 **Step 4: Create src structure**
 
 ```bash
-mkdir -p src/architectai/scanner
-mkdir -p src/architectai/parser
-mkdir -p src/architectai/db
+mkdir -p src/mike/scanner
+mkdir -p src/mike/parser
+mkdir -p src/mike/db
 mkdir -p tests/scanner
 mkdir -p tests/parser
 ```
@@ -195,9 +195,9 @@ git commit -m "chore: bootstrap project with dependencies"
 ## Task 2: Database Layer - Session & File Metadata
 
 **Files:**
-- Create: `src/architectai/db/__init__.py`
-- Create: `src/architectai/db/models.py`
-- Create: `src/architectai/db/session.py`
+- Create: `src/mike/db/__init__.py`
+- Create: `src/mike/db/models.py`
+- Create: `src/mike/db/session.py`
 - Create: `tests/db/test_models.py`
 
 **Step 1: Write failing test**
@@ -208,7 +208,7 @@ import pytest
 import sqlite3
 import tempfile
 import os
-from architectai.db.models import Database, Session, FileRecord
+from mike.db.models import Database, Session, FileRecord
 
 
 class TestDatabase:
@@ -281,7 +281,7 @@ Expected: ImportError or ModuleNotFoundError
 **Step 3: Implement database models**
 
 ```python
-# src/architectai/db/__init__.py
+# src/mike/db/__init__.py
 from .models import Database
 from .session import SessionManager
 
@@ -289,7 +289,7 @@ __all__ = ["Database", "SessionManager"]
 ```
 
 ```python
-# src/architectai/db/models.py
+# src/mike/db/models.py
 """Database models and operations."""
 import sqlite3
 import uuid
@@ -463,9 +463,9 @@ git commit -m "feat(db): add database layer for sessions and file metadata"
 ## Task 3: File Scanner - Repository Ingestion
 
 **Files:**
-- Create: `src/architectai/scanner/__init__.py`
-- Create: `src/architectai/scanner/scanner.py`
-- Create: `src/architectai/scanner/clone.py`
+- Create: `src/mike/scanner/__init__.py`
+- Create: `src/mike/scanner/scanner.py`
+- Create: `src/mike/scanner/clone.py`
 - Create: `tests/scanner/test_scanner.py`
 - Create: `tests/fixtures/sample_repo/` (minimal test repo)
 
@@ -531,7 +531,7 @@ import tempfile
 import os
 import shutil
 from pathlib import Path
-from architectai.scanner.scanner import FileScanner
+from mike.scanner.scanner import FileScanner
 
 
 class TestFileScanner:
@@ -593,7 +593,7 @@ Expected: ImportError
 **Step 4: Implement scanner**
 
 ```python
-# src/architectai/scanner/__init__.py
+# src/mike/scanner/__init__.py
 from .scanner import FileScanner
 from .clone import clone_repository
 
@@ -601,7 +601,7 @@ __all__ = ["FileScanner", "clone_repository"]
 ```
 
 ```python
-# src/architectai/scanner/scanner.py
+# src/mike/scanner/scanner.py
 """File scanning and discovery."""
 import os
 import hashlib
@@ -769,7 +769,7 @@ class FileScanner:
 ```
 
 ```python
-# src/architectai/scanner/clone.py
+# src/mike/scanner/clone.py
 """Repository cloning functionality."""
 import os
 import tempfile
@@ -800,7 +800,7 @@ def clone_repository(
     """
     # Determine target directory
     if target_dir is None:
-        target_dir = tempfile.mkdtemp(prefix="architectai_")
+        target_dir = tempfile.mkdtemp(prefix="mike_")
     else:
         Path(target_dir).mkdir(parents=True, exist_ok=True)
     
@@ -850,9 +850,9 @@ git commit -m "feat(scanner): add file scanner with language detection"
 ## Task 4: AST Parser - Tree-sitter Integration
 
 **Files:**
-- Create: `src/architectai/parser/__init__.py`
-- Create: `src/architectai/parser/parser.py`
-- Create: `src/architectai/parser/languages.py`
+- Create: `src/mike/parser/__init__.py`
+- Create: `src/mike/parser/parser.py`
+- Create: `src/mike/parser/languages.py`
 - Create: `tests/parser/test_parser.py`
 
 **Step 1: Write failing test**
@@ -861,7 +861,7 @@ git commit -m "feat(scanner): add file scanner with language detection"
 # tests/parser/test_parser.py
 import pytest
 from pathlib import Path
-from architectai.parser.parser import ASTParser
+from mike.parser.parser import ASTParser
 
 
 class TestASTParser:
@@ -956,7 +956,7 @@ Expected: ImportError
 **Step 3: Implement parser**
 
 ```python
-# src/architectai/parser/__init__.py
+# src/mike/parser/__init__.py
 from .parser import ASTParser
 from .languages import get_language, SUPPORTED_LANGUAGES
 
@@ -964,7 +964,7 @@ __all__ = ["ASTParser", "get_language", "SUPPORTED_LANGUAGES"]
 ```
 
 ```python
-# src/architectai/parser/languages.py
+# src/mike/parser/languages.py
 """Language-specific Tree-sitter setup."""
 from typing import Optional, Dict, Any
 import tree_sitter
@@ -1033,7 +1033,7 @@ def normalize_language(language_name: str) -> Optional[str]:
 ```
 
 ```python
-# src/architectai/parser/parser.py
+# src/mike/parser/parser.py
 """AST parsing using Tree-sitter."""
 from typing import Dict, List, Any, Optional
 import tree_sitter
@@ -1388,7 +1388,7 @@ git commit -m "feat(parser): add AST parsing with tree-sitter"
 ## Task 5: CLI Interface - Basic Commands
 
 **Files:**
-- Create: `src/architectai/cli.py`
+- Create: `src/mike/cli.py`
 - Create: `tests/test_cli.py`
 
 **Step 1: Write failing test**
@@ -1400,7 +1400,7 @@ import tempfile
 import os
 from pathlib import Path
 from click.testing import CliRunner
-from architectai.cli import main
+from mike.cli import main
 
 
 class TestCLI:
@@ -1445,8 +1445,8 @@ Expected: ImportError
 **Step 3: Implement CLI**
 
 ```python
-# src/architectai/cli.py
-"""Command-line interface for ArchitectAI."""
+# src/mike/cli.py
+"""Command-line interface for Mike."""
 import os
 import sys
 import tempfile
@@ -1465,7 +1465,7 @@ from .parser import ASTParser
 @click.option('--verbose', '-v', is_flag=True, help='Verbose output')
 @click.pass_context
 def main(ctx: click.Context, db: Optional[str], verbose: bool) -> None:
-    """ArchitectAI - Local AI software architect for private codebases."""
+    """Mike - Local AI software architect for private codebases."""
     # Ensure context object exists
     ctx.ensure_object(dict)
     
@@ -1473,9 +1473,9 @@ def main(ctx: click.Context, db: Optional[str], verbose: bool) -> None:
     if db is None:
         # Use default location in user's home
         home = Path.home()
-        db_dir = home / ".architectai"
+        db_dir = home / ".mike"
         db_dir.mkdir(exist_ok=True)
-        db = str(db_dir / "architectai.db")
+        db = str(db_dir / "mike.db")
     
     ctx.obj['db_path'] = db
     ctx.obj['verbose'] = verbose
@@ -1495,7 +1495,7 @@ def scan(ctx: click.Context, source: str, session_name: Optional[str]) -> None:
     db_path = ctx.obj['db_path']
     verbose = ctx.obj['verbose']
     
-    click.echo(f"ArchitectAI - Scanning {source}...")
+    click.echo(f"Mike - Scanning {source}...")
     
     # Initialize database
     db = Database(db_path)
@@ -1507,7 +1507,7 @@ def scan(ctx: click.Context, source: str, session_name: Optional[str]) -> None:
     
     if is_git_url(source):
         click.echo("Cloning repository...")
-        target_path = tempfile.mkdtemp(prefix="architectai_")
+        target_path = tempfile.mkdtemp(prefix="mike_")
         is_temp = True
         try:
             target_path = clone_repository(source, target_path)
@@ -1657,8 +1657,8 @@ import tempfile
 import os
 from pathlib import Path
 from click.testing import CliRunner
-from architectai.cli import main
-from architectai.db import Database
+from mike.cli import main
+from mike.db import Database
 
 
 class TestIntegration:
@@ -1741,7 +1741,7 @@ Expected: Test passes
 **Step 3: Update README**
 
 ```markdown
-# ArchitectAI
+# Mike
 
 Local AI software architect for private codebases.
 
@@ -1763,16 +1763,16 @@ pip install -e .
 
 ```bash
 # Scan a local codebase
-architectai scan /path/to/project
+mike scan /path/to/project
 
 # Scan a GitHub repository
-architectai scan https://github.com/user/repo
+mike scan https://github.com/user/repo
 
 # Parse AST for a session
-architectai parse <session-id>
+mike parse <session-id>
 
 # List all sessions
-architectai list-sessions
+mike list-sessions
 ```
 
 ## Development
@@ -1785,7 +1785,7 @@ pip install -e ".[dev]"
 pytest
 
 # Run with coverage
-pytest --cov=src/architectai
+pytest --cov=src/mike
 
 # Format code
 black src tests

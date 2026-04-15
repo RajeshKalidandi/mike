@@ -1,0 +1,349 @@
+/* Light theme - Gruvbox Light inspired */
+Screen {
+    background: #fbf1c7;
+}
+
+/* Welcome Screen */
+#welcome-container {
+    width: 100%;
+    height: 100%;
+    align: center middle;
+    background: #fbf1c7;
+}
+
+#welcome-logo {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #d65d0e;
+    text-style: bold;
+    margin-bottom: 1;
+}
+
+#welcome-title {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #7c6f64;
+    text-style: none;
+    margin-bottom: 2;
+}
+
+#welcome-hint {
+    width: auto;
+    height: auto;
+    content-align: center middle;
+    color: #7c6f64;
+    text-style: dim;
+}
+
+/* Main Screen Layout */
+#main-container {
+    width: 100%;
+    height: 100%;
+    background: #fbf1c7;
+}
+
+/* Header Bar */
+#header-bar {
+    height: 1;
+    background: #fbf1c7;
+    color: #3c3836;
+    content-align: left middle;
+    padding: 0 1;
+    text-style: none;
+}
+
+#output-log {
+    height: 1fr;
+    background: #fbf1c7;
+    color: #3c3836;
+    padding: 1;
+    border: none;
+}
+
+/* Dotted Separator Line */
+#input-separator {
+    height: 1;
+    color: #bdae93;
+    text-style: dim;
+    content-align: center middle;
+}
+
+/* TextArea Input - 4 rows with orange border */
+#command-input {
+    height: 4;
+    max-height: 4;
+    background: #ebdbb2;
+    color: #3c3836;
+    border: solid #d5c4a1;
+    padding: 0 1;
+    text-style: none;
+}
+
+#command-input:focus {
+    border: solid #d65d0e;
+}
+
+/* TextArea inner content */
+#command-input .text-area--text {
+    background: #ebdbb2;
+    color: #3c3836;
+}
+
+#command-input .text-area--cursor {
+    color: #fbf1c7;
+    background: #d65d0e;
+}
+
+/* Hint Footer */
+#input-hints {
+    height: 1;
+    background: #fbf1c7;
+    color: #7c6f64;
+    text-style: dim;
+    content-align: left middle;
+    padding: 0 1;
+}
+
+/* Remove old input styles */
+#input-container {
+    display: none;
+}
+
+#input-prompt {
+    display: none;
+}
+
+/* Sessions Screen */
+#sessions-title {
+    text-align: center;
+    text-style: bold;
+    color: #076678;
+    height: 1;
+    padding: 1 0;
+}
+
+#sessions-table {
+    background: #ebdbb2;
+    color: #3c3836;
+    height: 1fr;
+}
+
+#sessions-table .datatable--header {
+    background: #d5c4a1;
+    color: #3c3836;
+    text-style: bold;
+}
+
+#sessions-table .datatable--cursor {
+    background: #bdae93;
+}
+
+#sessions-hints {
+    height: 1;
+    color: #7c6f64;
+    content-align: center middle;
+}
+
+/* Help Screen */
+HelpScreen {
+    align: center middle;
+}
+
+#help-container {
+    background: #ebdbb2;
+    border: solid #076678;
+    padding: 1 2;
+}
+
+#help-title {
+    text-align: center;
+    text-style: bold;
+    color: #076678;
+}
+
+#help-content {
+    background: #fbf1c7;
+}
+
+#help-content .markdown {
+    color: #3c3836;
+}
+
+#help-footer {
+    text-align: center;
+    color: #7c6f64;
+}
+
+/* Logs Screen */
+#logs-header {
+    height: 3;
+    background: #ebdbb2;
+    padding: 0 1;
+}
+
+#logs-title {
+    width: 10;
+    text-style: bold;
+    color: #076678;
+    content-align: center middle;
+}
+
+#logs-filter {
+    width: 1fr;
+}
+
+#logs-controls {
+    width: 1fr;
+    color: #7c6f64;
+    content-align: right middle;
+}
+
+#log-viewer {
+    height: 1fr;
+    background: #fbf1c7;
+    color: #3c3836;
+    border: none;
+    padding: 0 1;
+}
+
+/* Modal */
+#modal-content {
+    background: #ebdbb2;
+    border: solid #076678;
+    padding: 1 2;
+}
+
+#modal-message {
+    text-align: center;
+    margin-bottom: 1;
+    color: #3c3836;
+}
+
+/* Notifications */
+#notifications {
+    layer: notification;
+    width: 40;
+    height: auto;
+    dock: top;
+}
+
+.notification {
+    background: #ebdbb2;
+    color: #3c3836;
+    padding: 1;
+    margin: 0 1 1 0;
+    border: solid #076678;
+}
+
+.notification.error {
+    border: solid #cc241d;
+}
+
+.notification.warning {
+    border: solid #d79921;
+}
+
+.notification.success {
+    border: solid #98971a;
+}
+
+/* Session Detail Screen */
+#file-tree-container {
+    width: 50%;
+    height: 100%;
+    border-right: solid #d5c4a1;
+}
+
+#files-header {
+    text-style: bold;
+    color: #076678;
+    height: 1;
+    padding: 0 1;
+}
+
+#file-tree-widget {
+    height: 1fr;
+    background: #ebdbb2;
+}
+
+#file-tree-widget .tree--label {
+    color: #3c3836;
+}
+
+#file-tree-widget .tree--cursor {
+    background: #d5c4a1;
+}
+
+#session-info {
+    width: 50%;
+    height: 100%;
+    padding: 0 1;
+}
+
+#detail-header {
+    text-style: bold;
+    color: #076678;
+    height: 1;
+    padding: 0 1;
+}
+
+#detail-content {
+    height: 1fr;
+    background: #fbf1c7;
+    color: #3c3836;
+}
+
+/* General Widgets */
+Static {
+    color: #3c3836;
+}
+
+Input {
+    background: #ebdbb2;
+    color: #3c3836;
+    border: solid #d5c4a1;
+}
+
+Input:focus {
+    border: solid #076678;
+}
+
+DataTable {
+    background: #ebdbb2;
+    color: #3c3836;
+}
+
+DataTable .datatable--header {
+    background: #d5c4a1;
+    color: #3c3836;
+    text-style: bold;
+}
+
+DataTable .datatable--cursor {
+    background: #bdae93;
+}
+
+ListView {
+    background: #ebdbb2;
+}
+
+ListItem {
+    color: #3c3836;
+}
+
+ListItem:hover {
+    background: #d5c4a1;
+}
+
+ListItem.--selected {
+    background: #076678;
+    color: #fbf1c7;
+    text-style: bold;
+}
+
+Select {
+    background: #ebdbb2;
+    color: #3c3836;
+}
