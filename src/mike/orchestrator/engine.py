@@ -617,6 +617,67 @@ class AgentOrchestrator:
 
         return execution
 
+    def run(self, query: str, session_id: str = "default", shared_context=None):
+        """Full pipeline: classify intent -> plan DAG -> execute."""
+        from .dag_executor import DAGResult
+
+        # Step 1: Classify intent
+        if hasattr(self, "intent_classifier") and self.intent_classifier:
+            intent = self.intent_classifier.classify(query)
+        else:
+            from .planner import IntentResult, Complexity
+            agent_type = self.router.route(query)
+            intent = IntentResult(
+                intent=agent_type.value if agent_type else "general_qa",
+                complexity=Complexity.SIMPLE, confidence=0.5, parameters={},
+            )
+
+        # Step 2: Plan
+        if hasattr(self, "strategy_router") and self.strategy_router:
+            plan = self.strategy_router.plan(intent)
+        else:
+            from .planner import PlanNode, ExecutionPlan
+            plan = ExecutionPlan(
+                nodes=[PlanNode(id="main", agent_type=intent.intent,
+                               description=query, depends_on=[], parameters={})],
+                reasoning="Legacy fallback", planner_type="legacy",
+            )
+
+        self.log_action("plan_created", {
+            "query": query, "intent": intent.intent,
+            "complexity": intent.complexity.value if hasattr(intent.complexity, 'value') else str(intent.complexity),
+            "planner_type": plan.planner_type,
+            "node_count": len(plan.nodes), "reasoning": plan.reasoning,
+        })
+
+        # Step 3: Execute DAG
+        if hasattr(self, "dag_executor") and self.dag_executor:
+            result = self.dag_executor.execute_sync(plan, session_id, shared_context)
+        else:
+            from .dag_executor import DAGResult, NodeResult
+            node = plan.nodes[0] if plan.nodes else None
+            if node:
+                from .state import AgentType
+                execution = self.execute(query, agent_type=AgentType(node.agent_type))
+                result = DAGResult(
+                    plan=plan,
+                    node_results={"main": NodeResult(
+                        node_id="main", agent_type=node.agent_type,
+                        status="success" if execution.status.name == "SUCCESS" else "failed",
+                        result=execution.result, error=execution.error, duration_ms=0,
+                    )},
+                    status="success" if execution.status.name == "SUCCESS" else "failed",
+                )
+            else:
+                result = DAGResult(plan=plan, status="failed")
+
+        self.log_action("pipeline_completed", {
+            "status": result.status,
+            "node_count": len(result.node_results),
+            "total_duration_ms": result.total_duration_ms,
+        })
+        return result
+
     def execute_batch(
         self,
         tasks: List[Dict[str, Any]],
