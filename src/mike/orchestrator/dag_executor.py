@@ -34,6 +34,7 @@ class DAGResult:
     node_results: Dict[str, NodeResult] = field(default_factory=dict)
     total_duration_ms: int = 0
     status: str = "pending"
+    trace: Optional[Any] = None
 
 
 def _evaluate_condition(condition: Optional[str], predecessor_results: Dict[str, NodeResult]) -> bool:
@@ -73,9 +74,11 @@ class DAGExecutor:
         plan: ExecutionPlan,
         session_id: str,
         shared_context: Optional[Dict[str, Any]] = None,
+        trace: Optional[Any] = None,
     ) -> DAGResult:
         start_time = time.monotonic()
         dag_result = DAGResult(plan=plan)
+        dag_result.trace = trace
         node_map = {n.id: n for n in plan.nodes}
 
         # Build in-degree map and successors map
@@ -103,6 +106,15 @@ class DAGExecutor:
                         error="Predecessor failed",
                     )
                     failed_nodes.add(nid)
+                    if trace is not None:
+                        from .trace import NodeTrace
+                        trace.nodes.append(NodeTrace(
+                            node_id=nid, agent_type=node.agent_type,
+                            input_query=node.description, context_snapshot={},
+                            model_used="", output=None, error="Predecessor failed",
+                            status="cancelled", start_time=0, end_time=0,
+                            duration_ms=0, token_estimate=0,
+                        ))
                     continue
 
                 # Check condition
@@ -117,9 +129,18 @@ class DAGExecutor:
                         agent_type=node.agent_type,
                         status="skipped",
                     )
+                    if trace is not None:
+                        from .trace import NodeTrace
+                        trace.nodes.append(NodeTrace(
+                            node_id=nid, agent_type=node.agent_type,
+                            input_query=node.description, context_snapshot={},
+                            model_used="", output=None, error=None,
+                            status="skipped", start_time=0, end_time=0,
+                            duration_ms=0, token_estimate=0,
+                        ))
                     continue
 
-                tasks.append(self._execute_node(node, session_id, dag_result, shared_context))
+                tasks.append(self._execute_node(node, session_id, dag_result, shared_context, trace))
 
             if tasks:
                 await asyncio.gather(*tasks)
@@ -156,6 +177,7 @@ class DAGExecutor:
         session_id: str,
         dag_result: DAGResult,
         shared_context: Optional[Dict[str, Any]] = None,
+        trace: Optional[Any] = None,
     ) -> None:
         start = time.monotonic()
 
@@ -179,6 +201,8 @@ class DAGExecutor:
                 shared_context=pred_shared,
             )
 
+            context_snapshot = context_bundle.to_dict() if trace is not None else {}
+
             agent_context = context_bundle.to_dict()
             agent_context.update(node.parameters)
             result = agent.execute(node.description, agent_context)
@@ -192,6 +216,18 @@ class DAGExecutor:
                 duration_ms=duration,
             )
 
+            if trace is not None:
+                from .trace import NodeTrace
+                model_used = getattr(agent, 'model_name', lambda: "unknown")() if callable(getattr(agent, 'model_name', None)) else "unknown"
+                end = time.monotonic()
+                trace.nodes.append(NodeTrace(
+                    node_id=node.id, agent_type=node.agent_type,
+                    input_query=node.description, context_snapshot=context_snapshot,
+                    model_used=model_used, output=result, error=None,
+                    status="success", start_time=start, end_time=end,
+                    duration_ms=duration, token_estimate=0,
+                ))
+
         except Exception as e:
             duration = int((time.monotonic() - start) * 1000)
             logger.error(f"Node {node.id} failed: {e}")
@@ -203,11 +239,23 @@ class DAGExecutor:
                 duration_ms=duration,
             )
 
+            if trace is not None:
+                from .trace import NodeTrace
+                end = time.monotonic()
+                trace.nodes.append(NodeTrace(
+                    node_id=node.id, agent_type=node.agent_type,
+                    input_query=node.description, context_snapshot={},
+                    model_used="unknown", output=None, error=str(e),
+                    status="failed", start_time=start, end_time=end,
+                    duration_ms=duration, token_estimate=0,
+                ))
+
     def execute_sync(
         self,
         plan: ExecutionPlan,
         session_id: str,
         shared_context: Optional[Dict[str, Any]] = None,
+        trace: Optional[Any] = None,
     ) -> DAGResult:
         """Synchronous wrapper for execute().
 
@@ -225,8 +273,8 @@ class DAGExecutor:
             with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
                 future = pool.submit(
                     asyncio.run,
-                    self.execute(plan, session_id, shared_context),
+                    self.execute(plan, session_id, shared_context, trace),
                 )
                 return future.result()
         else:
-            return asyncio.run(self.execute(plan, session_id, shared_context))
+            return asyncio.run(self.execute(plan, session_id, shared_context, trace))
