@@ -618,8 +618,14 @@ class AgentOrchestrator:
         return execution
 
     def run(self, query: str, session_id: str = "default", shared_context=None):
-        """Full pipeline: classify intent -> plan DAG -> execute."""
+        """Full pipeline: classify intent -> plan DAG -> execute.
+
+        Creates an ExecutionTrace capturing the full lifecycle.
+        """
+        import uuid
+        from datetime import datetime
         from .dag_executor import DAGResult
+        from .trace import ExecutionTrace, TraceWriter
 
         # Step 1: Classify intent
         if hasattr(self, "intent_classifier") and self.intent_classifier:
@@ -643,16 +649,39 @@ class AgentOrchestrator:
                 reasoning="Legacy fallback", planner_type="legacy",
             )
 
-        self.log_action("plan_created", {
-            "query": query, "intent": intent.intent,
+        # Create trace
+        intent_dict = {
+            "intent": intent.intent,
             "complexity": intent.complexity.value if hasattr(intent.complexity, 'value') else str(intent.complexity),
+            "confidence": intent.confidence,
+            "parameters": intent.parameters,
+        }
+        plan_dict = {
+            "reasoning": plan.reasoning,
+            "planner_type": plan.planner_type,
+            "node_count": len(plan.nodes),
+            "nodes": [{"id": n.id, "agent_type": n.agent_type, "depends_on": n.depends_on} for n in plan.nodes],
+        }
+        trace = ExecutionTrace(
+            trace_id=str(uuid.uuid4())[:8],
+            query=query,
+            intent=intent_dict,
+            plan=plan_dict,
+            nodes=[],
+            status="pending",
+            total_duration_ms=0,
+            timestamp=datetime.now().isoformat(),
+        )
+
+        self.log_action("plan_created", {
+            "query": query, "trace_id": trace.trace_id, **intent_dict,
             "planner_type": plan.planner_type,
             "node_count": len(plan.nodes), "reasoning": plan.reasoning,
         })
 
-        # Step 3: Execute DAG
+        # Step 3: Execute DAG with trace
         if hasattr(self, "dag_executor") and self.dag_executor:
-            result = self.dag_executor.execute_sync(plan, session_id, shared_context)
+            result = self.dag_executor.execute_sync(plan, session_id, shared_context, trace=trace)
         else:
             from .dag_executor import DAGResult, NodeResult
             node = plan.nodes[0] if plan.nodes else None
@@ -671,7 +700,22 @@ class AgentOrchestrator:
             else:
                 result = DAGResult(plan=plan, status="failed")
 
+        # Finalize trace
+        trace.status = result.status
+        trace.total_duration_ms = result.total_duration_ms
+
+        # Write trace to JSONL
+        try:
+            writer = TraceWriter(log_dir=self.log_dir / "traces")
+            writer.start_trace(trace)
+            for node_trace in trace.nodes:
+                writer.write_node(trace.trace_id, node_trace)
+            writer.complete_trace(trace)
+        except Exception as e:
+            logger.warning(f"Failed to write trace: {e}")
+
         self.log_action("pipeline_completed", {
+            "trace_id": trace.trace_id,
             "status": result.status,
             "node_count": len(result.node_results),
             "total_duration_ms": result.total_duration_ms,

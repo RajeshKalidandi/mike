@@ -19,6 +19,7 @@ from .planner import (
     IntentClassifier, StrategyRouter, RulePlanner, TemplatePlanner, LLMPlanner,
 )
 from .dag_executor import DAGExecutor, NodeResult, DAGResult
+from .trace import ExecutionTrace, NodeTrace, TraceWriter, format_trace
 
 __all__ = [
     "OrchestratorState", "AgentExecution", "SessionContext", "ExecutionMemory",
@@ -29,4 +30,5 @@ __all__ = [
     "Complexity", "IntentResult", "PlanNode", "ExecutionPlan",
     "IntentClassifier", "StrategyRouter", "RulePlanner", "TemplatePlanner", "LLMPlanner",
     "DAGExecutor", "NodeResult", "DAGResult",
+    "ExecutionTrace", "NodeTrace", "TraceWriter", "format_trace",
 ]
