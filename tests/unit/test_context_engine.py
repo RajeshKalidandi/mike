@@ -188,6 +188,34 @@ class TestContextEngine:
         assert bundle.token_budget == 8000
         assert bundle.estimated_tokens > 0
 
+    def test_trim_to_budget_drops_in_priority_order(
+        self, mock_embedding_service, mock_graph_builder, mock_execution_memory
+    ):
+        """Trimming priority: shared (lowest) -> structural -> execution -> semantic (highest, min 2)."""
+        # Create a vector store returning many large chunks to blow the budget
+        big_store = MagicMock()
+        big_store.search.return_value = [
+            {"id": f"c{i}", "content": "x" * 2000, "metadata": {"file_path": f"f{i}.py"}, "distance": 0.1}
+            for i in range(5)
+        ]
+
+        engine = ContextEngine(
+            vector_store=big_store,
+            embedding_service=mock_embedding_service,
+            graph_builder=mock_graph_builder,
+            execution_memory=mock_execution_memory,
+        )
+        bundle = engine.build(
+            query="test", agent_type="qa", session_id="s1",
+            token_budget=500,  # Very small budget forces trimming
+            shared_context={"extra": "data"},
+        )
+
+        # Shared context should be trimmed first
+        assert bundle.shared_context == {}
+        # Semantic chunks should never go below 2
+        assert len(bundle.semantic_chunks) >= 2
+
     def test_works_without_optional_dependencies(
         self, mock_vector_store, mock_embedding_service
     ):
