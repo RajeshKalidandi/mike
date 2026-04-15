@@ -11,7 +11,7 @@ import json
 import logging
 import re
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 import httpx
@@ -131,7 +131,7 @@ class OllamaProvider(ModelProvider):
 
     def capabilities(self) -> ModelCapabilities:
         return ModelCapabilities(
-            max_context=8192,
+            max_context=8192,  # TODO: fetch from Ollama /api/show for accurate context window
             supports_json_mode=False,
             supports_tool_calling=False,
             supports_streaming=True,
@@ -195,8 +195,8 @@ class OpenAICompatibleProvider(ModelProvider):
 
     def capabilities(self) -> ModelCapabilities:
         return ModelCapabilities(
-            max_context=8192,
-            supports_json_mode=True,
+            max_context=8192,  # TODO: fetch from Ollama /api/show for accurate context window
+            supports_json_mode=False,  # Not sent in request body; varies by server
             supports_tool_calling=False,
             supports_streaming=True,
             is_code_specialized=_is_code_model(self._model),
